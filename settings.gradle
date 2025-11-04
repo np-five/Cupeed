@@ -1,2 +1,6 @@
 rootProject.name = 'Cupeed'
-include 'com.sparta.cupeed.config', 'com.sparta.cupeed.eureka', 'com.sparta.cupeed.gateway'
+
+include 'config', 'eureka', 'gateway'
+project(':config').projectDir = file('com.sparta.cupeed.config')
+project(':eureka').projectDir = file('com.sparta.cupeed.eureka')
+project(':gateway').projectDir = file('com.sparta.cupeed.gateway')
