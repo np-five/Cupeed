@@ -1,0 +1,2 @@
+rootProject.name = 'Cupeed'
+include 'com.sparta.cupeed.config', 'com.sparta.cupeed.eureka', 'com.sparta.cupeed.gateway'
