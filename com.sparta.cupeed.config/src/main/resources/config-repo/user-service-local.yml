@@ -1,0 +1,4 @@
+server:
+  port: 19083
+
+message: "user-service-local message"
