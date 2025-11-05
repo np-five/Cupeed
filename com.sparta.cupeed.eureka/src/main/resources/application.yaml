@@ -3,14 +3,14 @@ spring:
     name: eureka
 
 server:
-  port: 19090
+  port: 8080
 
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      defaultZone: http://localhost:19090/eureka/
+      defaultZone: http://localhost:8080/eureka/
   instance:
     hostname: localhost
 
