@@ -2,6 +2,28 @@ spring:
   application:
     name: order
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cupeed_order_db
+    username: cupeed_order_user
+    password: cupeed_order_pass
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  cache:
+    type: redis
+
 server:
   port: 20060
 
