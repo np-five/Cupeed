@@ -55,27 +55,27 @@ public class Product {
 	private String description;
 
 	@Column(name = "unit_price") // 단가
-	private long unitPrice;
+	private Long unitPrice;
 
 	@Column(name = "quantity", nullable = false) // 재고 수량, NOT NULL
-	private long quantity;
+	private Long quantity;
 
 	@CreatedDate
 	@Column(updatable = false)
 	private LocalDateTime createdAt;
 
 	@CreatedBy
-	private Long createdBy;
+	private UUID createdBy;
 
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
 	@LastModifiedBy
-	private Long updatedBy;
+	private UUID updatedBy;
 
 	private LocalDateTime deletedAt;
 
-	private Long deletedBy;
+	private UUID deletedBy;
 
 	// **핵심: 생성 로직을 Entity 내부의 정적 팩토리 메서드로 캡슐화**
 	// (기존 코드 유지 및 도메인 검증 강화)

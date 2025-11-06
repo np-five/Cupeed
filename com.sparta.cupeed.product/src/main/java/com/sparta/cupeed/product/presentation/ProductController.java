@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.product.application.ProductService;
 import com.sparta.cupeed.product.application.command.ProductCreateCommand;
+import com.sparta.cupeed.product.application.dto.ProductResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,9 +24,8 @@ public class ProductController {
 
 	@PostMapping
 	// 반환 타입은 등록된 상품의 ID 또는 DTO가 될 수 있음
-	public ResponseEntity<UUID> createProduct(@RequestBody ProductCreateCommand command) {
+	public ResponseEntity<ProductResponseDto> createProduct(@RequestBody ProductCreateCommand command) {
 		// Controller는 요청을 Command로 받아 Application Service에 전달
-		UUID productId = productService.createProduct(command);
-		return ResponseEntity.status(HttpStatus.CREATED).body(productId);
+		return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(command));
 	}
 }

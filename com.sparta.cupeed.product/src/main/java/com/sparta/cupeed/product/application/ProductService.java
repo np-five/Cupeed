@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.cupeed.product.application.command.ProductCreateCommand;
+import com.sparta.cupeed.product.application.dto.ProductResponseDto;
 import com.sparta.cupeed.product.domain.entity.Product;
 import com.sparta.cupeed.product.domain.repository.ProductRepository;
 
@@ -18,7 +19,7 @@ public class ProductService {
 	private final ProductRepository productRepository; // Domain Repository 의존
 
 	@Transactional // Application Layer에서 트랜잭션 경계를 설정
-	public UUID createProduct(ProductCreateCommand command) {
+	public ProductResponseDto createProduct(ProductCreateCommand command) {
 
 		// 1. 도메인 객체 생성 (Domain Entity의 정적 팩토리 메서드 호출)
 		Product product = Product.create(
@@ -36,6 +37,6 @@ public class ProductService {
 		productRepository.save(product);
 
 		// 3. 결과 반환
-		return product.getId();
+		return ProductResponseDto.fromEntity(product);
 	}
 }
