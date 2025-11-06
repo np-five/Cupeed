@@ -12,6 +12,10 @@ spring:
                 - Path=/user/**
               filters:
                 - StripPrefix=1
+            - id: order
+              uri: http://localhost:20060/
+              predicates:
+                - Path=/orders/**
           discovery:
             locator:
               enabled: true
