@@ -1,0 +1,26 @@
+services:
+  postgresql:
+    container_name: postgresql-cupeed
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_DB: cupeed-product
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    networks:
+      - cupeed-net
+
+  redis:
+    container_name: redis-cupeed
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    command: ["redis-server"]
+    networks:
+      - cupeed-net
+
+networks:
+  cupeed-net:
+    driver: bridge
