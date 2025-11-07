@@ -1,7 +1,6 @@
 package com.sparta.cupeed.order.infrastructure.persistence.entity;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -40,8 +39,8 @@ public abstract class BaseEntity {
 	@Column(name = "deleted_by")
 	private String deletedBy;
 
-	public void markDeleted(Instant deletedAt, UUID userId) {
+	public void markDeleted(Instant deletedAt, String userId) {
 		this.deletedAt = deletedAt;
-		this.deletedBy = userId.toString();
+		this.deletedBy = userId;
 	}
 }

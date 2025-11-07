@@ -1,5 +1,10 @@
 package com.sparta.cupeed.order.infrastructure.persistence.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,5 +43,17 @@ public class OrderRepositoryImpl implements OrderRepository {
 		OrderEntity saved = orderJpaRepository.save(orderEntity);
 
 		return orderMapper.toDomain(saved);
+	}
+
+	@Override
+	public Optional<Order> findById(UUID orderId) {
+		return orderJpaRepository.findById(orderId)
+			.map(orderMapper::toDomain);
+	}
+
+	@Override
+	public Page<Order> findAllByDeletedAtIsNull(Pageable pageable) {
+		return orderJpaRepository.findAllByDeletedAtIsNull(pageable)
+			.map(orderMapper::toDomain);
 	}
 }

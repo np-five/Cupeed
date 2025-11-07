@@ -7,11 +7,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class OrderCreateResponseDtoV1 {
+public class OrderPostResponseDtoV1 {
 	private final OrderDto order;
 
-	public static OrderCreateResponseDtoV1 of(Order order) {
-		return OrderCreateResponseDtoV1.builder()
+	public static OrderPostResponseDtoV1 of(Order order) {
+		return OrderPostResponseDtoV1.builder()
 			.order(OrderDto.from(order))
 			.build();
 	}

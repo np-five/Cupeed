@@ -25,4 +25,21 @@ public class OrderItem {
 	private final String updatedBy;
 	private final Instant deletedAt;
 	private final String deletedBy;
+
+	OrderItemBuilder toBuilder() {
+		return OrderItem.builder()
+			.id(id)
+			.orderId(orderId)
+			.productId(productId)
+			.productName(productName)
+			.unitPrice(unitPrice)
+			.quantity(quantity)
+			.subtotal(subtotal)
+			.createdAt(createdAt)
+			.createdBy(createdBy)
+			.updatedAt(updatedAt)
+			.updatedBy(updatedBy)
+			.deletedAt(deletedAt)
+			.deletedBy(deletedBy);
+	}
 }

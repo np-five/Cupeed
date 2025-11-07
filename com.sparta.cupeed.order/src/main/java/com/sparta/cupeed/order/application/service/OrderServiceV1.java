@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +17,13 @@ import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
 import com.sparta.cupeed.order.presentation.advice.OrderException;
-import com.sparta.cupeed.order.presentation.dto.request.OrderCreateRequestDtoV1;
-import com.sparta.cupeed.order.presentation.dto.response.OrderCreateResponseDtoV1;
+import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
+import com.sparta.cupeed.order.presentation.dto.request.OrderStatusUpdateRequestDtoV1;
+import com.sparta.cupeed.order.presentation.dto.response.OrderPostResponseDtoV1;
+import com.sparta.cupeed.order.presentation.dto.response.OrderGetResponseDtoV1;
+import com.sparta.cupeed.order.presentation.dto.response.OrdersGetResponseDtoV1;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,12 +33,12 @@ public class OrderServiceV1 {
 	private final OrderRepository orderRepository;
 
 	@Transactional
-	public OrderCreateResponseDtoV1 createOrder(OrderCreateRequestDtoV1 requestDto) {
-		OrderCreateRequestDtoV1.OrderDto requestOrder = requestDto.getOrder();
+	public OrderPostResponseDtoV1 createOrder(OrderPostRequestDtoV1 requestDto) {
+		OrderPostRequestDtoV1.OrderDto requestOrder = requestDto.getOrder();
 
 		// 상품 중복 검사
 		if (requestOrder.getOrderItemList().stream()
-			.map(OrderCreateRequestDtoV1.OrderDto.OrderItemDto::getProductId)
+			.map(OrderPostRequestDtoV1.OrderDto.OrderItemDto::getProductId)
 			.collect(Collectors.toSet()).size() != requestOrder.getOrderItemList().size()) {
 			throw new OrderException(OrderError.ORDER_PRODUCT_DUPLICATED);
 		}
@@ -40,7 +46,7 @@ public class OrderServiceV1 {
 		List<OrderItem> orderItemList = new ArrayList<>();
 		BigDecimal totalPrice = BigDecimal.ZERO;
 
-		for (OrderCreateRequestDtoV1.OrderDto.OrderItemDto itemDto : requestOrder.getOrderItemList()) {
+		for (OrderPostRequestDtoV1.OrderDto.OrderItemDto itemDto : requestOrder.getOrderItemList()) {
 			UUID productId = itemDto.getProductId();
 			Long quantity = itemDto.getQuantity();
 
@@ -77,7 +83,7 @@ public class OrderServiceV1 {
 		// 임시 주문 번호 생성
 		String orderNumber = "ORD-" + Instant.now().toEpochMilli();
 
-		Order order = Order.builder()
+		Order created = Order.builder()
 			.orderNumber(orderNumber)
 			.supplyCompanyId(dummySupplyCompanyId)
 			.recieveCompanyId(authRecieveCompanyId)
@@ -89,8 +95,54 @@ public class OrderServiceV1 {
 			.createdBy("system")
 			.build();
 
-		Order savedOrder = orderRepository.save(order); // Hibernate가 OrderEntity + OrderItemEntity를 한 번의 INSERT 트랜잭션으로 처리
-
-		return OrderCreateResponseDtoV1.of(savedOrder);
+		Order saved = orderRepository.save(created); // Hibernate가 OrderEntity + OrderItemEntity를 한 번의 INSERT 트랜잭션으로 처리
+		return OrderPostResponseDtoV1.of(saved);
 	}
+
+	public OrderGetResponseDtoV1 getOrder(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		return OrderGetResponseDtoV1.of(order);
+	}
+
+	@Transactional
+	public OrderPostResponseDtoV1 updateOrder(UUID orderId, @Valid OrderPostRequestDtoV1 requestDto) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		// 주문 상태가 REQUESTED일 때만 주문을 수정할 수 있다.
+		if (order.getStatus() != Order.Status.REQUESTED) {
+			throw new OrderException(OrderError.ORDER_FORBIDDEN);
+		}
+		Order updated = order.withUpdated(requestDto);
+		Order saved = orderRepository.save(updated);
+		return OrderPostResponseDtoV1.of(saved);
+	}
+
+	@Transactional
+	public OrderPostResponseDtoV1 updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDtoV1 requestDto) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		Order updated = order.updateStatus(requestDto.getStatus());
+		Order saved = orderRepository.save(updated);
+		return OrderPostResponseDtoV1.of(saved);
+	}
+
+	public void deleteOrder(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		if (order.getDeletedAt() != null) {
+			throw new OrderException(OrderError.ORDER_ALREADY_DELETED);
+		}
+		// 임시 userId
+		UUID userId = UUID.randomUUID();
+		Order deleted = order.markDeleted(userId);
+		orderRepository.save(deleted);
+	}
+
+	public OrdersGetResponseDtoV1 getOrders(Pageable pageable) {
+		// TODO : 검색할 때 쿼리 DSL 적용
+		Page<Order> orders = orderRepository.findAllByDeletedAtIsNull(pageable);
+		return OrdersGetResponseDtoV1.of(orders);
+	}
+
 }

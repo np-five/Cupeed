@@ -12,7 +12,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class OrderCreateRequestDtoV1 {
+public class OrderPostRequestDtoV1 {
 	@NotNull(message = "주문 정보를 입력해주세요.")
 	@Valid
 	private OrderDto order;

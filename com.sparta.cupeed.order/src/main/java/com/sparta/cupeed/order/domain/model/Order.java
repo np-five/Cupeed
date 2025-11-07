@@ -2,11 +2,13 @@ package com.sparta.cupeed.order.domain.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
+
+import jakarta.validation.Valid;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +36,79 @@ public class Order {
 
 	public List<OrderItem> getOrderItemList() {
 		return orderItemList == null ? List.of() : Collections.unmodifiableList(orderItemList);
+	}
+
+	// 불변 도메인 유지하면서 부분 변경 가능(update시)
+	OrderBuilder toBuilder() {
+		return Order.builder()
+			.id(id)
+			.orderNumber(orderNumber)
+			.orderItemList(orderItemList)
+			.supplyCompanyId(supplyCompanyId)
+			.recieveCompanyId(recieveCompanyId)
+			.startHubId(startHubId)
+			.totalPrice(totalPrice)
+			.status(status)
+			.deliveryDeadline(deliveryDeadline)
+			.aiDispatchDeadline(aiDispatchDeadline)
+			.createdAt(createdAt)
+			.createdBy(createdBy)
+			.updatedAt(updatedAt)
+			.updatedBy(updatedBy)
+			.deletedAt(deletedAt)
+			.deletedBy(deletedBy);
+	}
+
+	public Order withUpdated(@Valid OrderPostRequestDtoV1 requestDto) {
+		List<OrderItem> updatedItems = this.orderItemList.stream()
+			.map(existing -> {
+				var matchedDto = requestDto.getOrder().getOrderItemList().stream()
+					.filter(dto -> dto.getProductId().equals(existing.getProductId()))
+					.findFirst()
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품: " + existing.getProductId()));
+
+				return existing.toBuilder()
+					.quantity(matchedDto.getQuantity())
+					.subtotal(existing.getUnitPrice().multiply(BigDecimal.valueOf(matchedDto.getQuantity())))
+					.build();
+			})
+			.toList();
+
+		BigDecimal newTotalPrice = updatedItems.stream()
+			.map(OrderItem::getSubtotal)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		return toBuilder()
+			.orderItemList(updatedItems)
+			.totalPrice(newTotalPrice)
+			.build();
+	}
+
+	public Order updateStatus(Status status) {
+		return toBuilder()
+			.status(status)
+			.build();
+	}
+
+	public Order markDeleted(UUID userId) {
+		List<OrderItem> deletedItems = orderItemList.stream()
+			.map(item -> item.toBuilder()
+				.deletedAt(Instant.now())
+				.deletedBy(userId.toString())
+				.build())
+			.toList();
+
+		return toBuilder()
+			.deletedAt(Instant.now())
+			.deletedBy(userId.toString())
+			.orderItemList(deletedItems)
+			.build();
+	}
+
+	public Order markCancelled() {
+		return toBuilder()
+			.status(Status.CANCELED)
+			.build();
 	}
 
 	public enum Status {

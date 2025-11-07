@@ -112,6 +112,11 @@ public class OrderMapper {
 		entity.setRecieveCompanyId(order.getRecieveCompanyId());
 		entity.setStartHubId(order.getStartHubId());
 
+		// 삭제 정보 반영
+		if (order.getDeletedAt() != null && order.getDeletedBy() != null) {
+			entity.markDeleted(order.getDeletedAt(), order.getDeletedBy());
+		}
+
 		// 아이템 동기화
 		syncOrderItems(order, entity);
 	}
@@ -135,13 +140,20 @@ public class OrderMapper {
 			UUID itemId = orderItem.getId();
 
 			if (itemId != null && existingItems.containsKey(itemId)) {
-				// 기존 아이템(엔티티) 업데이트
 				OrderItemEntity existing = existingItems.get(itemId);
+
+				// 수량/가격 업데이트
 				existing.update(orderItem.getProductId(),
 					orderItem.getProductName(),
 					orderItem.getQuantity(),
 					orderItem.getUnitPrice(),
 					orderItem.getSubtotal());
+
+				// 삭제 정보 반영
+				if (orderItem.getDeletedAt() != null && orderItem.getDeletedBy() != null) {
+					existing.markDeleted(orderItem.getDeletedAt(), orderItem.getDeletedBy());
+				}
+
 				desiredIds.add(itemId);
 			} else {
 				// 새 아이템(엔티티) 생성
