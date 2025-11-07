@@ -21,6 +21,17 @@ services:
     networks:
       - cupeed-net
 
+  zipkin:
+    container_name: zipkin-cupeed
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"              # Zipkin UI 접근용 포트
+    environment:
+      - STORAGE_TYPE=mem         # (기본값: 메모리, DB연동도 가능)
+    networks:
+      - cupeed-net
+
 networks:
   cupeed-net:
+    name: cupeed
     driver: bridge
