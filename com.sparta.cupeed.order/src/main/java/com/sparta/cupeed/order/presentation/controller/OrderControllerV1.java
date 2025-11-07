@@ -67,8 +67,18 @@ public class OrderControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
+	@PostMapping("/{orderId}/cancel")
+	public ResponseEntity<Void> cancelOrder(
+		@PathVariable UUID orderId
+	) {
+		orderServiceV1.cancelOrder(orderId);
+		return ResponseEntity.noContent().build();
+	}
+
 	@DeleteMapping("/{orderId}")
-	public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderId) {
+	public ResponseEntity<Void> deleteOrder(
+		@PathVariable UUID orderId
+	) {
 		orderServiceV1.deleteOrder(orderId);
 		return ResponseEntity.noContent().build();
 	}
@@ -78,9 +88,4 @@ public class OrderControllerV1 {
 		OrdersGetResponseDtoV1 response = orderServiceV1.getOrders(pageable);
 		return ResponseEntity.ok(response);
 	}
-
-	// @PostMapping("/{orderId}")
-	// public ResponseEntity<> processOrder() {
-	//
-	// }
 }

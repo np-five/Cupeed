@@ -96,6 +96,15 @@ public class OrderServiceV1 {
 			.build();
 
 		Order saved = orderRepository.save(created); // Hibernate가 OrderEntity + OrderItemEntity를 한 번의 INSERT 트랜잭션으로 처리
+
+		// TODO : 주문 아이템 재고 차감 - ProductClient 호출
+		// for (OrderItem item : saved.getOrderItemList()) {
+		// 	productClient.decreaseStock(item.getProductId(), item.getQuantity());
+		// }
+
+		// TODO : 배송 생성
+		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
+
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
@@ -109,7 +118,7 @@ public class OrderServiceV1 {
 	public OrderPostResponseDtoV1 updateOrder(UUID orderId, @Valid OrderPostRequestDtoV1 requestDto) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
-		// 주문 상태가 REQUESTED일 때만 주문을 수정할 수 있다.
+		// 주문 상태가 REQUESTED일 때만 주문 수정 가능
 		if (order.getStatus() != Order.Status.REQUESTED) {
 			throw new OrderException(OrderError.ORDER_FORBIDDEN);
 		}
@@ -127,9 +136,35 @@ public class OrderServiceV1 {
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
+	@Transactional
+	public void cancelOrder(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		if (order.getStatus() == Order.Status.CANCELED) {
+			throw new OrderException(OrderError.ORDER_ALREADY_CANCELED);
+		}
+		if (order.getStatus() != Order.Status.CANCEL_REQUESTED) {
+			throw new OrderException(OrderError.ORDER_CANCEL_NOT_REQUESTED);
+		}
+
+		// TODO : 주문 아이템 재고 복구 -> ProductClient 호출
+		// for (OrderItem item : order.getOrderItemList()) {
+		// 	productClient.restoreStock(item.getProductId(), item.getQuantity());
+		// }
+
+		// 임시 userId
+		UUID userId = UUID.randomUUID();
+		Order canceled = order.markCancelled(userId);
+		orderRepository.save(canceled);
+	}
+
 	public void deleteOrder(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		// 주문 상태가 DELIVERED일 때만 주문 내역 삭제 가능
+		if (order.getStatus() != Order.Status.DELIVERED) {
+			throw new OrderException(OrderError.ORDER_FORBIDDEN);
+		}
 		if (order.getDeletedAt() != null) {
 			throw new OrderException(OrderError.ORDER_ALREADY_DELETED);
 		}
@@ -144,5 +179,4 @@ public class OrderServiceV1 {
 		Page<Order> orders = orderRepository.findAllByDeletedAtIsNull(pageable);
 		return OrdersGetResponseDtoV1.of(orders);
 	}
-
 }

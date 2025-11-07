@@ -18,7 +18,8 @@ public enum OrderError {
 	ORDER_AMOUNT_OVERFLOW(HttpStatus.BAD_REQUEST, "주문 금액 계산에 실패했습니다."),
 	ORDER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 주문 요청입니다."),
 	ORDER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 주문입니다."),
-	ORDER_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "이미 취소된 주문입니다."),
+	ORDER_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 주문입니다."),
+	ORDER_CANCEL_NOT_REQUESTED(HttpStatus.BAD_REQUEST, "취소 요청된 주문이 아닙니다."),
 	ORDER_ALREADY_PAID(HttpStatus.BAD_REQUEST, "이미 결제가 완료된 주문입니다."),
 	ORDER_PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 주문 금액과 일치하지 않습니다.");
 

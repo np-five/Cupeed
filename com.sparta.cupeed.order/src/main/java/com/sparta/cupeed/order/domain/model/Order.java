@@ -105,7 +105,7 @@ public class Order {
 			.build();
 	}
 
-	public Order markCancelled() {
+	public Order markCancelled(UUID userId) {
 		return toBuilder()
 			.status(Status.CANCELED)
 			.build();
