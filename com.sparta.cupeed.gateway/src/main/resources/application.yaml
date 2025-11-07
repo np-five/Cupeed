@@ -14,7 +14,7 @@ spring:
             - id: product  # 라우트 식별자
               uri: lb://product  # 'product'라는 이름으로 로드 밸런싱된 서비스로 라우팅
               predicates:
-                - Path=/v1/products/**  # /product/** 경로로 들어오는 요청을 이 라우트로 처리
+                - Path=/v1/products/**  # /v1/product/** 경로로 들어오는 요청을 이 라우트로 처리
               filters:
                 - StripPrefix=0
           discovery:
