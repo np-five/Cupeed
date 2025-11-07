@@ -1,4 +1,4 @@
-package com.sparta.cupeed.order.infrastructure.resttemplate.product.dto.response;
+package com.sparta.cupeed.order.infrastructure.product.dto.response;
 
 import java.math.BigDecimal;
 

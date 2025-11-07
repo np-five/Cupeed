@@ -1,4 +1,4 @@
-package com.sparta.cupeed.order.infrastructure.resttemplate.product.dto.request;
+package com.sparta.cupeed.order.infrastructure.product.dto.request;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.sparta.cupeed.order.infrastructure.resttemplate.product.client;
+package com.sparta.cupeed.order.infrastructure.product.client;
 
 import org.springframework.stereotype.Component;
 
@@ -6,5 +6,5 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ProductRestTemplateClientV1 {
+public class ProductClientV1 {
 }
