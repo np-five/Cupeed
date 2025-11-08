@@ -12,6 +12,10 @@ spring:
                 - Path=/user/**
               filters:
                 - StripPrefix=1
+            - id: ai
+              uri: http://localhost:20010/
+              predicates:
+                - Path=/v1/ai-requests/**
           discovery:
             locator:
               enabled: true
