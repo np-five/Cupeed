@@ -61,7 +61,7 @@ public class Order {
 			.deletedBy(deletedBy);
 	}
 
-	public Order withUpdated(@Valid OrderPostRequestDtoV1 requestDto) {
+	public Order withUpdated(OrderPostRequestDtoV1 requestDto) {
 		List<OrderItem> updatedItems = this.orderItemList.stream()
 			.map(existing -> {
 				var matchedDto = requestDto.getOrder().getOrderItemList().stream()

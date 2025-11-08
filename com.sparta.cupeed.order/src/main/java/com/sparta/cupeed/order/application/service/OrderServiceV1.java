@@ -137,7 +137,7 @@ public class OrderServiceV1 {
 	}
 
 	@Transactional
-	public OrderPostResponseDtoV1 updateOrder(UUID orderId, @Valid OrderPostRequestDtoV1 requestDto) {
+	public OrderPostResponseDtoV1 updateOrder(UUID orderId, OrderPostRequestDtoV1 requestDto) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
 		// 주문 상태가 REQUESTED일 때만 주문 수정 가능
