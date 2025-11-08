@@ -3,19 +3,24 @@ spring:
     name: gateway
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            - id: user
-              uri: http://localhost:19092/
-              predicates:
-                - Path=/user/**
-              filters:
-                - StripPrefix=1
-          discovery:
-            locator:
-              enabled: true
-
+      routes:
+        - id: user
+          uri: http://localhost:19092/
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+        - id: order
+          uri: http://localhost:20060/
+          predicates:
+            - Path=/v1/orders/**
+        - id: slack
+          uri: http://localhost:20090/
+          predicates:
+            - Path=/v1/slacks/**
+      discovery:
+        locator:
+          enabled: true  # Eureka에 등록된 다른 서비스도 자동 라우팅
 server:
   port: 19091
 
