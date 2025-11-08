@@ -17,6 +17,8 @@ import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
 import com.sparta.cupeed.order.infrastructure.delivery.client.DeliveryClientV1;
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
+import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
+import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
 import com.sparta.cupeed.order.presentation.advice.OrderException;
 import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
@@ -33,8 +35,9 @@ import lombok.RequiredArgsConstructor;
 public class OrderServiceV1 {
 
 	private final OrderRepository orderRepository;
-	private final ProductClientV1 productClient;
-	private final DeliveryClientV1 deliveryClient;
+	// private final ProductClientV1 productClient;
+	// private final DeliveryClientV1 deliveryClient;
+	// private final SlackClientV1 slackClient;
 
 	@Transactional
 	public OrderPostResponseDtoV1 createOrder(OrderPostRequestDtoV1 requestDto) {
@@ -102,12 +105,21 @@ public class OrderServiceV1 {
 		Order saved = orderRepository.save(created); // Hibernate가 OrderEntity + OrderItemEntity를 한 번의 INSERT 트랜잭션으로 처리
 
 		// TODO : 주문 아이템 재고 차감 - ProductClient 호출
-		for (OrderItem item : saved.getOrderItemList()) {
-			productClient.decreaseStock(item.getProductId(), item.getQuantity());
-		}
+		// for (OrderItem item : saved.getOrderItemList()) {
+		// 	productClient.decreaseStock(item.getProductId(), item.getQuantity());
+		// }
 
 		// TODO : 배송 생성
-		deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
+		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
+
+		// TODO : 주문 알림 - 수령업체
+		// SlackMessageCreateRequestDtoV1 slackRequestDto = SlackMessageCreateRequestDtoV1.builder()
+		// 	.orderNumber(saved.getOrderNumber())
+		// 	.recieveCompanyId(saved.getRecieveCompanyId()) // 인증 토큰에서 가져와야함
+		// 	.totalPrice(saved.getTotalPrice())
+		// 	.build();
+		//
+		// slackClient.sendMessage(slackRequestDto);
 
 		return OrderPostResponseDtoV1.of(saved);
 	}
@@ -152,9 +164,9 @@ public class OrderServiceV1 {
 		}
 
 		// TODO : 주문 아이템 재고 복구 -> ProductClient 호출
-		for (OrderItem item : order.getOrderItemList()) {
-			productClient.restoreStock(item.getProductId(), item.getQuantity());
-		}
+		// for (OrderItem item : order.getOrderItemList()) {
+		// 	productClient.restoreStock(item.getProductId(), item.getQuantity());
+		// }
 
 		// 임시 userId
 		UUID userId = UUID.randomUUID();
