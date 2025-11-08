@@ -9,7 +9,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ProductStockReleaseRequestDtoV1 {
-
 	private final OrderDto order;
 	private final List<ProductStockDto> productStocks;
 
