@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user
+              uri: lb://user
+              predicates:
+                - Path=/v1/user/**, /v1/auth/**
+              filters:
+                - StripPrefix=0
+          discovery:
+            locator:
+              enabled: true
+
+server:
+  port: 19091
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/

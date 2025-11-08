@@ -1,0 +1,15 @@
+rootProject.name = 'Cupeed'
+
+include 'config', 'eureka', 'gateway','user', 'order', 'product', 'company', 'hub', 'hubroute', 'delivery', 'ai', 'slack'
+project(':config').projectDir = file('com.sparta.cupeed.config')
+project(':eureka').projectDir = file('com.sparta.cupeed.eureka')
+project(':gateway').projectDir = file('com.sparta.cupeed.gateway')
+project(':user').projectDir = file('com.sparta.cupeed.user')
+project(':order').projectDir = file('com.sparta.cupeed.order')
+project(':product').projectDir = file('com.sparta.cupeed.product')
+project(':company').projectDir = file('com.sparta.cupeed.company')
+project(':hub').projectDir = file('com.sparta.cupeed.hub')
+project(':hubroute').projectDir = file('com.sparta.cupeed.hubroute')
+project(':delivery').projectDir = file('com.sparta.cupeed.delivery')
+project(':ai').projectDir = file('com.sparta.cupeed.ai')
+project(':slack').projectDir = file('com.sparta.cupeed.slack')
