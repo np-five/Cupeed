@@ -38,7 +38,7 @@ public class SlackEntity extends BaseEntity {
 	private UUID id;
 
 	@Column(name = "recipient_slack_id", length = 50, nullable = false)
-	private String recipientSlackId;
+	private String recipientSlackId; // UUID로 변경해야 함
 
 	@Column(name = "message", columnDefinition = "TEXT", nullable = false)
 	private String message;

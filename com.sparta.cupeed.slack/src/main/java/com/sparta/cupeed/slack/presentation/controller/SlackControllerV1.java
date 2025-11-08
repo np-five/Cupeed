@@ -1,6 +1,12 @@
 package com.sparta.cupeed.slack.presentation.controller;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.cupeed.slack.application.service.SlackServiceV1;
 import com.sparta.cupeed.slack.infrastructure.resttemplate.slackapi.dto.SlackSendRequestDtoV1;
 import com.sparta.cupeed.slack.presentation.dto.response.SlackCreateResponseDtoV1;
+import com.sparta.cupeed.slack.presentation.dto.response.SlackGetResponseDtoV1;
+import com.sparta.cupeed.slack.presentation.dto.response.SlacksGetResponseDtoV1;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,20 +36,20 @@ public class SlackControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
-	// @GetMapping("/{slackMessageId}")
-	// public ResponseEntity<SlackGetResponseDtoV1> getSlackMessage(
-	// 	@Valid @PathVariable("slackMessageId") String slackMessageId
-	// ) {
-	// 	SlackGetResponseDtoV1 response = slackServiceV1.getSlackMessage(slackMessageId);
-	// 	return ResponseEntity.ok(response);
-	// }
-	//
-	// @GetMapping
-	// public ResponseEntity<SlacksGetResponseDtoV1> getSlackMessages(
-	// 	@PageableDefault Pageable pageable
-	// ) {
-	// 	SlacksGetResponseDtoV1 response = slackServiceV1.getSlackMessages(pageable);
-	// 	return ResponseEntity.ok(response);
-	// }
+	@GetMapping("/{slackMessageId}")
+	public ResponseEntity<SlackGetResponseDtoV1> getSlackMessage(
+		@Valid @PathVariable("slackMessageId") UUID slackMessageId
+	) {
+		SlackGetResponseDtoV1 response = slackServiceV1.getSlackMessage(slackMessageId);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping
+	public ResponseEntity<SlacksGetResponseDtoV1> getSlackMessages(
+		@PageableDefault(size = 5) Pageable pageable
+	) {
+		SlacksGetResponseDtoV1 response = slackServiceV1.getSlackMessages(pageable);
+		return ResponseEntity.ok(response);
+	}
 
 }
