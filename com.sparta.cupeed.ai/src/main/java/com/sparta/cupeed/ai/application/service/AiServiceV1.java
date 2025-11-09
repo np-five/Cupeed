@@ -13,6 +13,7 @@ import com.sparta.cupeed.ai.domain.repository.AiRepository;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.client.GeminiAPIClientV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSendRequestDtoV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
+import com.sparta.cupeed.ai.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoriesGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoryGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiTextCreateResponseDtoV1;
@@ -26,6 +27,7 @@ public class AiServiceV1 {
 	private final PromptBuilder promptBuilder;
 	private final GeminiAPIClientV1 geminiAPIClient;
 	private final AiRepository aiRepository;
+	private final SlackClientV1 slackClient;
 
 	@Transactional
 	public AiTextCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
@@ -58,6 +60,12 @@ public class AiServiceV1 {
 			.build();
 
 		Ai saved = aiRepository.save(created);
+
+		// 임시 발송 담당자 ID
+		UUID recipientId = UUID.randomUUID();
+
+		// TODO : 슬랙에 aiText 전달
+		slackClient.dmToDliveryManager(aiResponseText, recipientId);
 
 		return AiTextCreateResponseDtoV1.of(saved);
 	}
