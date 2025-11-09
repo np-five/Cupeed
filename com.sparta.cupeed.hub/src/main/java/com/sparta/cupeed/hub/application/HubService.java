@@ -73,11 +73,8 @@ public class HubService {
 			command.getLongitude() != null ? command.getLongitude() : hub.getLongitude()
 		);
 
-		// 3. Repository를 사용하여 변경된 상태를 DB에 저장
-		Hub updatedHub = hubRepository.save(hub);
-
-		// 4. Response DTO로 변환하여 반환
-		return HubResponseDto.mapToResponse(updatedHub);
+		// 3. Response DTO로 변환하여 반환
+		return HubResponseDto.mapToResponse(hub);
 	}
 
 	// 5. 허브 삭제 (DELETE /v1/hubs/{hubId})

@@ -10,16 +10,15 @@ import com.sparta.cupeed.hub.domain.Hub;
 import com.sparta.cupeed.hub.domain.HubRepository;
 import com.sparta.cupeed.hub.infrastructure.jpa.HubJpaRepository;
 
+import lombok.RequiredArgsConstructor;
+
 // Domain Layer의 HubRepository 인터페이스를 구현합니다.
 // 내부적으로 JPA 기술을 사용하여 DB에 접근합니다.
 @Repository
+@RequiredArgsConstructor
 public class HubRepositoryImpl implements HubRepository {
 
 	private final HubJpaRepository jpaRepository;
-
-	public HubRepositoryImpl(HubJpaRepository jpaRepository) {
-		this.jpaRepository = jpaRepository;
-	}
 
 	@Override
 	public Optional<Hub> findById(UUID id) {
