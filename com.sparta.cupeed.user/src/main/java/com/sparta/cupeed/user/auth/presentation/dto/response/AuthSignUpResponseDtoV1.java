@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth;
+package com.sparta.cupeed.user.auth.presentation.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthSignUpResponseDto {
+public class AuthSignUpResponseDtoV1 {
 	private String token;
 }
