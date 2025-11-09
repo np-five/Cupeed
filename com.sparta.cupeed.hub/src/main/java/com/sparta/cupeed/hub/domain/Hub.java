@@ -2,6 +2,8 @@ package com.sparta.cupeed.hub.domain;
 
 import java.util.UUID;
 
+import com.sparta.cupeed.hub.common.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,15 +14,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 // 애그리거트 루트 (Aggregate Root)로 지정되어 외부 접근은 이 엔티티를 통해서만 이루어집니다.
 @Entity
 @Table(name = "p_hub")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Hub {
+public class Hub extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

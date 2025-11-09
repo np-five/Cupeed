@@ -65,7 +65,7 @@ public class HubService {
 		Hub hub = hubRepository.findById(hubId)
 			.orElseThrow(() -> new IllegalArgumentException("Hub not found with ID: " + hubId));
 
-		// 2. Domain 객체의 비즈니스 메서드 호출 (상태 변경 로직을 도메인에 위임)
+		// 2. Domain 객체의 비즈니스 메서드 호출
 		hub.updateInfo(
 			command.getName() != null ? command.getName() : hub.getName(),
 			command.getAddress() != null ? command.getAddress() : hub.getAddress(),
@@ -83,6 +83,7 @@ public class HubService {
 		Hub hub = hubRepository.findById(hubId)
 			.orElseThrow(() -> new IllegalArgumentException("Hub not found with ID: " + hubId));
 
-		hubRepository.delete(hub);
+		// 소프트 딜리트
+		hub.softDelete("system");
 	}
 }
