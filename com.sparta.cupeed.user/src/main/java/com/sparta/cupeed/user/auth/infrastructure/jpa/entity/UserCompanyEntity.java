@@ -42,9 +42,4 @@ public class UserCompanyEntity extends BaseEntity {
 	public void setUser(UserEntity userEntity) {
 		this.user = userEntity;
 	}
-
-	@Override
-	public String toString() {
-		return "UserCompanyEntity{ id=" + id + ", companyName='" + companyName + "', businessNo='" + businessNo + "'}";
-	}
 }
