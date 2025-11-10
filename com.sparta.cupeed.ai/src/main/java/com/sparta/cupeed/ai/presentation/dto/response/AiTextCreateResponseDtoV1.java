@@ -7,11 +7,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class AiCreateResponseDtoV1 {
+public class AiTextCreateResponseDtoV1 {
 	private final AiDto ai;
 
-	public static AiCreateResponseDtoV1 of(Ai ai) {
-		return AiCreateResponseDtoV1.builder()
+	public static AiTextCreateResponseDtoV1 of(Ai ai) {
+		return AiTextCreateResponseDtoV1.builder()
 			.ai(AiDto.from(ai))
 			.build();
 	}

@@ -1,7 +1,10 @@
 package com.sparta.cupeed.ai.application.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +13,10 @@ import com.sparta.cupeed.ai.domain.repository.AiRepository;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.client.GeminiAPIClientV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSendRequestDtoV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
-import com.sparta.cupeed.ai.presentation.dto.response.AiCreateResponseDtoV1;
+import com.sparta.cupeed.ai.infrastructure.slack.client.SlackClientV1;
+import com.sparta.cupeed.ai.presentation.dto.response.AiHistoriesGetResponseDtoV1;
+import com.sparta.cupeed.ai.presentation.dto.response.AiHistoryGetResponseDtoV1;
+import com.sparta.cupeed.ai.presentation.dto.response.AiTextCreateResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,9 +27,10 @@ public class AiServiceV1 {
 	private final PromptBuilder promptBuilder;
 	private final GeminiAPIClientV1 geminiAPIClient;
 	private final AiRepository aiRepository;
+	private final SlackClientV1 slackClient;
 
 	@Transactional
-	public AiCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
+	public AiTextCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
 		String prompt = promptBuilder.generateAiTextPrompt(requestDto);
 
 		Ai.Status status;
@@ -54,6 +61,23 @@ public class AiServiceV1 {
 
 		Ai saved = aiRepository.save(created);
 
-		return AiCreateResponseDtoV1.of(saved);
+		// 임시 발송 담당자 ID
+		UUID recipientId = UUID.randomUUID();
+
+		// TODO : 슬랙에 aiText 전달
+		slackClient.dmToDliveryManager(aiResponseText, recipientId);
+
+		return AiTextCreateResponseDtoV1.of(saved);
+	}
+
+	public AiHistoryGetResponseDtoV1 getAiHistory(UUID aiRequestId) {
+		Ai aiHistory = aiRepository.findById(aiRequestId)
+				.orElseThrow(() -> new IllegalArgumentException("AI 요청 내역을 찾을 수 없습니다."));
+		return AiHistoryGetResponseDtoV1.of(aiHistory);
+	}
+
+	public AiHistoriesGetResponseDtoV1 getAiHistories(Pageable pageable) {
+		Page<Ai> aiHistories = aiRepository.findAll(pageable);
+		return AiHistoriesGetResponseDtoV1.of(aiHistories);
 	}
 }
