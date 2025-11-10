@@ -40,6 +40,8 @@ dependencies {
 //	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
 	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.2.7.Final:osx-aarch_64'
+
+//	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui'
 }
 
 dependencyManagement {

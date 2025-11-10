@@ -1,29 +1,61 @@
-server:
-  port: 19091  # 게이트웨이 서비스가 실행될 포트 번호
-
 spring:
-  main:
-    web-application-type: reactive  # Spring 애플리케이션이 리액티브 웹 애플리케이션으로 설정됨
   application:
-    name: gateway  # 애플리케이션 이름을 'gateway'로 설정
+    name: gateway
   cloud:
     gateway:
       server:
         webflux:
-          routes:  # Spring Cloud Gateway의 라우팅 설정
-            - id: product  # 라우트 식별자
-              uri: lb://product  # 'product'라는 이름으로 로드 밸런싱된 서비스로 라우팅
+          routes:
+            # 20010
+            - id: ai
+              uri: lb://ai
               predicates:
-                - Path=/v1/products/**  # /v1/product/** 경로로 들어오는 요청을 이 라우트로 처리
+                - Path=/v1/ai-requests/**
+            # 20020
+            - id: companies
+              uri: lb://companies
+              predicates:
+                - Path=/v1/companies/**
+            # 20030
+            - id: delivery
+              uri: lb://delivery
+              predicates:
+                - Path=/v1/deliveries/**
+            # 20040
+            - id: hub
+              uri: lb://hub
+              predicates:
+                - Path=/v1/hubs/**
+            # 20050
+            - id: hubroute
+              uri: lb://hubroute
+              predicates:
+                - Path=/v1/hub-routes/**
+            # 20060
+            - id: order
+              uri: lb://order
+              predicates:
+                - Path=/v1/orders/**
+            # 20070
+            - id: product
+              uri: lb://product
+              predicates:
+                - Path=/v1/products/**
+            # 20080
+            - id: user
+              uri: http://localhost:19092/
+              predicates:
+                - Path=/user/**
               filters:
-                - StripPrefix=0
+                - StripPrefix=1
           discovery:
             locator:
-              enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
+              enabled: true
+
+server:
+  port: 19091
 
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8080/eureka/  # Eureka 서버의 URL을 지정
+      defaultZone: http://localhost:8080/eureka/

@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: cupeed_ai_postgres
+    restart: unless-stopped  # 수동 중지 시만 정지 유지
+    environment:
+      POSTGRES_USER: cupeed_ai_user
+      POSTGRES_PASSWORD: cupeed_ai_pass
+      POSTGRES_DB: cupeed_ai_db
+    ports:
+      - "5431:5432"
+    volumes:
+      - cupeed_ai_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed_ai_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cupeed_ai_pg_data:
