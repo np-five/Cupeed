@@ -87,12 +87,14 @@ public class SlackServiceV1 {
 		return SlackCreateResponseDtoV1.of(saved);
 	}
 
+	@Transactional(readOnly = true)
 	public SlackGetResponseDtoV1 getSlackMessage(UUID slackMessageId) {
 		Slack slack = slackRepository.findById(slackMessageId)
 			.orElseThrow(() -> new SlackException(SlackError.SLACK_MESSAGE_NOT_FOUND));
 		return SlackGetResponseDtoV1.of(slack);
 	}
 
+	@Transactional(readOnly = true)
 	public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable) {
 		// TODO : 검색할 때 쿼리 DSL 적용
 		Page<Slack> slacks = slackRepository.findAll(pageable);
