@@ -4,10 +4,11 @@ import lombok.Getter;
 
 @Getter
 public class OrderException extends RuntimeException {
-	// private final GlobalError error;
+
+	private final OrderError error;
 
 	public OrderException(OrderError error) {
 		super(error.getErrorMessage());
-		// this.error = error;
+		this.error = error;
 	}
 }
