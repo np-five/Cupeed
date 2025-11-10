@@ -7,7 +7,7 @@ import java.util.Date;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.RoleEnum;
+import com.sparta.cupeed.user.auth.domain.vo.UserRoleEnum;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -40,7 +40,7 @@ public class JwtUtil {
 	}
 
 	// JWT 토큰 생성
-	public String createToken(String userId, RoleEnum role) {
+	public String createToken(String userId, UserRoleEnum role) {
 		Date date = new Date();
 
 		return jwtProperties.getHeaderPrefix() + Jwts.builder()

@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthSignUpResponseDtoV1 {
+public class AuthLogInResponseDtoV1 {
+
+	private String tokenType;
 	private String token;
 }

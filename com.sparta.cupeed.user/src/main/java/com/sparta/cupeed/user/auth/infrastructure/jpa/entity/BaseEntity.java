@@ -11,6 +11,7 @@ import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
+// @MappedSuperclass
 @Getter
 @Setter
 public class BaseEntity {
