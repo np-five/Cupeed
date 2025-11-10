@@ -1,6 +1,6 @@
 rootProject.name = 'Cupeed'
 
-include 'config', 'eureka', 'gateway','user', 'order', 'product', 'company', 'hub', 'hubroute', 'delivery', 'ai', 'slack'
+include 'config', 'eureka', 'gateway', 'user', 'order', 'product', 'company', 'hub', 'hubroute', 'delivery', 'ai', 'slack'
 project(':config').projectDir = file('com.sparta.cupeed.config')
 project(':eureka').projectDir = file('com.sparta.cupeed.eureka')
 project(':gateway').projectDir = file('com.sparta.cupeed.gateway')

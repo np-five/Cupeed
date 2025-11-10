@@ -1,0 +1,24 @@
+server:
+  port: 20080
+
+spring:
+  application:
+    name: user
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:cupeed_user}
+    username: ${DB_USERNAME:cupeed_user}
+    password: ${DB_PASSWORD:cupeed_user}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
