@@ -46,7 +46,6 @@ public class UserRepositoryImpl implements UserRepository {
 
 		userEntity.attachUserCompany(userCompanyEntity);
 
-		log.info("Saving UserEntity: {}", userEntity);
 		return userMapper.toDomain(userJpaRepository.save(userEntity));
 	}
 }

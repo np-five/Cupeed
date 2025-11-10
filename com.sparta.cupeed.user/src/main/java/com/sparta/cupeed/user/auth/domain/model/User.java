@@ -9,10 +9,12 @@ import com.sparta.cupeed.user.auth.domain.vo.UserStatusEnum;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @Builder
 @EqualsAndHashCode(of = "id")
+@ToString
 public class User {
 
 	private final UUID id;
