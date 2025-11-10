@@ -19,5 +19,7 @@ public interface HubRepository {
 
 	// Hub 삭제
 	void delete(Hub hub);
+
+	boolean existsById(UUID hubId);
 }
 
