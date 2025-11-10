@@ -15,8 +15,8 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.config.GoogleAiProperties;
-import com.sparta.cupeed.ai.presentation.advice.AIError;
-import com.sparta.cupeed.ai.presentation.advice.AIException;
+import com.sparta.cupeed.ai.presentation.advice.AiError;
+import com.sparta.cupeed.ai.presentation.advice.AiException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class GeminiAPIClientV1 {
 		String apiUrl = googleAiProperties.getUrl();
 
 		if (apiKey == null || apiKey.isBlank()) {
-			throw new AIException(AIError.GEMINI_AI_KEY_MISSING);
+			throw new AiException(AiError.AI_KEY_MISSING);
 		}
 
 		try {
@@ -67,11 +67,9 @@ public class GeminiAPIClientV1 {
 				.get("text").getAsString();
 
 		} catch (com.google.gson.JsonSyntaxException e) {
-			throw new AIException(AIError.GEMINI_AI_JSON_PARSE_FAILED, e);
-
+			throw new AiException(AiError.GEMINI_AI_JSON_PARSE_FAILED, e);
 		} catch (Exception e) {
-			throw new AIException(AIError.GEMINI_AI_API_CALL_FAILED);
+			throw new AiException(AiError.GEMINI_AI_API_CALL_FAILED);
 		}
-
 	}
 }

@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class AIExceptionHandler {
-	@ExceptionHandler(AIException.class)
-	public ResponseEntity<ErrorResponse> handleOrderException(AIException ex) {
-		AIError error = ex.getError();
+public class AiExceptionHandler {
+	@ExceptionHandler(AiException.class)
+	public ResponseEntity<ErrorResponse> handleOrderException(AiException ex) {
+		AiError error = ex.getError();
 		return ResponseEntity.status(error.getHttpStatus())
 			.body(ErrorResponse.from(error));
 	}
@@ -32,7 +32,7 @@ public class AIExceptionHandler {
 		String error,
 		String message
 	) {
-		public static ErrorResponse from(AIError error) {
+		public static ErrorResponse from(AiError error) {
 			return new ErrorResponse(
 				Instant.now(),
 				error.getHttpStatus().value(),

@@ -3,15 +3,15 @@ package com.sparta.cupeed.ai.presentation.advice;
 import lombok.Getter;
 
 @Getter
-public class AIException extends RuntimeException {
-	private final AIError error;
+public class AiException extends RuntimeException {
+	private final AiError error;
 
-	public AIException(AIError error) {
+	public AiException(AiError error) {
 		super(error.getErrorMessage());
 		this.error = error;
 	}
 
-	public AIException(AIError error, Throwable cause) {
+	public AiException(AiError error, Throwable cause) {
 		super(error.getErrorMessage(), cause);
 		this.error = error;
 	}
