@@ -3,7 +3,7 @@ spring:
     name: ai
 
   datasource:
-    url: jdbc:postgresql://localhost:5431/cupeed_ai_db
+    url: jdbc:postgresql://localhost:15431/cupeed_ai_db
     username: cupeed_ai_user
     password: cupeed_ai_pass
     driver-class-name: org.postgresql.Driver

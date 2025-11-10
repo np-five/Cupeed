@@ -115,18 +115,17 @@ public class OrderServiceV1 {
 		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
 
 		// TODO : 주문 알림 - 사용자 DM 전송
-		slackClient.sendDirectMessage(
+		slackClient.dmToReceiveCompany(
 			SlackMessageCreateRequestDtoV1.builder()
-				.slack(SlackMessageCreateRequestDtoV1.SlackDto.builder()
-					.orderNumber(saved.getOrderNumber())
-					.recieveCompanyId(saved.getRecieveCompanyId())
-					.recieveCompanyName(saved.getRecieveCompanyName())
-					.totalPrice(saved.getTotalPrice())
-					.recipientSlackId("U09SFAT4V5E") // 슬랙 멤버 ID
-					.status("REQUESTED")
-					.build())
+				.orderNumber(saved.getOrderNumber())
+				.recieveCompanyId(saved.getRecieveCompanyId())
+				.recieveCompanyName(saved.getRecieveCompanyName())
+				.totalPrice(saved.getTotalPrice())
+				.recipientSlackId("U09SFAT4V5E") // 임시 수령자 슬랙 ID - 차초희 멤버 ID
+				.status("REQUESTED")
 				.build()
 		);
+
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
