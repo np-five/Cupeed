@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: cupeed-delivery
     ports:
-      - "5433:5432"
+      - "15433:5432"
     volumes:
       - cupeed_pg_data:/var/lib/postgresql/data
     healthcheck:
