@@ -26,11 +26,15 @@ spring:
               uri: lb://hub
               predicates:
                 - Path=/v1/hubs/**
+              filters:
+                - StripPrefix=0
             # 20050
             - id: hubroute
               uri: lb://hubroute
               predicates:
                 - Path=/v1/hub-routes/**
+              filters:
+                - StripPrefix=0
             # 20060
             - id: order
               uri: lb://order
