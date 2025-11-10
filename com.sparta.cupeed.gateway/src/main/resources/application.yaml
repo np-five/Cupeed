@@ -6,16 +6,48 @@ spring:
       server:
         webflux:
           routes:
+            # 20010
+            - id: ai
+              uri: lb://ai
+              predicates:
+                - Path=/v1/ai-requests/**
+            # 20020
+            - id: companies
+              uri: lb://companies
+              predicates:
+                - Path=/v1/companies/**
+            # 20030
+            - id: delivery
+              uri: lb://delivery
+              predicates:
+                - Path=/v1/deliveries/**
+            # 20040
+            - id: hub
+              uri: lb://hub
+              predicates:
+                - Path=/v1/hubs/**
+            # 20050
+            - id: hubroute
+              uri: lb://hubroute
+              predicates:
+                - Path=/v1/hub-routes/**
+            # 20060
+            - id: order
+              uri: lb://order
+              predicates:
+                - Path=/v1/orders/**
+            # 20070
+            - id: product
+              uri: lb://product
+              predicates:
+                - Path=/v1/products/**
+            # 20080
             - id: user
               uri: http://localhost:19092/
               predicates:
                 - Path=/user/**
               filters:
                 - StripPrefix=1
-            - id: ai
-              uri: http://localhost:20010/
-              predicates:
-                - Path=/v1/ai-requests/**
           discovery:
             locator:
               enabled: true
