@@ -5,6 +5,8 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,9 +41,11 @@ public class UserEntity extends BaseEntity {
 	private String slackId;
 
 	@Column(name = "role", nullable = false, updatable = false)
+	@Enumerated(EnumType.STRING)
 	private RoleEnum role;
 
 	@Column(name = "status", nullable = false)
+	@Enumerated(EnumType.STRING)
 	private StatusEnum status;
 
 	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
