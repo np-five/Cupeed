@@ -30,7 +30,7 @@ public class SlackControllerV1 {
 	private final SlackServiceV1 slackService;
 
 	// 수령업체에게 주문완료 DM 전송
-	@PostMapping("/dm/toReciveCompany")
+	@PostMapping("/dm/toReceiveCompany")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToReciveCompany(
 		@Valid @RequestBody SlackReceiveCompanyDMCreateRequestDtoV1 requestDto
 	) {

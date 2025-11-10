@@ -31,7 +31,7 @@ public class SlackServiceV1 {
 		String recipientSlackId = requestDto.getRecipientSlackId();
 
 		String message = String.format(
-			"*주문 완료 알림*\n주문번호: %s\n총 금액: %s원\n수령업체: %s",
+			":star: *주문 완료 알림* :star:\n주문번호: %s\n총 금액: %s원\n수령업체: %s",
 			requestDto.getOrderNumber(),
 			requestDto.getTotalPrice(),
 			requestDto.getRecieveCompanyName()

@@ -8,6 +8,6 @@ import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCrea
 
 @FeignClient(name = "slack")
 public interface SlackClientV1 {
-	@PostMapping("/v1/slacks/dm/toReciveCompany")
+	@PostMapping("/v1/slacks/dm/toReceiveCompany")
 	void dmToReceiveCompany(@RequestBody SlackMessageCreateRequestDtoV1 dto);
 }
