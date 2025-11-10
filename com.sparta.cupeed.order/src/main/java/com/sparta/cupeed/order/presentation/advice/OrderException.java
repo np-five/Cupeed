@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class OrderException extends RuntimeException {
-
 	private final OrderError error;
 
 	public OrderException(OrderError error) {

@@ -15,6 +15,8 @@ import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSend
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
 import com.sparta.cupeed.ai.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.ai.infrastructure.slack.dto.SlackMessageCreateRequestDtoV1;
+import com.sparta.cupeed.ai.presentation.advice.AIError;
+import com.sparta.cupeed.ai.presentation.advice.AIException;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoriesGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoryGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiTextCreateResponseDtoV1;
@@ -32,24 +34,28 @@ public class AiServiceV1 {
 
 	@Transactional
 	public AiTextCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
-		String prompt = promptBuilder.generateAiTextPrompt(requestDto);
+		String prompt;
+		try {
+			prompt = promptBuilder.generateAiTextPrompt(requestDto);
+		} catch (Exception e) {
+			throw new AIException(AIError.AI_PROMPT_BUILD_FAILED);
+		}
 
 		Ai.Status status;
-		String aiResponseText = null;
+		String aiResponseText;
 		String errorMessage = null;
-
 		try {
 			aiResponseText = geminiAPIClient.createAiText(prompt);
-
 			if (aiResponseText == null || aiResponseText.isBlank()) {
-				status = Ai.Status.FAILED;
-				errorMessage = "AI로부터 유효한 응답을 받지 못했습니다.";
-			} else {
-				status = Ai.Status.SUCCESS;
+				throw new AIException(AIError.AI_RESPONSE_INVALID);
 			}
-		} catch (Exception e) {
+			status = Ai.Status.SUCCESS;
+		} catch (AIException e) {
 			status = Ai.Status.FAILED;
-			errorMessage = "AI 요청 중 오류 발생: " + e.getMessage();
+			errorMessage = e.getMessage();
+			aiResponseText = null;
+		} catch (Exception e) {
+			throw new AIException(AIError.AI_REQUEST_FAILED);
 		}
 
 		Ai created = Ai.builder()
@@ -60,23 +66,32 @@ public class AiServiceV1 {
 			.createdAt(Instant.now())
 			.build();
 
-		Ai saved = aiRepository.save(created);
+		Ai saved;
+		try {
+			saved = aiRepository.save(created);
+		} catch (Exception e) {
+			throw new AIException(AIError.AI_SAVE_FAILED);
+		}
 
-		// TODO : 슬랙에 aiText 전달
-		slackClient.dmToDliveryManager(
-			SlackMessageCreateRequestDtoV1.builder()
-				.recipientSlackId("U09SFAT4V5E") // 임시 수령자 슬랙 ID - 차초희 멤버 ID
-				.aiResponseText(aiResponseText)
-				.errorMessage(errorMessage)
-				.build()
-		);
+		try {
+			// TODO : 슬랙에 aiText 전달
+			slackClient.dmToDliveryManager(
+				SlackMessageCreateRequestDtoV1.builder()
+					.recipientSlackId("U09SFAT4V5E") // 임시 수령자 슬랙 ID - 차초희 멤버 ID
+					.aiResponseText(aiResponseText)
+					.errorMessage(errorMessage)
+					.build()
+			);
+		} catch (Exception e) {
+			throw new AIException(AIError.AI_SLACK_NOTIFICATION_FAILED);
+		}
 
 		return AiTextCreateResponseDtoV1.of(saved);
 	}
 
 	public AiHistoryGetResponseDtoV1 getAiHistory(UUID aiRequestId) {
 		Ai aiHistory = aiRepository.findById(aiRequestId)
-				.orElseThrow(() -> new IllegalArgumentException("AI 요청 내역을 찾을 수 없습니다."));
+				.orElseThrow(() -> new AIException(AIError.AI_HISTORY_NOT_FOUND));
 		return AiHistoryGetResponseDtoV1.of(aiHistory);
 	}
 
