@@ -6,12 +6,51 @@ spring:
       server:
         webflux:
           routes:
-            - id: user
-              uri: http://localhost:19092/
+            # 20010
+            - id: ai
+              uri: lb://ai
               predicates:
-                - Path=/user/**
-              filters:
-                - StripPrefix=1
+                - Path=/v1/ai-requests/**
+            # 20020
+            - id: companies
+              uri: lb://companies
+              predicates:
+                - Path=/v1/companies/**
+            # 20030
+            - id: delivery
+              uri: lb://delivery
+              predicates:
+                - Path=/v1/deliveries/**
+            # 20040
+            - id: hub
+              uri: lb://hub
+              predicates:
+                - Path=/v1/hubs/**
+            # 20050
+            - id: hubroute
+              uri: lb://hubroute
+              predicates:
+                - Path=/v1/hub-routes/**
+            # 20060
+            - id: order
+              uri: lb://order
+              predicates:
+                - Path=/v1/orders/**
+            # 20070
+            - id: product
+              uri: lb://product
+              predicates:
+                - Path=/v1/products/**
+            # 20080
+            - id: user
+              uri: lb://user
+              predicates:
+                - Path=/v1/user/**, /v1/auth/**
+            # 20090
+            - id: slack
+              uri: lb://slack
+              predicates:
+                - Path=/v1/slacks/**
           discovery:
             locator:
               enabled: true
