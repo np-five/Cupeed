@@ -15,9 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.cupeed.order.domain.model.Order;
 import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
-import com.sparta.cupeed.order.infrastructure.delivery.client.DeliveryClientV1;
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
-import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockDecreaseRequestDtoV1;
+import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
@@ -28,7 +27,6 @@ import com.sparta.cupeed.order.presentation.dto.response.OrderPostResponseDtoV1;
 import com.sparta.cupeed.order.presentation.dto.response.OrderGetResponseDtoV1;
 import com.sparta.cupeed.order.presentation.dto.response.OrdersGetResponseDtoV1;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -111,20 +109,20 @@ public class OrderServiceV1 {
 		// 	productClient.decreaseStock(item.getProductId(), item.getQuantity());
 		// }
 		// TODO : 주문 아이템 재고 차감 - ProductClient 호출
-		ProductStockDecreaseRequestDtoV1 productRequestDto = ProductStockDecreaseRequestDtoV1.builder()
-			.order(ProductStockDecreaseRequestDtoV1.OrderDto.builder()
+		ProductStockRequestDtoV1 decreaseRequestDto = ProductStockRequestDtoV1.builder()
+			.order(ProductStockRequestDtoV1.OrderDto.builder()
 				.orderId(saved.getId())
 				.build())
 			.productStocks(
 				saved.getOrderItemList().stream()
-					.map(item -> ProductStockDecreaseRequestDtoV1.ProductStockDto.builder()
+					.map(item -> ProductStockRequestDtoV1.ProductStockDto.builder()
 						.productId(item.getProductId())
 						.quantity(item.getQuantity())
 						.build())
 					.toList()
 			)
 			.build();
-		productClient.decreaseStock(productRequestDto);
+		productClient.decreaseStock(decreaseRequestDto);
 
 
 		// TODO : 배송 생성
@@ -186,8 +184,21 @@ public class OrderServiceV1 {
 		}
 
 		// TODO : 주문 아이템 재고 복구 -> ProductClient 호출
+		ProductStockRequestDtoV1 restoreRequestDto = ProductStockRequestDtoV1.builder()
+			.order(ProductStockRequestDtoV1.OrderDto.builder()
+				.orderId(order.getId())
+				.build())
+			.productStocks(
+				order.getOrderItemList().stream()
+					.map(item -> ProductStockRequestDtoV1.ProductStockDto.builder()
+						.productId(item.getProductId())
+						.quantity(item.getQuantity())
+						.build())
+					.toList()
+			)
+			.build();
 		for (OrderItem item : order.getOrderItemList()) {
-			productClient.restoreStock(item.getProductId(), item.getQuantity());
+			productClient.restoreStock(restoreRequestDto);
 		}
 
 		// 임시 userId

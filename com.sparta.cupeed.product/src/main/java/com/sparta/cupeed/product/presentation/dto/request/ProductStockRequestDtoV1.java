@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ProductStockDecreaseRequestDtoV1 {
+public class ProductStockRequestDtoV1 {
 	private final OrderDto order;
 	private final List<ProductStockDto> productStocks;
 
