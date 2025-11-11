@@ -1,47 +1,44 @@
 package com.sparta.cupeed.delivery.presentation.dto;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.sparta.cupeed.delivery.domain.model.Delivery;
-import com.sparta.cupeed.delivery.domain.model.DeliveryStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-// 배송 응답 DTO
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeliveryResponseDto {
 	private UUID id;
 	private UUID orderId;
 	private UUID receiveCompanyId;
 	private UUID startHubId;
 	private UUID endHubId;
-	private DeliveryStatus status;
+	private String status;
 	private UUID deliveryManagerId;
-	private LocalDateTime createdAt;
+	private String createdAt;
 	private String createdBy;
-	private LocalDateTime updatedAt;
+	private String updatedAt;
 	private String updatedBy;
 
-	public DeliveryResponseDto() {
-	}
-
 	public static DeliveryResponseDto from(Delivery delivery) {
-		DeliveryResponseDto dto = new DeliveryResponseDto();
-		dto.id = delivery.getId();
-		dto.orderId = delivery.getOrderId();
-		dto.receiveCompanyId = delivery.getReceiveCompanyId();
-		dto.startHubId = delivery.getStartHubId();
-		dto.endHubId = delivery.getEndHubId();
-		dto.status = delivery.getStatus();
-		dto.deliveryManagerId = delivery.getDeliveryManagerId();
-		dto.createdAt = delivery.getCreatedAt();
-		dto.createdBy = delivery.getCreatedBy();
-		dto.updatedAt = delivery.getUpdatedAt();
-		dto.updatedBy = delivery.getUpdatedBy();
-		return dto;
+		return DeliveryResponseDto.builder()
+			.id(delivery.getId())
+			.orderId(delivery.getOrderId())
+			.receiveCompanyId(delivery.getReceiveCompanyId())
+			.startHubId(delivery.getStartHubId())
+			.endHubId(delivery.getEndHubId())
+			.status(delivery.getStatus().name())
+			.deliveryManagerId(delivery.getDeliveryManagerId())
+			.createdAt(delivery.getCreatedAt() != null ? delivery.getCreatedAt().toString() : null)
+			.createdBy(delivery.getCreatedBy())
+			.updatedAt(delivery.getUpdatedAt() != null ? delivery.getUpdatedAt().toString() : null)
+			.updatedBy(delivery.getUpdatedBy())
+			.build();
 	}
-	
 }

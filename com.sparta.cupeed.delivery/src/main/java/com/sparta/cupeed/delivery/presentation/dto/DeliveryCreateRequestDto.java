@@ -1,15 +1,15 @@
 package com.sparta.cupeed.delivery.presentation.dto;
 
-import java.util.UUID;
-
 import com.sparta.cupeed.delivery.domain.model.Delivery;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-// 배송 생성 요청 DTO
+import java.util.UUID;
+
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeliveryCreateRequestDto {
 	private UUID orderId;
 	private UUID receiveCompanyId;
@@ -17,22 +17,8 @@ public class DeliveryCreateRequestDto {
 	private UUID endHubId;
 	private UUID deliveryManagerId;
 
-	public DeliveryCreateRequestDto() {
-	}
-
 	public Delivery toEntity(String username) {
-		Delivery delivery = new Delivery(
-			orderId,
-			receiveCompanyId,
-			startHubId,
-			endHubId,
-			username
-		);
-		if (deliveryManagerId != null) {
-			delivery.setDeliveryManagerId(deliveryManagerId);
-		}
-		return delivery;
+		return Delivery.create(orderId, receiveCompanyId, startHubId, endHubId, username);
 	}
-
 }
 
