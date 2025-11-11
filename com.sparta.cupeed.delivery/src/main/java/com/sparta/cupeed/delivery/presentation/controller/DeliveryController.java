@@ -40,8 +40,11 @@ public class DeliveryController {
 		@RequestHeader(value = "X-User-Id", required = false) String userId
 	) {
 		validateAuthentication(userId);
-
-		DeliveriesResponseDto response = deliveryService.getDeliveries(pageable);
+		// Pageable을 int로 변환
+		DeliveriesResponseDto response = deliveryService.getDeliveries(
+			pageable.getPageNumber(),
+			pageable.getPageSize()
+		);
 		return ResponseEntity.ok(response);
 	}
 
@@ -89,4 +92,3 @@ public class DeliveryController {
 		}
 	}
 }
-
