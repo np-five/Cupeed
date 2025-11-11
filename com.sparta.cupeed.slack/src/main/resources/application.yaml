@@ -19,6 +19,21 @@ spring:
 slack:
   bot-token: ${SLACK_BOT_TOKEN}
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    # http://localhost:[port]/swagger로 스웨거 호출 가능.
+    path: /swagger
+
+cupeed:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-expiration-time: 3600000 # 1 hour in milliseconds
+    access-header-name: Authorization
+    header-prefix: "Bearer "
+    swagger-bearer-schema: bearerAuth
+
 server:
   port: 20090
 

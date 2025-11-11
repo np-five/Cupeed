@@ -47,6 +47,15 @@ dependencies {
     implementation 'com.google.genai:google-genai:1.0.0'
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+
+    // for security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 }
 
 dependencyManagement {
