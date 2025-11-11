@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: product
+    name: delivery
 
   datasource:
     url: jdbc:postgresql://localhost:5432/cupeed-product
