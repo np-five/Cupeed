@@ -4,11 +4,14 @@ import org.springframework.stereotype.Component;
 
 import com.sparta.cupeed.user.domain.model.User;
 import com.sparta.cupeed.user.domain.model.UserCompany;
+import com.sparta.cupeed.user.domain.model.UserDelivery;
 import com.sparta.cupeed.user.domain.vo.UserRoleEnum;
 import com.sparta.cupeed.user.domain.vo.UserStatusEnum;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.DeliveryTypeEnum;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.RoleEnum;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.StatusEnum;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.UserCompanyEntity;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.UserDeliveryEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
 
 @Component
@@ -48,20 +51,27 @@ public class UserMapper {
 
 	public UserEntity toEntity(User user) {
 		return UserEntity.builder()
-			.id(user.getId())
 			.userId(user.getUserId())
 			.password(user.getPassword())
 			.slackId(user.getSlackId())
 			.role(RoleEnum.valueOf(user.getRole().name()))
 			.status(StatusEnum.valueOf(user.getStatus().name()))
+			.companyId(user.getCompanyId())
+			.hubId(user.getHubId())
 			.build();
 	}
 
 	public UserCompanyEntity toEntity(UserCompany userCompany) {
 		return UserCompanyEntity.builder()
-			.id(userCompany.getId())
 			.companyName(userCompany.getCompanyName())
 			.businessNo(userCompany.getBusinessNo())
+			.build();
+	}
+
+	public UserDeliveryEntity toEntity(UserDelivery userDelivery) {
+		return UserDeliveryEntity.builder()
+			.deliveryType(DeliveryTypeEnum.valueOf(userDelivery.getDeliveryType().name()))
+			.deliveryOrder(userDelivery.getDeliveryOrder())
 			.build();
 	}
 

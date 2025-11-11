@@ -48,13 +48,29 @@ public class UserEntity extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private StatusEnum status;
 
+	@Column(name = "company_id", updatable = false)
+	private UUID companyId;
+
+	@Column(name = "hub_id", updatable = false)
+	private UUID hubId;
+
 	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private UserCompanyEntity userCompany;
+
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private UserDeliveryEntity userDelivery;
 
 	public void attachUserCompany(UserCompanyEntity company) {
 		this.userCompany = company;
 		if (company != null) {
 			company.setUser(this);
+		}
+	}
+
+	public void attachUserDelivery(UserDeliveryEntity delivery) {
+		this.userDelivery = delivery;
+		if (delivery != null) {
+			delivery.setUser(this);
 		}
 	}
 }

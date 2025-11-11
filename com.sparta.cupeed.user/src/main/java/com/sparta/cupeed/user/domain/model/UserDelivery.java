@@ -1,28 +1,23 @@
-package com.sparta.cupeed.user.auth.domain.model;
+package com.sparta.cupeed.user.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.sparta.cupeed.user.auth.domain.vo.UserRoleEnum;
-import com.sparta.cupeed.user.auth.domain.vo.UserStatusEnum;
+import com.sparta.cupeed.user.domain.vo.UserDeliveryTypeEnum;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString
-public class User {
+public class UserDelivery {
 
 	private final UUID id;
-	private final String userId;
-	private final String password;
-	private final String slackId;
-	private final UserRoleEnum role;
-	private final UserStatusEnum status;
+	private final UserDeliveryTypeEnum deliveryType;
+	private final int deliveryOrder;
+	private final User user;
 	private final LocalDateTime createdAt;
 	private final String createdBy;
 	private final LocalDateTime updatedAt;

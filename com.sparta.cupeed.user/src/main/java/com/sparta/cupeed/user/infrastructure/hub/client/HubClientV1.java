@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("hub")
 public interface HubClientV1 {
 
+	// TODO: api 구현 필요
 	@GetMapping("/internal/v1/hubs")
-	UUID getHubByName(@RequestParam String name);
+	UUID getInternalHubByName(@RequestParam String name);
 }

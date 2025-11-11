@@ -41,6 +41,6 @@ public record AuthSignUpRequestDtoV1(
 	String deliveryType,
 
 	@Schema(description = "배송기사 순번(1~10)", example = "1")
-	String deliveryOrder
+	Integer deliveryOrder
 ) {
 }
