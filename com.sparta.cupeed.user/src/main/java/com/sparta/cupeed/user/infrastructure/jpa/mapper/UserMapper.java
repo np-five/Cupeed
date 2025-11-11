@@ -53,6 +53,7 @@ public class UserMapper {
 
 	public UserEntity toEntity(User user) {
 		return UserEntity.builder()
+			.id(user.getId())
 			.userId(user.getUserId())
 			.password(user.getPassword())
 			.slackId(user.getSlackId())
@@ -80,7 +81,7 @@ public class UserMapper {
 	// public UserEntity toEntity(User user) {
 	// 	return UserEntity.builder()
 	// 		.id(user.getId())
-	// 		.userId(user.getUserId())
+	// 		.id(user.getUserId())
 	// 		.password(user.getPassword())
 	// 		.slackId(user.getSlackId())
 	// 		.role(user.getRole())

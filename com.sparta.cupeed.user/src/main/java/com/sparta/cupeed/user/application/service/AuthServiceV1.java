@@ -149,8 +149,7 @@ public class AuthServiceV1 {
 	}
 
 	public AuthLogInResponseDtoV1 signIn(AuthLogInRequestDtoV1 authLogInRequestDtoV1) {
-		User user = userRepository.findByUserId(authLogInRequestDtoV1.userId()).orElseThrow(() ->
-			new AuthException(AuthError.AUTH_USER_NOT_FOUND));
+		User user = userRepository.findByUserIdOrElseThrow(authLogInRequestDtoV1.userId());
 
 		if (!passwordEncoder.matches(authLogInRequestDtoV1.password(), user.getPassword())) {
 			throw new AuthException(AuthError.AUTH_INVALID_PASSWORD);

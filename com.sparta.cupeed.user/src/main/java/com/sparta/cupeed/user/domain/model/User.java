@@ -32,4 +32,21 @@ public class User {
 	private final LocalDateTime deletedAt;
 	private final String deletedBy;
 
+	UserBuilder toBuilder() {
+		return User.builder()
+			.id(id)
+			.userId(userId)
+			.password(password)
+			.slackId(slackId)
+			.role(role)
+			.status(status)
+			.companyId(companyId)
+			.hubId(hubId)
+			.createdAt(createdAt)
+			.createdBy(createdBy)
+			.updatedAt(updatedAt)
+			.updatedBy(updatedBy)
+			.deletedAt(deletedAt)
+			.deletedBy(deletedBy);
+	}
 }
