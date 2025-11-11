@@ -1,7 +1,7 @@
 package com.sparta.cupeed.delivery.presentation.controller;
 
 import com.sparta.cupeed.delivery.presentation.dto.*;
-import com.sparta.cupeed.delivery.application.service.DeliveryService;
+import com.sparta.cupeed.delivery.application.service.DeliveryServiceV1;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -13,35 +13,35 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/deliveries")
-public class DeliveryController {
+public class DeliveryControllerV1 {
 
-	private final DeliveryService deliveryService;
+	private final DeliveryServiceV1 deliveryServiceV1;
 
-	public DeliveryController(DeliveryService deliveryService) {
-		this.deliveryService = deliveryService;
+	public DeliveryControllerV1(DeliveryServiceV1 deliveryServiceV1) {
+		this.deliveryServiceV1 = deliveryServiceV1;
 	}
 
 	//배송 생성
 	@PostMapping
-	public ResponseEntity<DeliveryResponseDto> createDelivery(
-		@RequestBody DeliveryCreateRequestDto request,
+	public ResponseEntity<DeliveryResponseDtoV1> createDelivery(
+		@RequestBody DeliveryCreateRequestDtoV1 request,
 		@RequestHeader(value = "X-User-Name", required = false) String username
 	) {
 		validateAuthentication(username);
 
-		DeliveryResponseDto response = deliveryService.createDelivery(request, username);
+		DeliveryResponseDtoV1 response = deliveryServiceV1.createDelivery(request, username);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	//배송 전체 조회
 	@GetMapping
-	public ResponseEntity<DeliveriesResponseDto> getDeliveries(
+	public ResponseEntity<DeliveriesResponseDtoV1> getDeliveries(
 		@PageableDefault(size = 10) Pageable pageable,
 		@RequestHeader(value = "X-User-Id", required = false) String userId
 	) {
 		validateAuthentication(userId);
 		// Pageable을 int로 변환
-		DeliveriesResponseDto response = deliveryService.getDeliveries(
+		DeliveriesResponseDtoV1 response = deliveryServiceV1.getDeliveries(
 			pageable.getPageNumber(),
 			pageable.getPageSize()
 		);
@@ -50,26 +50,26 @@ public class DeliveryController {
 
 	//배송 단건 조회
 	@GetMapping("/{deliveryId}")
-	public ResponseEntity<DeliveryResponseDto> getDelivery(
+	public ResponseEntity<DeliveryResponseDtoV1> getDelivery(
 		@PathVariable UUID deliveryId,
 		@RequestHeader(value = "X-User-Id", required = false) String userId
 	) {
 		validateAuthentication(userId);
 
-		DeliveryResponseDto response = deliveryService.getDelivery(deliveryId);
+		DeliveryResponseDtoV1 response = deliveryServiceV1.getDelivery(deliveryId);
 		return ResponseEntity.ok(response);
 	}
 
 	//배송 상태 변경
 	@PatchMapping("/{deliveryId}/status")
-	public ResponseEntity<DeliveryResponseDto> updateDeliveryStatus(
+	public ResponseEntity<DeliveryResponseDtoV1> updateDeliveryStatus(
 		@PathVariable UUID deliveryId,
-		@RequestBody DeliveryStatusUpdateRequestDto request,
+		@RequestBody DeliveryStatusUpdateRequestDtoV1 request,
 		@RequestHeader(value = "X-User-Name", required = false) String username
 	) {
 		validateAuthentication(username);
 
-		DeliveryResponseDto response = deliveryService.updateDeliveryStatus(deliveryId, request, username);
+		DeliveryResponseDtoV1 response = deliveryServiceV1.updateDeliveryStatus(deliveryId, request, username);
 		return ResponseEntity.ok(response);
 	}
 
@@ -81,7 +81,7 @@ public class DeliveryController {
 	) {
 		validateAuthentication(username);
 
-		deliveryService.deleteDelivery(deliveryId, username);
+		deliveryServiceV1.deleteDelivery(deliveryId, username);
 		return ResponseEntity.noContent().build();
 	}
 

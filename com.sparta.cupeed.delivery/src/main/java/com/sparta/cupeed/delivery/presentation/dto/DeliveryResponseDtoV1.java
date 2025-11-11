@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeliveryResponseDto {
+public class DeliveryResponseDtoV1 {
 	private UUID id;
 	private UUID orderId;
 	private UUID receiveCompanyId;
@@ -26,8 +26,8 @@ public class DeliveryResponseDto {
 	private String updatedAt;
 	private String updatedBy;
 
-	public static DeliveryResponseDto from(Delivery delivery) {
-		return DeliveryResponseDto.builder()
+	public static DeliveryResponseDtoV1 from(Delivery delivery) {
+		return DeliveryResponseDtoV1.builder()
 			.id(delivery.getId())
 			.orderId(delivery.getOrderId())
 			.receiveCompanyId(delivery.getReceiveCompanyId())

@@ -8,12 +8,12 @@ import lombok.Setter;
 // 배송 수정 요청 DTO
 @Getter
 @Setter
-public class DeliveryUpdateRequestDto {
+public class DeliveryUpdateRequestDtoV1 {
 	private UUID receiveCompanyId;
 	private UUID startHubId;
 	private UUID endHubId;
 	private UUID deliveryManagerId;
 
-	public DeliveryUpdateRequestDto() {
+	public DeliveryUpdateRequestDtoV1() {
 	}
 }

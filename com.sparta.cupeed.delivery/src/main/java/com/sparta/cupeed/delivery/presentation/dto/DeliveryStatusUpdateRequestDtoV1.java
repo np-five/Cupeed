@@ -8,10 +8,10 @@ import lombok.Setter;
 // 배송 상태 변경 요청 DTO
 @Getter
 @Setter
-public class DeliveryStatusUpdateRequestDto {
+public class DeliveryStatusUpdateRequestDtoV1 {
 	private DeliveryStatus status;
 
-	public DeliveryStatusUpdateRequestDto() {
+	public DeliveryStatusUpdateRequestDtoV1() {
 	}
 
 	public DeliveryStatus getStatus() {

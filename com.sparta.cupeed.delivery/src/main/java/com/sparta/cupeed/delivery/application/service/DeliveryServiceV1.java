@@ -14,49 +14,49 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
-public class DeliveryService {
+public class DeliveryServiceV1 {
 
 	private final DeliveryRepository deliveryRepository;
 
-	public DeliveryService(DeliveryRepository deliveryRepository) {
+	public DeliveryServiceV1(DeliveryRepository deliveryRepository) {
 		this.deliveryRepository = deliveryRepository;
 	}
 
 	// 배송 생성
 	@Transactional
-	public DeliveryResponseDto createDelivery(DeliveryCreateRequestDto request, String username) {
+	public DeliveryResponseDtoV1 createDelivery(DeliveryCreateRequestDtoV1 request, String username) {
 		Delivery delivery = request.toEntity(username);
 		Delivery savedDelivery = deliveryRepository.save(delivery);
-		return DeliveryResponseDto.from(savedDelivery);
+		return DeliveryResponseDtoV1.from(savedDelivery);
 	}
 
 	// 배송 전체 조회
-	public DeliveriesResponseDto getDeliveries(int page, int size) {
+	public DeliveriesResponseDtoV1 getDeliveries(int page, int size) {
 		List<Delivery> deliveries = deliveryRepository.findAll(page, size);
 		long totalCount = deliveryRepository.countAll();
 
-		List<DeliveryResponseDto> deliveryDtos = deliveries.stream()
-			.map(DeliveryResponseDto::from)
+		List<DeliveryResponseDtoV1> deliveryDtos = deliveries.stream()
+			.map(DeliveryResponseDtoV1::from)
 			.collect(Collectors.toList());
 
-		return new DeliveriesResponseDto(deliveryDtos, totalCount);
+		return new DeliveriesResponseDtoV1(deliveryDtos, totalCount);
 	}
 
 	// 배송 단건 조회
-	public DeliveryResponseDto getDelivery(UUID deliveryId) {
+	public DeliveryResponseDtoV1 getDelivery(UUID deliveryId) {
 		Delivery delivery = deliveryRepository.findById(deliveryId)
 			.orElseThrow(() -> new IllegalArgumentException(
 				"배송을 찾을 수 없습니다. ID: " + deliveryId
 			));
 
-		return DeliveryResponseDto.from(delivery);
+		return DeliveryResponseDtoV1.from(delivery);
 	}
 
 	// 배송 상태 변경
 	@Transactional
-	public DeliveryResponseDto updateDeliveryStatus(
+	public DeliveryResponseDtoV1 updateDeliveryStatus(
 		UUID deliveryId,
-		DeliveryStatusUpdateRequestDto request,
+		DeliveryStatusUpdateRequestDtoV1 request,
 		String username
 	) {
 		Delivery delivery = deliveryRepository.findById(deliveryId)
@@ -69,7 +69,7 @@ public class DeliveryService {
 		delivery.updateStatus(request.getStatus(), username);
 
 		Delivery updatedDelivery = deliveryRepository.save(delivery);
-		return DeliveryResponseDto.from(updatedDelivery);
+		return DeliveryResponseDtoV1.from(updatedDelivery);
 	}
 
 	// 배송 삭제 (Soft Delete)
