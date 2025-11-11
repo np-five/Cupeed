@@ -1,16 +1,16 @@
-package com.sparta.cupeed.order.infrastructure.slack.dto.request;
-
-import java.math.BigDecimal;
-import java.util.UUID;
+package com.sparta.cupeed.slack.presentation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+import java.util.UUID;
+
 @Getter
 @Builder
-public class SlackMessageCreateRequestDtoV1 {
+public class SlackReceiveCompanyDMCreateRequestDtoV1 {
 
 	@NotBlank(message = "주문 번호는 필수입니다.")
 	private String orderNumber;

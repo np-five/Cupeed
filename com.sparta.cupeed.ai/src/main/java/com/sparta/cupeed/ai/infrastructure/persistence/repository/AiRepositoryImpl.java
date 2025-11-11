@@ -1,5 +1,10 @@
 package com.sparta.cupeed.ai.infrastructure.persistence.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.sparta.cupeed.ai.domain.model.Ai;
@@ -18,8 +23,18 @@ public class AiRepositoryImpl implements AiRepository {
 
 	@Override
 	public Ai save(Ai created) {
-		AiEntity aiEntity = aiMapper.toEntity(created);
-		AiEntity saved = aiJpaRepository.save(aiEntity);
+		AiEntity entity = aiMapper.toEntity(created);
+		AiEntity saved = aiJpaRepository.save(entity);
 		return aiMapper.toDomain(saved);
+	}
+
+	@Override
+	public Optional<Ai> findById(UUID aiRequestId) {
+		return aiJpaRepository.findById(aiRequestId).map(aiMapper::toDomain);
+	}
+
+	@Override
+	public Page<Ai> findAll(Pageable pageable) {
+		return aiJpaRepository.findAll(pageable).map((aiMapper::toDomain));
 	}
 }

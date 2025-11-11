@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.sparta.cupeed.order.presentation.advice.OrderError;
+import com.sparta.cupeed.order.presentation.advice.OrderException;
 import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
 
 import jakarta.validation.Valid;
@@ -67,7 +69,7 @@ public class Order {
 				var matchedDto = requestDto.getOrder().getOrderItemList().stream()
 					.filter(dto -> dto.getProductId().equals(existing.getProductId()))
 					.findFirst()
-					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품: " + existing.getProductId()));
+					.orElseThrow(() -> new OrderException(OrderError.ORDER_PRODUCT_NOT_FOUND));
 
 				return existing.toBuilder()
 					.quantity(matchedDto.getQuantity())

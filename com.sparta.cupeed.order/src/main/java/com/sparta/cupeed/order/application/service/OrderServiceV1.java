@@ -115,21 +115,21 @@ public class OrderServiceV1 {
 		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
 
 		// TODO : 주문 알림 - 사용자 DM 전송
-		slackClient.sendDirectMessage(
+		slackClient.dmToReceiveCompany(
 			SlackMessageCreateRequestDtoV1.builder()
-				.slack(SlackMessageCreateRequestDtoV1.SlackDto.builder()
-					.orderNumber(saved.getOrderNumber())
-					.recieveCompanyId(saved.getRecieveCompanyId())
-					.recieveCompanyName(saved.getRecieveCompanyName())
-					.totalPrice(saved.getTotalPrice())
-					.recipientSlackId("U09SFAT4V5E") // 슬랙 멤버 ID
-					.status("REQUESTED")
-					.build())
+				.orderNumber(saved.getOrderNumber())
+				.recieveCompanyId(saved.getRecieveCompanyId())
+				.recieveCompanyName(saved.getRecieveCompanyName())
+				.totalPrice(saved.getTotalPrice())
+				.recipientSlackId("U09SFAT4V5E") // 임시 수령자 슬랙 ID - 차초희 멤버 ID
+				.status("REQUESTED")
 				.build()
 		);
+
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
+	@Transactional(readOnly = true)
 	public OrderGetResponseDtoV1 getOrder(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
@@ -196,6 +196,7 @@ public class OrderServiceV1 {
 		orderRepository.save(deleted);
 	}
 
+	@Transactional(readOnly = true)
 	public OrdersGetResponseDtoV1 getOrders(Pageable pageable) {
 		// TODO : 검색할 때 쿼리 DSL 적용
 		Page<Order> orders = orderRepository.findAllByDeletedAtIsNull(pageable);
