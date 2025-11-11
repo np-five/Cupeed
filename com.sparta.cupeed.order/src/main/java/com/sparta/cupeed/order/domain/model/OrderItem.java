@@ -15,6 +15,7 @@ public class OrderItem {
 	private final UUID id;
 	private final UUID orderId;
 	private final UUID productId;
+	private final UUID companyId;
 	private final String productName;
 	private final Long quantity;
 	private final BigDecimal unitPrice;
@@ -31,6 +32,7 @@ public class OrderItem {
 			.id(id)
 			.orderId(orderId)
 			.productId(productId)
+			.companyId(companyId)
 			.productName(productName)
 			.unitPrice(unitPrice)
 			.quantity(quantity)
