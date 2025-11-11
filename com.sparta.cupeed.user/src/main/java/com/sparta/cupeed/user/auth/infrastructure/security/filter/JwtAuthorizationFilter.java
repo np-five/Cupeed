@@ -1,6 +1,7 @@
 package com.sparta.cupeed.user.auth.infrastructure.security.filter;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final UserDetailsServiceImpl userDetailsService;
+
+	private final List<String> whitelist = List.of("/v1/auth/sign-up", "/v1/auth/log-in");
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		return whitelist.stream().anyMatch(url -> request.getRequestURI().startsWith(url));
+	}
 
 	@Override
 	protected void doFilterInternal(
