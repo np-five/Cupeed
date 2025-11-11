@@ -12,29 +12,29 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthExceptionHandler {
 
 	@ExceptionHandler(AuthException.class)
-	public ResponseEntity<AuthErrorResponse<Void>> handleAuthException(AuthException ex) {
+	public ResponseEntity<ApiResponse<Void>> handleAuthException(AuthException ex) {
 		AuthError authError = ex.getAuthError();
 		log.error("AuthException occurred: code={}, message={}", authError.getCode(), authError.getMessage());
 
-		return ResponseEntity.status(authError.getStatus()).body(AuthErrorResponse.error(authError));
+		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
-	public ResponseEntity<AuthErrorResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+	public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
 		AuthError authError = AuthError.ACCESS_DENIED;
 		log.error(
 			"AuthException occurred: code={}, message={}",
 			authError.getCode(),
 			authError.getMessage() + '\n' + ex.getMessage());
 
-		return ResponseEntity.status(authError.getStatus()).body(AuthErrorResponse.error(authError));
+		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<AuthErrorResponse<Void>> handleGeneralException(Exception ex) {
+	public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
 		AuthError authError = AuthError.INTERNAL_SERVER_ERROR;
 		log.error("Unexpected exception occurred: {}", ex.getMessage(), ex);
 
-		return ResponseEntity.status(authError.getStatus()).body(AuthErrorResponse.error(authError));
+		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
 	}
 }

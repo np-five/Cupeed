@@ -150,7 +150,7 @@ public class AuthServiceV1 {
 		}
 	}
 
-	public AuthLogInResponseDtoV1 logIn(AuthLogInRequestDtoV1 authLogInRequestDtoV1) {
+	public AuthLogInResponseDtoV1 signIn(AuthLogInRequestDtoV1 authLogInRequestDtoV1) {
 		User user = userRepository.findByUserId(authLogInRequestDtoV1.userId()).orElseThrow(() ->
 			new AuthException(AuthError.AUTH_USER_NOT_FOUND));
 

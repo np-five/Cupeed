@@ -28,7 +28,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtProperties jwtProperties;
 
-	private final List<String> whitelist = List.of("/v1/auth/sign-up", "/v1/auth/log-in");
+	private final List<String> whitelist = List.of("/v1/auth/sign-up", "/v1/auth/sign-in");
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
