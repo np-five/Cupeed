@@ -15,7 +15,7 @@ import com.sparta.cupeed.user.domain.vo.UserRoleEnum;
 import com.sparta.cupeed.user.domain.vo.UserStatusEnum;
 import com.sparta.cupeed.user.infrastructure.company.client.CompanyClientV1;
 import com.sparta.cupeed.user.infrastructure.hub.client.HubClientV1;
-import com.sparta.cupeed.user.infrastructure.security.jwt.JwtUtil;
+import com.sparta.cupeed.user.infrastructure.security.jwt.JwtGenerator;
 import com.sparta.cupeed.user.presentation.advice.AuthError;
 import com.sparta.cupeed.user.presentation.advice.AuthException;
 import com.sparta.cupeed.user.presentation.dto.request.AuthLogInRequestDtoV1;
@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthServiceV1 {
 
 	private final PasswordEncoder passwordEncoder;
-	private final JwtUtil jwtUtil;
+	private final JwtGenerator jwtGenerator;
 
 	private final UserRepository userRepository;
 
@@ -156,6 +156,6 @@ public class AuthServiceV1 {
 			throw new AuthException(AuthError.AUTH_INVALID_PASSWORD);
 		}
 
-		return AuthLogInResponseDtoV1.of(jwtUtil.createToken(user));
+		return AuthLogInResponseDtoV1.of(jwtGenerator.createToken(user));
 	}
 }

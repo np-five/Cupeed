@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtGenerator {
 
 	private final JwtProperties jwtProperties;
 
