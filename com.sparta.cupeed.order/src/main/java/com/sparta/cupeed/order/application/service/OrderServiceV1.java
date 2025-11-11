@@ -15,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.cupeed.order.domain.model.Order;
 import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
-import com.sparta.cupeed.order.infrastructure.delivery.client.DeliveryClientV1;
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
+import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
+import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
 import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
@@ -27,7 +28,6 @@ import com.sparta.cupeed.order.presentation.dto.response.OrderPostResponseDtoV1;
 import com.sparta.cupeed.order.presentation.dto.response.OrderGetResponseDtoV1;
 import com.sparta.cupeed.order.presentation.dto.response.OrdersGetResponseDtoV1;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderServiceV1 {
 
 	private final OrderRepository orderRepository;
-	// private final ProductClientV1 productClient;
+	private final ProductClientV1 productClient;
 	// private final DeliveryClientV1 deliveryClient;
 	private final SlackClientV1 slackClient;
 
@@ -52,6 +52,7 @@ public class OrderServiceV1 {
 
 		List<OrderItem> orderItemList = new ArrayList<>();
 		BigDecimal totalPrice = BigDecimal.ZERO;
+		UUID supplyCompanyId = UUID.randomUUID();
 
 		for (OrderPostRequestDtoV1.OrderDto.OrderItemDto itemDto : requestOrder.getOrderItemList()) {
 			UUID productId = itemDto.getProductId();
@@ -61,20 +62,35 @@ public class OrderServiceV1 {
 				throw new OrderException(OrderError.ORDER_INVALID_QUANTITY);
 			}
 
-			// 더미 상품 데이터
-			String dummyProductName = "TestProduct-" + productId.toString().substring(0, 8);
-			BigDecimal unitPrice = BigDecimal.valueOf(1000);
-			BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity)); // subtotal = unitPrice × quantity
+			// 상품 정보 조회
+			ProductGetResponseDtoV1 response = productClient.getProduct(productId);
+			ProductGetResponseDtoV1.ProductDto productInfo = response.getProduct();
 
-			totalPrice = totalPrice.add(subtotal); // 각 주문 아이템들의 subtotal 합계
+			if (productInfo == null) {
+				throw new OrderException(OrderError.ORDER_PRODUCT_NOT_FOUND);
+			}
+			Long availableStock = productInfo.getQuantity();
+			if (availableStock == null || availableStock < quantity) {
+				throw new OrderException(OrderError.ORDER_PRODUCT_OUT_OF_STOCK);
+			}
+
+			supplyCompanyId = productInfo.getCompanyId();
+
+			UUID companyId =  productInfo.getCompanyId();
+			BigDecimal unitPrice = productInfo.getUnitPrice();
+			String productName = productInfo.getName();
+			BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+
+			totalPrice = totalPrice.add(subtotal);
 
 			OrderItem orderItem = OrderItem.builder()
 				.id(null)
 				.productId(productId)
-				.productName(dummyProductName)
+				.productName(productName)
 				.quantity(quantity)
 				.unitPrice(unitPrice)
 				.subtotal(subtotal)
+				.companyId(companyId)
 				.createdAt(Instant.now())
 				.createdBy("system")
 				.build();
@@ -84,7 +100,6 @@ public class OrderServiceV1 {
 
 		// 임시 값 (인증 토큰에서 가져와야 함)
 		UUID dummyRecieveCompanyId = UUID.randomUUID();
-		UUID dummySupplyCompanyId = UUID.randomUUID();
 		UUID dummyStartHubId = UUID.randomUUID();
 		String dummyCompanyName = "Temporary Company Name";
 
@@ -93,7 +108,7 @@ public class OrderServiceV1 {
 
 		Order created = Order.builder()
 			.orderNumber(orderNumber)
-			.supplyCompanyId(dummySupplyCompanyId)
+			.supplyCompanyId(supplyCompanyId)
 			.recieveCompanyId(dummyRecieveCompanyId)
 			.recieveCompanyName(dummyCompanyName)
 			.startHubId(dummyStartHubId)
@@ -106,15 +121,24 @@ public class OrderServiceV1 {
 
 		Order saved = orderRepository.save(created);
 
-		// TODO : 주문 아이템 재고 차감 - ProductClient 호출
-		// for (OrderItem item : saved.getOrderItemList()) {
-		// 	productClient.decreaseStock(item.getProductId(), item.getQuantity());
-		// }
+		ProductStockRequestDtoV1 decreaseRequestDto = ProductStockRequestDtoV1.builder()
+			.order(ProductStockRequestDtoV1.OrderDto.builder()
+				.orderId(saved.getId())
+				.build())
+			.productStocks(
+				saved.getOrderItemList().stream()
+					.map(item -> ProductStockRequestDtoV1.ProductStockDto.builder()
+						.productId(item.getProductId())
+						.quantity(item.getQuantity())
+						.build())
+					.toList()
+			)
+			.build();
+		productClient.decreaseStock(decreaseRequestDto);
 
 		// TODO : 배송 생성
 		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
 
-		// TODO : 주문 알림 - 사용자 DM 전송
 		slackClient.dmToReceiveCompany(
 			SlackMessageCreateRequestDtoV1.builder()
 				.orderNumber(saved.getOrderNumber())
@@ -140,14 +164,79 @@ public class OrderServiceV1 {
 	public OrderPostResponseDtoV1 updateOrder(UUID orderId, OrderPostRequestDtoV1 requestDto) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+
 		// 주문 상태가 REQUESTED일 때만 주문 수정 가능
 		if (order.getStatus() != Order.Status.REQUESTED) {
 			throw new OrderException(OrderError.ORDER_FORBIDDEN);
 		}
+
+		// 기존 주문 아이템 맵핑: productId -> quantity
+		var oldQuantityMap = order.getOrderItemList().stream()
+			.collect(Collectors.toMap(OrderItem::getProductId, OrderItem::getQuantity));
+
+		// 새로운 주문 아이템 맵핑: productId -> quantity
+		var newQuantityMap = requestDto.getOrder().getOrderItemList().stream()
+			.collect(Collectors.toMap(
+				OrderPostRequestDtoV1.OrderDto.OrderItemDto::getProductId,
+				OrderPostRequestDtoV1.OrderDto.OrderItemDto::getQuantity
+			));
+
+		// 재고 차이 계산
+		List<ProductStockRequestDtoV1.ProductStockDto> stockAdjustments = new ArrayList<>();
+
+		// 기존 상품과 비교
+		oldQuantityMap.forEach((productId, oldQty) -> {
+			Long newQty = newQuantityMap.getOrDefault(productId, 0L);
+			long diff = newQty - oldQty; // diff > 0 => 추가 주문, diff < 0 => 수량 감소
+			if (diff != 0) {
+				stockAdjustments.add(ProductStockRequestDtoV1.ProductStockDto.builder()
+					.productId(productId)
+					.quantity(diff)
+					.build());
+			}
+		});
+
+		// 신규 상품 추가 (기존에 없는 상품)
+		newQuantityMap.forEach((productId, newQty) -> {
+			if (!oldQuantityMap.containsKey(productId)) {
+				stockAdjustments.add(ProductStockRequestDtoV1.ProductStockDto.builder()
+					.productId(productId)
+					.quantity(newQty)
+					.build());
+			}
+		});
+
+		// 차액에 따라 재고 반영
+		for (ProductStockRequestDtoV1.ProductStockDto adjustment : stockAdjustments) {
+			if (adjustment.getQuantity() > 0) {
+				// 수량 증가: 재고 차감
+				productClient.decreaseStock(
+					ProductStockRequestDtoV1.builder()
+						.order(ProductStockRequestDtoV1.OrderDto.builder().orderId(order.getId()).build())
+						.productStocks(List.of(adjustment))
+						.build()
+				);
+			} else if (adjustment.getQuantity() < 0) {
+				// 수량 감소: 재고 복원
+				ProductStockRequestDtoV1.ProductStockDto restore = ProductStockRequestDtoV1.ProductStockDto.builder()
+					.productId(adjustment.getProductId())
+					.quantity(-adjustment.getQuantity())
+					.build();
+				productClient.restoreStock(
+					ProductStockRequestDtoV1.builder()
+						.order(ProductStockRequestDtoV1.OrderDto.builder().orderId(order.getId()).build())
+						.productStocks(List.of(restore))
+						.build()
+				);
+			}
+		}
+
+		// 주문 정보 업데이트
 		Order updated = order.withUpdated(requestDto);
 		Order saved = orderRepository.save(updated);
 		return OrderPostResponseDtoV1.of(saved);
 	}
+
 
 	@Transactional
 	public OrderPostResponseDtoV1 updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDtoV1 requestDto) {
@@ -169,10 +258,22 @@ public class OrderServiceV1 {
 			throw new OrderException(OrderError.ORDER_CANCEL_NOT_REQUESTED);
 		}
 
-		// TODO : 주문 아이템 재고 복구 -> ProductClient 호출
-		// for (OrderItem item : order.getOrderItemList()) {
-		// 	productClient.restoreStock(item.getProductId(), item.getQuantity());
-		// }
+		ProductStockRequestDtoV1 restoreRequestDto = ProductStockRequestDtoV1.builder()
+			.order(ProductStockRequestDtoV1.OrderDto.builder()
+				.orderId(order.getId())
+				.build())
+			.productStocks(
+				order.getOrderItemList().stream()
+					.map(item -> ProductStockRequestDtoV1.ProductStockDto.builder()
+						.productId(item.getProductId())
+						.quantity(item.getQuantity())
+						.build())
+					.toList()
+			)
+			.build();
+		for (OrderItem item : order.getOrderItemList()) {
+			productClient.restoreStock(restoreRequestDto);
+		}
 
 		// 임시 userId
 		UUID userId = UUID.randomUUID();

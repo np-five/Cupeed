@@ -4,6 +4,7 @@ import com.sparta.cupeed.product.domain.model.Product;
 import com.sparta.cupeed.product.domain.repository.ProductRepository;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
+import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.response.ProductPostResponseDtoV1;
 import com.sparta.cupeed.product.presentation.dto.response.ProductGetResponseDtoV1;
 import com.sparta.cupeed.product.presentation.dto.response.ProductsGetResponseDtoV1;
@@ -86,18 +87,38 @@ public class ProductServiceV1 {
 	}
 
 	// 주문 서버용: 수량 지정 재고 차감
+	// @Transactional
+	// public void decreaseProductQuantityByAmount(UUID productId, Long quantity) {
+	// 	Product product = productRepository.findByIdOrElseThrow(productId);
+	// 	Product updated = product.decreaseQuantity(quantity);
+	// 	productRepository.save(updated);
+	// }
 	@Transactional
-	public void decreaseProductQuantityByAmount(UUID productId, Long quantity) {
-		Product product = productRepository.findByIdOrElseThrow(productId);
-		Product updated = product.decreaseQuantity(quantity);
-		productRepository.save(updated);
+	public void decreaseStock(ProductStockRequestDtoV1 requestDto) {
+		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
+			UUID productId = item.getProductId();
+			Long quantity = item.getQuantity();
+			Product product = productRepository.findByIdOrElseThrow(productId);
+			Product updated = product.decreaseQuantity(quantity);
+			productRepository.save(updated);
+		}
 	}
 
 	// 주문 서버용: 수량 지정 재고 복원
+	// @Transactional
+	// public void increaseProductQuantityByAmount(UUID productId, Long quantity) {
+	// 	Product product = productRepository.findByIdOrElseThrow(productId);
+	// 	Product updated = product.increaseQuantity(quantity);
+	// 	productRepository.save(updated);
+	// }
 	@Transactional
-	public void increaseProductQuantityByAmount(UUID productId, Long quantity) {
-		Product product = productRepository.findByIdOrElseThrow(productId);
-		Product updated = product.increaseQuantity(quantity);
-		productRepository.save(updated);
+	public void increaseStock(ProductStockRequestDtoV1 requestDto) {
+		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
+			UUID productId = item.getProductId();
+			Long quantity = item.getQuantity();
+			Product product = productRepository.findByIdOrElseThrow(productId);
+			Product updated = product.increaseQuantity(quantity);
+			productRepository.save(updated);
+		}
 	}
 }

@@ -6,6 +6,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.slack.application.service.SlackServiceV1;
+import com.sparta.cupeed.slack.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.slack.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.slack.presentation.dto.request.SlackDeliveryManagerDMCreateRequestDtoV1;
 import com.sparta.cupeed.slack.presentation.dto.request.SlackReceiveCompanyDMCreateRequestDtoV1;
 import com.sparta.cupeed.slack.presentation.dto.response.SlackCreateResponseDtoV1;
@@ -65,9 +68,13 @@ public class SlackControllerV1 {
 	@Operation(summary = "슬랙 메시지 목록 조회", description = "관리자가 슬랙 메시지 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<SlacksGetResponseDtoV1> getSlackMessages(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(pageable);
+		// userDetails를 통해 Role 가져오기: 'ROLE_MASTER'
+		RoleEnum.fromAuthority(userDetails.getRole());
+
+		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(pageable, userDetails);
 		return ResponseEntity.ok(response);
 	}
 
