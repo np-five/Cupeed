@@ -6,7 +6,7 @@ spring:
     name: product
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/cupeed-product
+    url: jdbc:postgresql://localhost:15437/cupeed-product
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
