@@ -97,7 +97,7 @@ public class ProductControllerV1 {
 	// 	productServiceV1.increaseProductQuantityByAmount(productId, quantity);
 	// 	return ResponseEntity.ok().build();
 	// }
-	@PostMapping("/decrease-stock")
+	@PostMapping("/restore-stock")
 	public ResponseEntity<Void> restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.increaseStock(requestDto);
 		return ResponseEntity.ok().build();
