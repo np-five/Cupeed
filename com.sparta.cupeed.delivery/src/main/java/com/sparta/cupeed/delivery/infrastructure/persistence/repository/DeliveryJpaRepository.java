@@ -24,4 +24,10 @@ public interface DeliveryJpaRepository extends JpaRepository<DeliveryJpaEntity, 
 
 	@Query("SELECT d FROM DeliveryJpaEntity d WHERE d.status = :status AND d.deletedAt IS NULL")
 	Page<DeliveryJpaEntity> findByStatus(@Param("status") String status, Pageable pageable);
+
+	@Query("SELECT COUNT(d) FROM DeliveryJpaEntity d WHERE d.deletedAt IS NULL")
+	long countActive();
+
+	@Query("SELECT COUNT(d) FROM DeliveryJpaEntity d WHERE d.status = :status AND d.deletedAt IS NULL")
+	long countByStatusAndActive(@Param("status") String status);
 }
