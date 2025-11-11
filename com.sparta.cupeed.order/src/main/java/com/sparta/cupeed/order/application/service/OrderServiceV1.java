@@ -143,7 +143,6 @@ public class OrderServiceV1 {
 			.orderId(saved.getId())
 			.receiveCompanyId(saved.getRecieveCompanyId()).build();
 		deliveryClient.createDelivery(deliveryRequestDto, "X-User-Chohee");
-		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
 
 		slackClient.dmToReceiveCompany(
 			SlackMessageCreateRequestDtoV1.builder()
