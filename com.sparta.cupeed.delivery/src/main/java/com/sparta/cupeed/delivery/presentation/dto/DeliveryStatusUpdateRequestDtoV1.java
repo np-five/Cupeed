@@ -1,0 +1,24 @@
+package com.sparta.cupeed.delivery.presentation.dto;
+
+import com.sparta.cupeed.delivery.domain.model.DeliveryStatus;
+
+import lombok.Getter;
+import lombok.Setter;
+
+// 배송 상태 변경 요청 DTO
+@Getter
+@Setter
+public class DeliveryStatusUpdateRequestDtoV1 {
+	private DeliveryStatus status;
+
+	public DeliveryStatusUpdateRequestDtoV1() {
+	}
+
+	public DeliveryStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(DeliveryStatus status) {
+		this.status = status;
+	}
+}
