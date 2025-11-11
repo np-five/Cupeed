@@ -19,7 +19,7 @@ public class GeminiSendRequestDtoV1 {
 	@Schema(description = "주문 번호", example = "ORD-20251111-001")
 	private final String orderNumber;
 
-	@Schema(description = "수령업체명", example = "스파르타물류센터")
+	@Schema(description = "수령 업체명", example = "스파르타물류센터")
 	private final String recieveCompanyName;
 
 	@Schema(description = "주문 일시(UTC)", example = "2025-11-11T03:00:00Z")

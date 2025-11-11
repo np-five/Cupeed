@@ -28,14 +28,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/ai-requests")
-@Tag(name = "AI-Request", description = "AI요청 API")
+@Tag(name = "AI-Request", description = "AI 응답 생성 및 요청내역 조회 API")
 public class AiControllerV1 {
 
 	private final AiServiceV1 aiServiceV1;
 
 	@Operation(
 		summary = "Gemini 응답텍스트 생성",
-		description = "주문정보를 기반으로 발송담당자에게 보낼 배송요약메시지를 생성합니다.",
+		description = "주문 정보를 기반으로 발송 담당자에게 보낼 배송 요약메시지를 생성합니다.",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			description = "Gemini 요청 DTO",
 			required = true
@@ -49,16 +49,16 @@ public class AiControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
-	@Operation(summary = "AI요청내역 상세 조회", description = "관리자가 AI요청내역을 상세조회합니다.")
+	@Operation(summary = "AI 요청내역 상세 조회", description = "관리자가 AI 요청내역을 상세 조회합니다.")
 	@GetMapping("/{aiRequestId}")
 	public ResponseEntity<AiHistoryGetResponseDtoV1> getAiHistory(
-		@Parameter(description = "AI 요청 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1")
+		@Parameter(description = "AI 요청 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable("aiRequestId") UUID aiRequestId) {
 		AiHistoryGetResponseDtoV1 response = aiServiceV1.getAiHistory(aiRequestId);
 		return ResponseEntity.ok(response);
 	}
 
-	@Operation(summary = "AI요청내역 목록 조회", description = "관리자가 AI요청내역 목록을 조회합니다.")
+	@Operation(summary = "AI 요청내역 목록 조회", description = "관리자가 AI 요청내역 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<AiHistoriesGetResponseDtoV1> getAiHistories(
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
