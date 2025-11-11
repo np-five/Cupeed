@@ -1,4 +1,4 @@
-package com.sparta.cupeed.slack.presentation.advice;
+package com.sparta.cupeed.ai.presentation.advice;
 
 import java.time.Instant;
 
@@ -7,11 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class SlackExceptionHandler {
-
-	@ExceptionHandler(SlackException.class)
-	public ResponseEntity<ErrorResponse> handleOrderException(SlackException ex) {
-		SlackError error = ex.getError();
+public class AiExceptionHandler {
+	@ExceptionHandler(AiException.class)
+	public ResponseEntity<ErrorResponse> handleOrderException(AiException ex) {
+		AiError error = ex.getError();
 		return ResponseEntity.status(error.getHttpStatus())
 			.body(ErrorResponse.from(error));
 	}
@@ -33,7 +32,7 @@ public class SlackExceptionHandler {
 		String error,
 		String message
 	) {
-		public static ErrorResponse from(SlackError error) {
+		public static ErrorResponse from(AiError error) {
 			return new ErrorResponse(
 				Instant.now(),
 				error.getHttpStatus().value(),

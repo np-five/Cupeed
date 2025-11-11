@@ -15,12 +15,16 @@ import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSend
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
 import com.sparta.cupeed.ai.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.ai.infrastructure.slack.dto.SlackMessageCreateRequestDtoV1;
+import com.sparta.cupeed.ai.presentation.advice.AiError;
+import com.sparta.cupeed.ai.presentation.advice.AiException;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoriesGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoryGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiTextCreateResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiServiceV1 {
@@ -30,28 +34,58 @@ public class AiServiceV1 {
 	private final AiRepository aiRepository;
 	private final SlackClientV1 slackClient;
 
-	@Transactional
+	@Transactional(noRollbackFor = AiException.class)
 	public AiTextCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
 		String prompt = promptBuilder.generateAiTextPrompt(requestDto);
-
-		Ai.Status status;
-		String aiResponseText = null;
 		String errorMessage = null;
+		String aiResponseText = null;
+		Ai.Status status;
 
-		try {
-			aiResponseText = geminiAPIClient.createAiText(prompt);
-
-			if (aiResponseText == null || aiResponseText.isBlank()) {
-				status = Ai.Status.FAILED;
-				errorMessage = "AI로부터 유효한 응답을 받지 못했습니다.";
-			} else {
-				status = Ai.Status.SUCCESS;
-			}
-		} catch (Exception e) {
+		if (prompt == null || prompt.isBlank()) {
 			status = Ai.Status.FAILED;
-			errorMessage = "AI 요청 중 오류 발생: " + e.getMessage();
+			errorMessage = AiError.AI_PROMPT_BUILD_FAILED.getErrorMessage();
+		} else {
+			// Gemini API 통신
+			try {
+				aiResponseText = geminiAPIClient.createAiText(prompt);
+				if (aiResponseText == null || aiResponseText.isBlank()) {
+					status = Ai.Status.FAILED;
+					errorMessage = AiError.GEMINI_RESPONSE_INVALID.getErrorMessage();
+				} else {
+					status = Ai.Status.SUCCESS;
+				}
+			} catch (Exception e) {
+				status = Ai.Status.FAILED;
+				errorMessage = AiError.GEMINI_AI_API_CALL_FAILED.getErrorMessage();
+				log.error("[AiServiceV1] Gemini API 실패: {}", e.getMessage());
+			}
+
+			Ai created = Ai.builder()
+				.orderId(requestDto.getOrderId())
+				.aiResponseText(aiResponseText)
+				.status(status)
+				.errorMessage(errorMessage)
+				.createdAt(Instant.now())
+				.build();
+			Ai saved = aiRepository.save(created);
+
+			// Cupeed 슬랙 통신
+			try {
+				slackClient.dmToDliveryManager(
+					SlackMessageCreateRequestDtoV1.builder()
+						.recipientSlackId("U09SFAT4V5E")
+						.aiResponseText(aiResponseText)
+						.errorMessage(errorMessage)
+						.build()
+				);
+			} catch (Exception e) {
+				throw new AiException(AiError.AI_SLACK_NOTIFICATION_FAILED);
+			}
+
+			return AiTextCreateResponseDtoV1.of(saved);
 		}
 
+		// prompt가 없는 경우 DB에 기록
 		Ai created = Ai.builder()
 			.orderId(requestDto.getOrderId())
 			.aiResponseText(aiResponseText)
@@ -59,27 +93,18 @@ public class AiServiceV1 {
 			.errorMessage(errorMessage)
 			.createdAt(Instant.now())
 			.build();
-
 		Ai saved = aiRepository.save(created);
-
-		// TODO : 슬랙에 aiText 전달
-		slackClient.dmToDliveryManager(
-			SlackMessageCreateRequestDtoV1.builder()
-				.recipientSlackId("U09SFAT4V5E") // 임시 수령자 슬랙 ID - 차초희 멤버 ID
-				.aiResponseText(aiResponseText)
-				.errorMessage(errorMessage)
-				.build()
-		);
-
 		return AiTextCreateResponseDtoV1.of(saved);
 	}
 
+	@Transactional(readOnly = true)
 	public AiHistoryGetResponseDtoV1 getAiHistory(UUID aiRequestId) {
 		Ai aiHistory = aiRepository.findById(aiRequestId)
-				.orElseThrow(() -> new IllegalArgumentException("AI 요청 내역을 찾을 수 없습니다."));
+				.orElseThrow(() -> new AiException(AiError.AI_HISTORY_NOT_FOUND));
 		return AiHistoryGetResponseDtoV1.of(aiHistory);
 	}
 
+	@Transactional(readOnly = true)
 	public AiHistoriesGetResponseDtoV1 getAiHistories(Pageable pageable) {
 		Page<Ai> aiHistories = aiRepository.findAll(pageable);
 		return AiHistoriesGetResponseDtoV1.of(aiHistories);

@@ -25,19 +25,4 @@ public enum OrderError {
 
 	private final HttpStatus httpStatus;
 	private final String errorMessage;
-
-	// @Override
-	// public HttpStatus getHttpStatus() {
-	// 	return httpStatus;
-	// }
-	//
-	// @Override
-	// public String getErrorCode() {
-	// 	return name();
-	// }
-	//
-	// @Override
-	// public String getErrorMessage() {
-	// 	return errorMessage;
-	// }
 }
