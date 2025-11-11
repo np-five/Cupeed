@@ -25,6 +25,8 @@ public class UserMapper {
 			.slackId(userEntity.getSlackId())
 			.role(UserRoleEnum.valueOf(userEntity.getRole().name()))
 			.status(UserStatusEnum.valueOf(userEntity.getStatus().name()))
+			.companyId(userEntity.getCompanyId())
+			.hubId(userEntity.getHubId())
 			.createdAt(userEntity.getCreatedAt())
 			.createdBy(userEntity.getCreatedBy())
 			.updatedAt(userEntity.getUpdatedAt())

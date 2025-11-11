@@ -15,9 +15,7 @@ import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.mapper.UserMapper;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

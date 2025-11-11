@@ -23,9 +23,7 @@ import com.sparta.cupeed.user.presentation.dto.request.AuthSignUpRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.response.AuthLogInResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -158,6 +156,6 @@ public class AuthServiceV1 {
 			throw new AuthException(AuthError.AUTH_INVALID_PASSWORD);
 		}
 
-		return AuthLogInResponseDtoV1.of(jwtUtil.createToken(user.getId(), user.getUserId(), user.getRole()));
+		return AuthLogInResponseDtoV1.of(jwtUtil.createToken(user));
 	}
 }
