@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.config.GoogleAiProperties;
+import com.sparta.cupeed.ai.presentation.advice.AiError;
+import com.sparta.cupeed.ai.presentation.advice.AiException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +33,11 @@ public class GeminiAPIClientV1 {
 		String apiKey = googleAiProperties.getApiKey();
 		String apiUrl = googleAiProperties.getUrl();
 
-		try {
-			if (apiKey == null || apiKey.isBlank()) {
-				throw new IllegalArgumentException("API Key is null or blank");
-			}
+		if (apiKey == null || apiKey.isBlank()) {
+			throw new AiException(AiError.AI_KEY_MISSING);
+		}
 
+		try {
 			// 요청 헤더 구성
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
@@ -64,10 +66,10 @@ public class GeminiAPIClientV1 {
 				.get(0).getAsJsonObject()
 				.get("text").getAsString();
 
+		} catch (com.google.gson.JsonSyntaxException e) {
+			throw new AiException(AiError.GEMINI_AI_JSON_PARSE_FAILED, e);
 		} catch (Exception e) {
-			log.error("[GoogleAIService] Google AI API 호출 실패: {}", e.getMessage());
-			throw new IllegalArgumentException("AI 응답 생성 중 오류가 발생했습니다.", e);
+			throw new AiException(AiError.GEMINI_AI_API_CALL_FAILED);
 		}
-
 	}
 }

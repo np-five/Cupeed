@@ -129,6 +129,7 @@ public class OrderServiceV1 {
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
+	@Transactional(readOnly = true)
 	public OrderGetResponseDtoV1 getOrder(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
@@ -195,6 +196,7 @@ public class OrderServiceV1 {
 		orderRepository.save(deleted);
 	}
 
+	@Transactional(readOnly = true)
 	public OrdersGetResponseDtoV1 getOrders(Pageable pageable) {
 		// TODO : 검색할 때 쿼리 DSL 적용
 		Page<Order> orders = orderRepository.findAllByDeletedAtIsNull(pageable);

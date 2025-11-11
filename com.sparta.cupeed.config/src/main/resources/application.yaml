@@ -1,3 +1,18 @@
+server:
+  port: 19090
+
 spring:
+  profiles:
+    active: native
   application:
     name: config
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config-repo # classpath는 resource를 지칭
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
