@@ -17,6 +17,7 @@ import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
+import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
 import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
@@ -51,6 +52,7 @@ public class OrderServiceV1 {
 
 		List<OrderItem> orderItemList = new ArrayList<>();
 		BigDecimal totalPrice = BigDecimal.ZERO;
+		UUID supplyCompanyId = UUID.randomUUID();
 
 		for (OrderPostRequestDtoV1.OrderDto.OrderItemDto itemDto : requestOrder.getOrderItemList()) {
 			UUID productId = itemDto.getProductId();
@@ -60,20 +62,35 @@ public class OrderServiceV1 {
 				throw new OrderException(OrderError.ORDER_INVALID_QUANTITY);
 			}
 
-			// 더미 상품 데이터
-			String dummyProductName = "TestProduct-" + productId.toString().substring(0, 8);
-			BigDecimal unitPrice = BigDecimal.valueOf(1000);
-			BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity)); // subtotal = unitPrice × quantity
+			// 상품 정보 조회
+			ProductGetResponseDtoV1 response = productClient.getProduct(productId);
+			ProductGetResponseDtoV1.ProductDto productInfo = response.getProduct();
 
-			totalPrice = totalPrice.add(subtotal); // 각 주문 아이템들의 subtotal 합계
+			if (productInfo == null) {
+				throw new OrderException(OrderError.ORDER_PRODUCT_NOT_FOUND);
+			}
+			Long availableStock = productInfo.getQuantity();
+			if (availableStock == null || availableStock < quantity) {
+				throw new OrderException(OrderError.ORDER_PRODUCT_OUT_OF_STOCK);
+			}
+
+			supplyCompanyId = productInfo.getCompanyId();
+
+			UUID companyId =  productInfo.getCompanyId();
+			BigDecimal unitPrice = productInfo.getUnitPrice();
+			String productName = productInfo.getName();
+			BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+
+			totalPrice = totalPrice.add(subtotal);
 
 			OrderItem orderItem = OrderItem.builder()
 				.id(null)
 				.productId(productId)
-				.productName(dummyProductName)
+				.productName(productName)
 				.quantity(quantity)
 				.unitPrice(unitPrice)
 				.subtotal(subtotal)
+				.companyId(companyId)
 				.createdAt(Instant.now())
 				.createdBy("system")
 				.build();
@@ -83,7 +100,6 @@ public class OrderServiceV1 {
 
 		// 임시 값 (인증 토큰에서 가져와야 함)
 		UUID dummyRecieveCompanyId = UUID.randomUUID();
-		UUID dummySupplyCompanyId = UUID.randomUUID();
 		UUID dummyStartHubId = UUID.randomUUID();
 		String dummyCompanyName = "Temporary Company Name";
 
@@ -92,7 +108,7 @@ public class OrderServiceV1 {
 
 		Order created = Order.builder()
 			.orderNumber(orderNumber)
-			.supplyCompanyId(dummySupplyCompanyId)
+			.supplyCompanyId(supplyCompanyId)
 			.recieveCompanyId(dummyRecieveCompanyId)
 			.recieveCompanyName(dummyCompanyName)
 			.startHubId(dummyStartHubId)
@@ -119,7 +135,6 @@ public class OrderServiceV1 {
 			)
 			.build();
 		productClient.decreaseStock(decreaseRequestDto);
-
 
 		// TODO : 배송 생성
 		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
