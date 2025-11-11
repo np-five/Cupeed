@@ -17,6 +17,7 @@ import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
 import com.sparta.cupeed.order.infrastructure.delivery.client.DeliveryClientV1;
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
+import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockDecreaseRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
@@ -35,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderServiceV1 {
 
 	private final OrderRepository orderRepository;
-	// private final ProductClientV1 productClient;
+	private final ProductClientV1 productClient;
 	// private final DeliveryClientV1 deliveryClient;
 	private final SlackClientV1 slackClient;
 
@@ -106,15 +107,30 @@ public class OrderServiceV1 {
 
 		Order saved = orderRepository.save(created);
 
-		// TODO : 주문 아이템 재고 차감 - ProductClient 호출
 		// for (OrderItem item : saved.getOrderItemList()) {
 		// 	productClient.decreaseStock(item.getProductId(), item.getQuantity());
 		// }
+		// TODO : 주문 아이템 재고 차감 - ProductClient 호출
+		ProductStockDecreaseRequestDtoV1 productRequestDto = ProductStockDecreaseRequestDtoV1.builder()
+			.order(ProductStockDecreaseRequestDtoV1.OrderDto.builder()
+				.orderId(saved.getId())
+				.build())
+			.productStocks(
+				saved.getOrderItemList().stream()
+					.map(item -> ProductStockDecreaseRequestDtoV1.ProductStockDto.builder()
+						.productId(item.getProductId())
+						.quantity(item.getQuantity())
+						.build())
+					.toList()
+			)
+			.build();
+		productClient.decreaseStock(productRequestDto);
+
 
 		// TODO : 배송 생성
 		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
 
-		// TODO : 주문 알림 - 사용자 DM 전송
+		// TODO : 주문 완료 알림 - SlackClient 호출
 		slackClient.dmToReceiveCompany(
 			SlackMessageCreateRequestDtoV1.builder()
 				.orderNumber(saved.getOrderNumber())
@@ -170,9 +186,9 @@ public class OrderServiceV1 {
 		}
 
 		// TODO : 주문 아이템 재고 복구 -> ProductClient 호출
-		// for (OrderItem item : order.getOrderItemList()) {
-		// 	productClient.restoreStock(item.getProductId(), item.getQuantity());
-		// }
+		for (OrderItem item : order.getOrderItemList()) {
+			productClient.restoreStock(item.getProductId(), item.getQuantity());
+		}
 
 		// 임시 userId
 		UUID userId = UUID.randomUUID();

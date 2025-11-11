@@ -1,4 +1,4 @@
-package com.sparta.cupeed.order.infrastructure.product.dto.request;
+package com.sparta.cupeed.product.presentation.dto.request;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ProductStockReleaseRequestDtoV1 {
+public class ProductStockDecreaseRequestDtoV1 {
 	private final OrderDto order;
 	private final List<ProductStockDto> productStocks;
 

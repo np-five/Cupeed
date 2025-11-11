@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.sparta.cupeed.product.application.service.ProductServiceV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
+import com.sparta.cupeed.product.presentation.dto.request.ProductStockDecreaseRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.response.ProductPostResponseDtoV1;
 import com.sparta.cupeed.product.presentation.dto.response.ProductGetResponseDtoV1;
 import com.sparta.cupeed.product.presentation.dto.response.ProductsGetResponseDtoV1;
@@ -73,14 +74,20 @@ public class ProductControllerV1 {
 	}
 
 	// 주문용: 재고 차감
-	@PostMapping("/{productId}/decrease-stock")
-	public ResponseEntity<Void> decreaseStock(
-		@PathVariable UUID productId,
-		@RequestParam Long quantity
-	) {
-		productServiceV1.decreaseProductQuantityByAmount(productId, quantity);
+	// @PostMapping("/{productId}/decrease-stock")
+	// public ResponseEntity<Void> decreaseStock(
+	// 	@PathVariable UUID productId,
+	// 	@RequestParam Long quantity
+	// ) {
+	// 	productServiceV1.decreaseProductQuantityByAmount(productId, quantity);
+	// 	return ResponseEntity.ok().build();
+	// }
+	@PostMapping("/decrease-stock")
+	public ResponseEntity<Void> decreaseStock(@RequestBody ProductStockDecreaseRequestDtoV1 requestDto) {
+		productServiceV1.decreaseStock(requestDto);
 		return ResponseEntity.ok().build();
 	}
+
 
 	// 주문 취소용: 재고 복원
 	@PostMapping("/{productId}/restore-stock")
