@@ -22,7 +22,7 @@ public class OpenApiConfig {
 	@Bean
 	public OpenAPI openApi() {
 		return new OpenAPI()
-			.info(new Info().title("Cupeed User API").version("v1"))
+			.info(new Info().title("Cupeed Slack-Message API").version("v1"))
 			.components(new Components()
 				.addSecuritySchemes(jwtProperties.getBearerSchema(),
 					new SecurityScheme()
