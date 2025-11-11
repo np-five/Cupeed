@@ -5,15 +5,16 @@ import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.sparta.cupeed.user.auth.infrastructure.security.auth.UserDetailsServiceImpl;
-import com.sparta.cupeed.user.auth.infrastructure.security.jwt.JwtUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.sparta.cupeed.user.auth.infrastructure.security.auth.UserDetailsImpl;
+import com.sparta.cupeed.user.auth.infrastructure.security.jwt.JwtProperties;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,8 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-	private final JwtUtil jwtUtil;
-	private final UserDetailsServiceImpl userDetailsService;
+	private final JwtProperties jwtProperties;
 
 	private final List<String> whitelist = List.of("/v1/auth/sign-up", "/v1/auth/log-in");
 
@@ -41,39 +41,28 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain
 	) throws ServletException, IOException {
-		String token = jwtUtil.getJwtTokenFromHeader(request);
+		String authorizationToken = request.getHeader(jwtProperties.getAccessHeaderName());
 
-		if (!StringUtils.hasText(token)) {
+		if (!StringUtils.hasText(authorizationToken) || !authorizationToken.startsWith(
+			jwtProperties.getHeaderPrefix())) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		String accessJwt = authorizationToken.substring(jwtProperties.getHeaderPrefix().length());
+		DecodedJWT decodedAccessJwt = JWT.decode(accessJwt);
+		UserDetails userDetails;
+		try {
+			userDetails = UserDetailsImpl.of(decodedAccessJwt);
+		} catch (RuntimeException e) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		try {
-			if (!jwtUtil.validateToken(token)) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT Token");
-				return;
-			}
+		Authentication authentication =
+			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-			String userId = jwtUtil.getUserInfoFromToken(token).getSubject();
-			setAuthentication(userId);
-		} catch (Exception e) {
-			SecurityContextHolder.clearContext();
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Authentication failed");
-			return;
-		}
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		filterChain.doFilter(request, response);
-	}
-
-	public void setAuthentication(String userId) {
-		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-		UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-			userDetails,
-			null,
-			userDetails.getAuthorities());
-
-		securityContext.setAuthentication(authentication);
-		SecurityContextHolder.setContext(securityContext);
 	}
 }

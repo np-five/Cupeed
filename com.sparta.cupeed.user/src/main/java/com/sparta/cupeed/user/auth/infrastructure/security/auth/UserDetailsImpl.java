@@ -2,39 +2,47 @@ package com.sparta.cupeed.user.auth.infrastructure.security.auth;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.RoleEnum;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.UserEntity;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@Builder
 public class UserDetailsImpl implements UserDetails {
 
-	private final UserEntity userEntity;
+	private UUID id;
+	private String userId;
+	private String role;
+
+	public static UserDetailsImpl of(DecodedJWT token) {
+		return UserDetailsImpl.builder()
+			.id(UUID.fromString(token.getClaim("id").asString()))
+			.userId(token.getSubject())
+			.role(token.getClaim("role").asString())
+			.build();
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		RoleEnum role = userEntity.getRole();
-		String authority = role.getAuthority();
-		SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
+		SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role);
 
 		return List.of(simpleGrantedAuthority);
 	}
 
 	@Override
 	public String getPassword() {
-		return userEntity.getPassword();
+		return null;
 	}
 
 	@Override
 	public String getUsername() {
-		return userEntity.getUserId();
+		return userId;
 	}
 }
