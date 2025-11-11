@@ -11,5 +11,5 @@ public interface UserRepository {
 
 	Optional<User> findBySlackId(String slackId);
 
-	User save(User user, UserCompany newUserCompany);
+	void save(User user, UserCompany newUserCompany);
 }
