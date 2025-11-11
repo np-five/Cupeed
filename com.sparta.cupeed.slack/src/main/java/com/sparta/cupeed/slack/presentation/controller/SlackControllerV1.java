@@ -37,7 +37,7 @@ public class SlackControllerV1 {
 	@Operation(summary = "주문완료 DM 전송", description = "주문이 완료되면 수령업체에게 주문완료 알림을 보냅니다.")
 	@PostMapping("/dm/toReceiveCompany")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToReciveCompany(
-		@Valid @RequestBody SlackReceiveCompanyDMCreateRequestDtoV1 requestDto
+		@RequestBody @Valid SlackReceiveCompanyDMCreateRequestDtoV1 requestDto
 	) {
 		SlackCreateResponseDtoV1 response = slackService.createDMToReciveCompany(requestDto);
 		return ResponseEntity.ok(response);
@@ -46,7 +46,7 @@ public class SlackControllerV1 {
 	@Operation(summary = "배송 요약메시지 DM 전송", description = "배송 담당자가 정해지면 Gemini가 생성한 배송 요약메시지를 발송 담당자에게 전송합니다.")
 	@PostMapping("/dm/toDliveryManager")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToDliveryManager(
-		@Valid @RequestBody SlackDeliveryManagerDMCreateRequestDtoV1 requestDto
+		@RequestBody @Valid SlackDeliveryManagerDMCreateRequestDtoV1 requestDto
 	) {
 		SlackCreateResponseDtoV1 response = slackService.createDMToDliveryManager(requestDto);
 		return ResponseEntity.ok(response);
