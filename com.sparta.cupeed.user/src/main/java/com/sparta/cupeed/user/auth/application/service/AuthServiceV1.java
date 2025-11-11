@@ -66,8 +66,7 @@ public class AuthServiceV1 {
 			.createdBy("system")
 			.build();
 
-		// TODO: 로그 삭제
-		log.info("user: {}", userRepository.save(newUser, newUserCompany));
+		userRepository.save(newUser, newUserCompany);
 	}
 
 	public AuthLogInResponseDtoV1 logIn(AuthLogInRequestDtoV1 authLogInRequestDtoV1) {
@@ -78,6 +77,6 @@ public class AuthServiceV1 {
 			throw new AuthException(AuthError.AUTH_INVALID_PASSWORD);
 		}
 
-		return new AuthLogInResponseDtoV1("Bearer", jwtUtil.createToken(user.getUserId(), user.getRole()));
+		return AuthLogInResponseDtoV1.of(jwtUtil.createToken(user.getUserId(), user.getRole()));
 	}
 }

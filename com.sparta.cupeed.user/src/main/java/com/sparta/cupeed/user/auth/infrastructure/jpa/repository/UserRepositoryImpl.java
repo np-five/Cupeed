@@ -36,7 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 
 	@Override
-	public User save(User user, UserCompany newUserCompany) {
+	public void save(User user, UserCompany newUserCompany) {
 		UserEntity userEntity = userMapper.toEntity(user);
 		UserCompanyEntity userCompanyEntity = userMapper.toEntity(newUserCompany);
 
@@ -46,6 +46,6 @@ public class UserRepositoryImpl implements UserRepository {
 
 		userEntity.attachUserCompany(userCompanyEntity);
 
-		return userMapper.toDomain(userJpaRepository.save(userEntity));
+		userJpaRepository.save(userEntity);
 	}
 }

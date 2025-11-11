@@ -1,16 +1,31 @@
 package com.sparta.cupeed.user.auth.presentation.dto.response;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class AuthLogInResponseDtoV1 {
 
-	private String tokenType;
-	private String token;
+	private UserDto user;
+
+	public static AuthLogInResponseDtoV1 of(String token) {
+		return AuthLogInResponseDtoV1.builder()
+			.user(UserDto.from(token))
+			.build();
+	}
+
+	@Getter
+	@Builder
+	public static class UserDto {
+		private String tokenType;
+		private String token;
+
+		public static UserDto from(String token) {
+			return UserDto.builder()
+				.tokenType("Bearer")
+				.token(token)
+				.build();
+		}
+	}
 }
