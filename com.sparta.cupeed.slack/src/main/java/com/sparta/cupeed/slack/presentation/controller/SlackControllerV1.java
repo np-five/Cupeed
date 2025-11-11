@@ -34,14 +34,7 @@ public class SlackControllerV1 {
 
 	private final SlackServiceV1 slackService;
 
-	@Operation(
-		summary = "주문완료 DM 전송",
-		description = "주문이 완료되면 수령업체에게 주문완료 알림을 보냅니다.",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			description = "주문완료 알림 요청 DTO",
-			required = true
-		)
-	)
+	@Operation(summary = "주문완료 DM 전송", description = "주문이 완료되면 수령업체에게 주문완료 알림을 보냅니다.")
 	@PostMapping("/dm/toReceiveCompany")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToReciveCompany(
 		@Valid @RequestBody SlackReceiveCompanyDMCreateRequestDtoV1 requestDto
@@ -50,14 +43,7 @@ public class SlackControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
-	@Operation(
-		summary = "배송 요약메시지 DM 전송",
-		description = "배송 담당자가 정해지면 Gemini가 생성한 배송 요약메시지를 발송 담당자에게 전송합니다.",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			description = "배송 요약 메시지 요청 DTO",
-			required = true
-		)
-	)
+	@Operation(summary = "배송 요약메시지 DM 전송", description = "배송 담당자가 정해지면 Gemini가 생성한 배송 요약메시지를 발송 담당자에게 전송합니다.")
 	@PostMapping("/dm/toDliveryManager")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToDliveryManager(
 		@Valid @RequestBody SlackDeliveryManagerDMCreateRequestDtoV1 requestDto

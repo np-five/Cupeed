@@ -33,14 +33,7 @@ public class AiControllerV1 {
 
 	private final AiServiceV1 aiServiceV1;
 
-	@Operation(
-		summary = "Gemini 응답텍스트 생성",
-		description = "주문 정보를 기반으로 발송 담당자에게 보낼 배송 요약메시지를 생성합니다.",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			description = "Gemini 요청 DTO",
-			required = true
-		)
-	)
+	@Operation(summary = "Gemini 응답텍스트 생성", description = "주문 정보를 기반으로 발송 담당자에게 보낼 배송 요약메시지를 생성합니다.")
 	@PostMapping
 	public ResponseEntity<AiTextCreateResponseDtoV1> createAiText(
 		@Valid @RequestBody GeminiSendRequestDtoV1 requestDto
