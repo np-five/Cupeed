@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth.infrastructure.security.auth;
+package com.sparta.cupeed.slack.infrastructure.security.auth;
 
 import java.util.Collection;
 import java.util.List;

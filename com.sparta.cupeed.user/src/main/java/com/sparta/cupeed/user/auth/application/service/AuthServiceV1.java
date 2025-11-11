@@ -77,6 +77,6 @@ public class AuthServiceV1 {
 			throw new AuthException(AuthError.AUTH_INVALID_PASSWORD);
 		}
 
-		return AuthLogInResponseDtoV1.of(jwtUtil.createToken(user.getUserId(), user.getRole()));
+		return AuthLogInResponseDtoV1.of(jwtUtil.createToken(user.getId(), user.getUserId(), user.getRole()));
 	}
 }

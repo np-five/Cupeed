@@ -26,14 +26,6 @@ springdoc:
     # http://localhost:[port]/swagger로 스웨거 호출 가능.
     path: /swagger
 
-cupeed:
-  jwt:
-    secret: ${JWT_SECRET_KEY}
-    access-expiration-time: 3600000 # 1 hour in milliseconds
-    access-header-name: Authorization
-    header-prefix: "Bearer "
-    swagger-bearer-schema: bearerAuth
-
 server:
   port: 20090
 
@@ -43,3 +35,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8080/eureka/
+
+cupeed:
+  jwt:
+    access-header-name: Authorization
+    header-prefix: "Bearer "
+    swagger-bearer-schema: bearerAuth

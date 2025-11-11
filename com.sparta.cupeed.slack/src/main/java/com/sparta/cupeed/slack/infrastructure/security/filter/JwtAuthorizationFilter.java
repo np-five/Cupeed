@@ -1,7 +1,6 @@
-package com.sparta.cupeed.user.auth.infrastructure.security.filter;
+package com.sparta.cupeed.slack.infrastructure.security.filter;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,27 +12,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.sparta.cupeed.user.auth.infrastructure.security.auth.UserDetailsImpl;
-import com.sparta.cupeed.user.auth.infrastructure.security.jwt.JwtProperties;
+import com.sparta.cupeed.slack.infrastructure.security.auth.UserDetailsImpl;
+import com.sparta.cupeed.slack.infrastructure.security.jwt.JwtProperties;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtProperties jwtProperties;
-
-	private final List<String> whitelist = List.of("/v1/auth/sign-up", "/v1/auth/log-in");
-
-	@Override
-	protected boolean shouldNotFilter(HttpServletRequest request) {
-		return whitelist.stream().anyMatch(url -> request.getRequestURI().startsWith(url));
-	}
 
 	@Override
 	protected void doFilterInternal(

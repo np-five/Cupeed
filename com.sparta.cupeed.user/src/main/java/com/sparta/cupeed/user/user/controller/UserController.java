@@ -1,6 +1,7 @@
 package com.sparta.cupeed.user.user.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,8 @@ public class UserController {
 
 	private final UserMapper userMapper;
 
+	// Authority: 'ROLE_MASTER', 'ROLE_HUB', 'ROLE_COMPANY', 'ROLE_DELIVERY'
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Operation(summary = "인증 테스트", description = "헤더에 토큰 넣고 인증 테스트를 할 수 있습니다.")
 	@GetMapping("/auth-test")
 	public ResponseEntity<?> testEndpoint(@AuthenticationPrincipal UserDetailsImpl userDetails) {

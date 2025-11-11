@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth.infrastructure.security.config;
+package com.sparta.cupeed.user.auth.infrastructure.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
