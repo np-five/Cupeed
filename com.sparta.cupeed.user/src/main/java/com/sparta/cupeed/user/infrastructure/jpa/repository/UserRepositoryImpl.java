@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.cupeed.user.auth.domain.model.User;
-import com.sparta.cupeed.user.auth.domain.model.UserCompany;
-import com.sparta.cupeed.user.auth.domain.repository.UserRepository;
+import com.sparta.cupeed.user.domain.model.User;
+import com.sparta.cupeed.user.domain.model.UserCompany;
+import com.sparta.cupeed.user.domain.repository.UserRepository;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.UserCompanyEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.mapper.UserMapper;

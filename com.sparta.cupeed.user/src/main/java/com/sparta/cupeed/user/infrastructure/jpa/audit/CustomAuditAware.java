@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.sparta.cupeed.user.auth.infrastructure.security.auth.UserDetailsImpl;
+import com.sparta.cupeed.user.infrastructure.security.auth.UserDetailsImpl;
 
 @Component
 public class CustomAuditAware implements AuditorAware<String> {
