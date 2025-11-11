@@ -3,6 +3,7 @@ package com.sparta.cupeed.user.auth.infrastructure.security.jwt;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -40,12 +41,13 @@ public class JwtUtil {
 	}
 
 	// JWT 토큰 생성
-	public String createToken(String userId, UserRoleEnum role) {
+	public String createToken(UUID id, String userId, UserRoleEnum role) {
 		Date date = new Date();
 
 		return jwtProperties.getHeaderPrefix() + Jwts.builder()
 			.setSubject(userId) // 사용자 식별자값(아이디)
-			.claim("role", role) // 사용자 권한
+			.claim("id", id)
+			.claim("role", role.getAuthority()) // 사용자 권한
 			.setExpiration(new Date(date.getTime() + jwtProperties.getExpirationTime())) // 만료 시간
 			.setIssuedAt(date) // 발급일
 			.signWith(key, signatureAlgorithm) // 암호화 알고리즘
