@@ -14,7 +14,7 @@ public class OrderStatusUpdateRequestDtoV1 {
 	@NotNull(message = "주문 상태를 입력해주세요.")
 	@Schema(
 		description = "주문 상태",
-		example = "COMPLETED",
+		example = "REQUESTED",
 		required = true,
 		allowableValues = {"REQUESTED", "ACCEPTED", "SHIPPED", "DELIVERED", "CANCEL_REQUESTED", "CANCELED"}
 	)
