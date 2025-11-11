@@ -31,7 +31,9 @@ public class HubRouteController {
 	// POST /v1/hub_routes : 새로운 HubRoute 생성
 	@PostMapping
 	public ResponseEntity<HubRouteResponse> createHubRoute(@Valid @RequestBody CreateHubRouteCommand request) {
-		HubRouteResponse response = hubRouteService.createHubRoute(request);
+		// HubRouteResponse response = hubRouteService.createHubRoute(request);
+		HubRouteResponse response = hubRouteService.createDynamicHubRoute(request.getStartHubId(),
+			request.getEndHubId());
 		return ResponseEntity.ok(response);
 	}
 

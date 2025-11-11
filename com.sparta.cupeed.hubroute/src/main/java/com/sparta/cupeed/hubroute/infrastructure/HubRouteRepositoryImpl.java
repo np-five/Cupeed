@@ -36,4 +36,9 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
 	public void delete(HubRoute hubRoute) {
 		jpaRepository.delete(hubRoute);
 	}
+
+	@Override
+	public Optional<HubRoute> findByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId) {
+		return jpaRepository.findByStartHubIdAndEndHubId(startHubId, endHubId);
+	}
 }

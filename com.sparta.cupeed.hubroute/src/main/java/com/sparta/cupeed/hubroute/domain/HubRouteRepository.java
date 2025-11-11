@@ -13,4 +13,6 @@ public interface HubRouteRepository {
 	List<HubRoute> findAll();
 
 	void delete(HubRoute hubRoute);
+
+	Optional<HubRoute> findByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId);
 }
