@@ -1,11 +1,11 @@
-package com.sparta.cupeed.user.auth.infrastructure.jpa.repository;
+package com.sparta.cupeed.user.infrastructure.jpa.repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.UserEntity;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
 
 public interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
 

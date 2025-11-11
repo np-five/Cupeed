@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth.infrastructure.jpa.entity;
+package com.sparta.cupeed.user.infrastructure.jpa.entity;
 
 import java.time.LocalDateTime;
 

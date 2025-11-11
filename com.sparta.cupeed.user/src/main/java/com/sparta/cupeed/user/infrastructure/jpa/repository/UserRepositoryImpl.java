@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth.infrastructure.jpa.repository;
+package com.sparta.cupeed.user.infrastructure.jpa.repository;
 
 import java.util.Optional;
 
@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.cupeed.user.auth.domain.model.User;
 import com.sparta.cupeed.user.auth.domain.model.UserCompany;
 import com.sparta.cupeed.user.auth.domain.repository.UserRepository;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.UserCompanyEntity;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.UserEntity;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.mapper.UserMapper;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.UserCompanyEntity;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
+import com.sparta.cupeed.user.infrastructure.jpa.mapper.UserMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

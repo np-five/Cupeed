@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth.infrastructure.jpa.config.audit;
+package com.sparta.cupeed.user.infrastructure.jpa.audit;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

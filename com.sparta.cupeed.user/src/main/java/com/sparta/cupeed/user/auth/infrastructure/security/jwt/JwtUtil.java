@@ -4,13 +4,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.sparta.cupeed.user.auth.domain.vo.UserRoleEnum;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
+	// TODO: token에 companyId 담아주세요. <- 초희님 요청
 
 	private final JwtProperties jwtProperties;
 
@@ -32,17 +31,6 @@ public class JwtUtil {
 			.withIssuedAt(now) // 발급일
 			.withExpiresAt(now.plusMillis(jwtProperties.getExpirationTime())) // 만료 시간
 			.sign(Algorithm.HMAC512(jwtProperties.getSecret())); // 암호화 알고리즘
-	}
-
-	// header 에서 JWT 가져오기
-	public String getJwtTokenFromHeader(HttpServletRequest request) {
-		String bearerToken = request.getHeader(jwtProperties.getAccessHeaderName());
-
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtProperties.getHeaderPrefix())) {
-			return bearerToken.substring(jwtProperties.getHeaderPrefix().length());
-		}
-
-		return null;
 	}
 }
 

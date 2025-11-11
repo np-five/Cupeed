@@ -1,4 +1,4 @@
-package com.sparta.cupeed.user.auth.infrastructure.jpa.mapper;
+package com.sparta.cupeed.user.infrastructure.jpa.mapper;
 
 import org.springframework.stereotype.Component;
 
@@ -6,10 +6,10 @@ import com.sparta.cupeed.user.auth.domain.model.User;
 import com.sparta.cupeed.user.auth.domain.model.UserCompany;
 import com.sparta.cupeed.user.auth.domain.vo.UserRoleEnum;
 import com.sparta.cupeed.user.auth.domain.vo.UserStatusEnum;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.RoleEnum;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.StatusEnum;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.UserCompanyEntity;
-import com.sparta.cupeed.user.auth.infrastructure.jpa.entity.UserEntity;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.RoleEnum;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.StatusEnum;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.UserCompanyEntity;
+import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
 
 @Component
 public class UserMapper {
