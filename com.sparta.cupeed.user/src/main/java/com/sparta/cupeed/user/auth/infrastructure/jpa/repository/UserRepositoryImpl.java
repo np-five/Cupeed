@@ -1,6 +1,5 @@
 package com.sparta.cupeed.user.auth.infrastructure.jpa.repository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -39,10 +38,6 @@ public class UserRepositoryImpl implements UserRepository {
 	public void save(User user, UserCompany newUserCompany) {
 		UserEntity userEntity = userMapper.toEntity(user);
 		UserCompanyEntity userCompanyEntity = userMapper.toEntity(newUserCompany);
-
-		// TODO: created auditing 처리
-		userEntity.setCreatedAt(LocalDateTime.now());
-		userEntity.setCreatedBy("system");
 
 		userEntity.attachUserCompany(userCompanyEntity);
 
