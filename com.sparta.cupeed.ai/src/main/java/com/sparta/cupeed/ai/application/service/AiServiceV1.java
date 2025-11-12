@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,6 +100,7 @@ public class AiServiceV1 {
 		return AiTextCreateResponseDtoV1.of(saved);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
 	public AiHistoryGetResponseDtoV1 getAiHistory(UserDetailsImpl userDetails, UUID aiRequestId) {
 		Ai aiHistory = aiRepository.findById(aiRequestId)
@@ -110,6 +112,7 @@ public class AiServiceV1 {
 		return AiHistoryGetResponseDtoV1.of(aiHistory);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
 	public AiHistoriesGetResponseDtoV1 getAiHistories(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
 		Page<Ai> aiHistories = aiRepository.searchAiHistories(keyword, pageable);
