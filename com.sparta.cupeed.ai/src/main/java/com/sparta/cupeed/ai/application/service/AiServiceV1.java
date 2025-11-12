@@ -13,6 +13,8 @@ import com.sparta.cupeed.ai.domain.repository.AiRepository;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.client.GeminiAPIClientV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSendRequestDtoV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
+import com.sparta.cupeed.ai.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.ai.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.ai.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.ai.infrastructure.slack.dto.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.ai.presentation.advice.AiError;
@@ -98,15 +100,23 @@ public class AiServiceV1 {
 	}
 
 	@Transactional(readOnly = true)
-	public AiHistoryGetResponseDtoV1 getAiHistory(UUID aiRequestId) {
+	public AiHistoryGetResponseDtoV1 getAiHistory(UserDetailsImpl userDetails, UUID aiRequestId) {
 		Ai aiHistory = aiRepository.findById(aiRequestId)
 				.orElseThrow(() -> new AiException(AiError.AI_HISTORY_NOT_FOUND));
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new AiException(AiError.AI_ACCESS_DENIED);
+		}
 		return AiHistoryGetResponseDtoV1.of(aiHistory);
 	}
 
 	@Transactional(readOnly = true)
-	public AiHistoriesGetResponseDtoV1 getAiHistories(String keyword, Pageable pageable) {
+	public AiHistoriesGetResponseDtoV1 getAiHistories(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
 		Page<Ai> aiHistories = aiRepository.searchAiHistories(keyword, pageable);
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new AiException(AiError.AI_ACCESS_DENIED);
+		}
 		return AiHistoriesGetResponseDtoV1.of(aiHistories);
 	}
 }
