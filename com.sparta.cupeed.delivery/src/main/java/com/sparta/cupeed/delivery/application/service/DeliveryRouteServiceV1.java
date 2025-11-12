@@ -45,7 +45,11 @@ public class DeliveryRouteServiceV1 {
 			.orElseThrow(() -> new IllegalArgumentException("배송 경로를 찾을 수 없습니다: " + routeId));
 
 		route.startDelivery(managerId, Instant.now());
-		return deliveryRouteRepository.save(route);
+		DeliveryRoute savedRoute = deliveryRouteRepository.save(route);
+
+		//TODO: 슬랙 알림 연동
+
+		return savedRoute;
 	}
 
 	//배송 경로 완료 (배송 담당자가 실제 거리와 소요시간을 직접 입력)
