@@ -20,12 +20,14 @@ public class UserDetailsImpl implements UserDetails {
 	private UUID id;
 	private String userId;
 	private String role;
+	private UUID companyId;
 
 	public static UserDetailsImpl of(DecodedJWT token) {
 		return UserDetailsImpl.builder()
 			.id(UUID.fromString(token.getClaim("id").asString()))
 			.userId(token.getSubject())
 			.role(token.getClaim("role").asString())
+			.companyId(UUID.fromString(token.getClaim("companyId").asString()))
 			.build();
 	}
 

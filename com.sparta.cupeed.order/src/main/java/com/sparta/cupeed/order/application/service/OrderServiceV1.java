@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,8 @@ import com.sparta.cupeed.order.infrastructure.delivery.dto.request.DeliveryCreat
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
+import com.sparta.cupeed.order.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.order.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
@@ -35,14 +38,16 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceV1 {
+	// TODO : Client한테 userDetails 전달
 
 	private final OrderRepository orderRepository;
 	private final ProductClientV1 productClient;
 	private final DeliveryClientV1 deliveryClient;
 	private final SlackClientV1 slackClient;
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional
-	public OrderPostResponseDtoV1 createOrder(OrderPostRequestDtoV1 requestDto) {
+	public OrderPostResponseDtoV1 createOrder(UserDetailsImpl userDetails, OrderPostRequestDtoV1 requestDto) {
 		OrderPostRequestDtoV1.OrderDto requestOrder = requestDto.getOrder();
 
 		// 상품 중복 검사
@@ -94,30 +99,37 @@ public class OrderServiceV1 {
 				.subtotal(subtotal)
 				.companyId(companyId)
 				.createdAt(Instant.now())
-				.createdBy("system")
+				.createdBy(userDetails.getUserId())
 				.build();
 
 			orderItemList.add(orderItem);
 		}
 
-		// 임시 값 (인증 토큰에서 가져와야 함)
-		UUID dummyRecieveCompanyId = UUID.randomUUID();
-		UUID dummyStartHubId = UUID.randomUUID();
-		String dummyCompanyName = "Temporary Company Name";
+		UUID receiveCompanyId;
+		String receiveCompanyName;
 
-		// 임시 주문 번호 생성
+		if (userDetails.getRole().equals("ROLE_MASTER")) {
+			receiveCompanyId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+			receiveCompanyName = "MASTER_DEFAULT_COMPANY";
+		} else {
+			receiveCompanyId = userDetails.getCompanyId();
+			// receiveCompanyName = userDetails.getCompanyName(); // TODO : 수령업체명 필요 (인증 토큰에서 가져와야 함)
+			receiveCompanyName = "Temporary Company Name"; // 임시 값
+
+		}
+
 		String orderNumber = "ORD-" + Instant.now().toEpochMilli();
 
 		Order created = Order.builder()
 			.orderNumber(orderNumber)
 			.supplyCompanyId(supplyCompanyId)
-			.recieveCompanyId(dummyRecieveCompanyId)
-			.recieveCompanyName(dummyCompanyName)
+			.recieveCompanyId(receiveCompanyId)
+			.recieveCompanyName(receiveCompanyName)
 			.orderItemList(orderItemList)
 			.totalPrice(totalPrice)
 			.status(Order.Status.REQUESTED)
 			.createdAt(Instant.now())
-			.createdBy("system")
+			.createdBy(userDetails.getUserId())
 			.build();
 
 		Order saved = orderRepository.save(created);
@@ -148,7 +160,7 @@ public class OrderServiceV1 {
 				.recieveCompanyId(saved.getRecieveCompanyId())
 				.recieveCompanyName(saved.getRecieveCompanyName())
 				.totalPrice(saved.getTotalPrice())
-				.recipientSlackId("U09SFAT4V5E") // 임시 수령자 슬랙 ID - 차초희 멤버 ID
+				.recipientSlackId("U09SFAT4V5E") // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
 				.status("REQUESTED")
 				.build()
 		);
@@ -156,17 +168,28 @@ public class OrderServiceV1 {
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional(readOnly = true)
-	public OrderGetResponseDtoV1 getOrder(UUID orderId) {
+	public OrderGetResponseDtoV1 getOrder(UserDetailsImpl userDetails, UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role == RoleEnum.COMPANY && !order.getRecieveCompanyId().equals(userDetails.getCompanyId())) {
+			throw new OrderException(OrderError.ORDER_FORBIDDEN);
+		}
 		return OrderGetResponseDtoV1.of(order);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional
-	public OrderPostResponseDtoV1 updateOrder(UUID orderId, OrderPostRequestDtoV1 requestDto) {
+	public OrderPostResponseDtoV1 updateOrder(UserDetailsImpl userDetails, UUID orderId, OrderPostRequestDtoV1 requestDto) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
+
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role == RoleEnum.COMPANY && !order.getRecieveCompanyId().equals(userDetails.getCompanyId())) {
+			throw new OrderException(OrderError.ORDER_FORBIDDEN);
+		}
 
 		// 주문 상태가 REQUESTED일 때만 주문 수정 가능
 		if (order.getStatus() != Order.Status.REQUESTED) {
@@ -240,7 +263,6 @@ public class OrderServiceV1 {
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
-
 	@Transactional
 	public OrderPostResponseDtoV1 updateOrderStatus(UUID orderId, OrderStatusUpdateRequestDtoV1 requestDto) {
 		Order order = orderRepository.findById(orderId)
@@ -251,7 +273,7 @@ public class OrderServiceV1 {
 	}
 
 	@Transactional
-	public void cancelOrder(UUID orderId) {
+	public void cancelOrder(UserDetailsImpl userDetails, UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
 		if (order.getStatus() == Order.Status.CANCELED) {
@@ -278,31 +300,39 @@ public class OrderServiceV1 {
 			productClient.restoreStock(restoreRequestDto);
 		}
 
-		// 임시 userId
-		UUID userId = UUID.randomUUID();
+		UUID userId = userDetails.getId();
 		Order canceled = order.markCancelled(userId);
 		orderRepository.save(canceled);
 	}
 
-	public void deleteOrder(UUID orderId) {
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+	public void deleteOrder(UserDetailsImpl userDetails, UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
-		// 주문 상태가 DELIVERED일 때만 주문 내역 삭제 가능
+		// 주문 상태가 DELIVERED(주문완료)일 때만 주문 내역 삭제 가능
 		if (order.getStatus() != Order.Status.DELIVERED) {
 			throw new OrderException(OrderError.ORDER_FORBIDDEN);
 		}
 		if (order.getDeletedAt() != null) {
 			throw new OrderException(OrderError.ORDER_ALREADY_DELETED);
 		}
-		// 임시 userId
-		UUID userId = UUID.randomUUID();
+		UUID userId = userDetails.getId();
 		Order deleted = order.markDeleted(userId);
 		orderRepository.save(deleted);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional(readOnly = true)
-	public OrdersGetResponseDtoV1 getOrders(String keyword, Pageable pageable) {
-		Page<Order> orders = orderRepository.searchOrders(keyword, pageable);
+	public OrdersGetResponseDtoV1 getOrders(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
+		// TODO : 목록 조회 메서드 수정
+		Page<Order> orders;
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role == RoleEnum.MASTER) {
+			orders = orderRepository.searchOrders(null, keyword, pageable);
+		} else {
+			UUID receiveCompanyId = userDetails.getCompanyId();
+			orders = orderRepository.searchOrders(receiveCompanyId, keyword, pageable);
+		}
 		return OrdersGetResponseDtoV1.of(orders);
 	}
 }

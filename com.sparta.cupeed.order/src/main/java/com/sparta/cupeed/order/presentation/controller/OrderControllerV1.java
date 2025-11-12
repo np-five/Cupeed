@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.order.application.service.OrderServiceV1;
+import com.sparta.cupeed.order.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
 import com.sparta.cupeed.order.presentation.dto.request.OrderStatusUpdateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.dto.response.OrderPostResponseDtoV1;
@@ -42,30 +44,33 @@ public class OrderControllerV1 {
 	@Operation(summary = "주문 생성", description = "새로운 주문을 생성합니다.")
 	@PostMapping
 	public ResponseEntity<OrderPostResponseDtoV1> createOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody @Valid OrderPostRequestDtoV1 requestDto
 	) {
-		OrderPostResponseDtoV1 response = orderServiceV1.createOrder(requestDto);
+		OrderPostResponseDtoV1 response = orderServiceV1.createOrder(userDetails, requestDto);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "주문 상세 조회", description = "주문 ID로 주문을 조회합니다.")
 	@GetMapping("/{orderId}")
 	public ResponseEntity<OrderGetResponseDtoV1> getOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "조회할 주문 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable("orderId") UUID orderId
 	) {
-		OrderGetResponseDtoV1 response = orderServiceV1.getOrder(orderId);
+		OrderGetResponseDtoV1 response = orderServiceV1.getOrder(userDetails, orderId);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "주문 전체 수정", description = "주문 정보를 전체 업데이트합니다.")
 	@PutMapping("/{orderId}")
 	public ResponseEntity<OrderPostResponseDtoV1> updateOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "수정할 주문 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable("orderId") UUID orderId,
 		@RequestBody @Valid OrderPostRequestDtoV1 requestDto
 	) {
-		OrderPostResponseDtoV1 response = orderServiceV1.updateOrder(orderId, requestDto);
+		OrderPostResponseDtoV1 response = orderServiceV1.updateOrder(userDetails, orderId, requestDto);
 		return ResponseEntity.ok(response);
 	}
 
@@ -84,20 +89,22 @@ public class OrderControllerV1 {
 	@Operation(summary = "주문 취소", description = "주문을 취소합니다.")
 	@PostMapping("/{orderId}/cancel")
 	public ResponseEntity<Void> cancelOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "취소할 주문 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable UUID orderId
 	) {
-		orderServiceV1.cancelOrder(orderId);
+		orderServiceV1.cancelOrder(userDetails, orderId);
 		return ResponseEntity.noContent().build();
 	}
 
 	@Operation(summary = "주문 삭제", description = "주문을 삭제합니다. 성공 시 204 No Content 반환.")
 	@DeleteMapping("/{orderId}")
 	public ResponseEntity<Void> deleteOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "삭제할 주문 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable UUID orderId
 	) {
-		orderServiceV1.deleteOrder(orderId);
+		orderServiceV1.deleteOrder(userDetails, orderId);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -105,10 +112,11 @@ public class OrderControllerV1 {
 	@Operation(summary = "주문 목록 조회", description = "페이지 단위로 주문 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<OrdersGetResponseDtoV1> getOrders(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "검색 키워드 : 주문 번호, 수령업체명") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		OrdersGetResponseDtoV1 response = orderServiceV1.getOrders(keyword, pageable);
+		OrdersGetResponseDtoV1 response = orderServiceV1.getOrders(userDetails, keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 }
