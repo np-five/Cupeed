@@ -48,7 +48,6 @@ springdoc:
     # http://localhost:[port]/swagger로 스웨거 호출 가능.
     path: /swagger
 
-
 cupeed:
   jwt:
     secret: ${JWT_SECRET_KEY}
