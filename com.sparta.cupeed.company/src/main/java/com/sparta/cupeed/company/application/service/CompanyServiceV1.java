@@ -76,4 +76,11 @@ public class CompanyServiceV1 {
 		Company deleted = company.markDeleted();
 		companyRepository.save(deleted); // @Transactional 내에서 dirty checking으로 update 됨, save() 생략 가능
 	}
+
+	@Transactional(readOnly = true)
+	public UUID getCompanyIdByBusinessNumber(String businessNumber) {
+		Company company = companyRepository.findByBusinessNumber(businessNumber)
+			.orElseThrow(() -> new RuntimeException("Company not found: " + businessNumber));
+		return company.getId();
+	}
 }
