@@ -5,12 +5,15 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.cupeed.slack.domain.model.Slack;
 import com.sparta.cupeed.slack.domain.repository.SlackRepository;
 import com.sparta.cupeed.slack.infrastructure.resttemplate.slackapi.client.SlackAPIClientV1;
+import com.sparta.cupeed.slack.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.slack.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.slack.presentation.advice.SlackError;
 import com.sparta.cupeed.slack.presentation.advice.SlackException;
 import com.sparta.cupeed.slack.presentation.dto.request.SlackDeliveryManagerDMCreateRequestDtoV1;
@@ -94,8 +97,12 @@ public class SlackServiceV1 {
 		return SlackGetResponseDtoV1.of(slack);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER','ROLE_COMPANY')")
 	@Transactional(readOnly = true)
-	public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable) {
+	public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable, UserDetailsImpl userDetails) {
+		// 서비스 레이어에서 인가 처리
+		RoleEnum.fromAuthority(userDetails.getRole());
+
 		// TODO : 검색할 때 쿼리 DSL 적용
 		Page<Slack> slacks = slackRepository.findAll(pageable);
 		return SlacksGetResponseDtoV1.of(slacks);

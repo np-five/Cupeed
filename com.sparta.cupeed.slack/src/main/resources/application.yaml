@@ -19,6 +19,13 @@ spring:
 slack:
   bot-token: ${SLACK_BOT_TOKEN}
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    # http://localhost:[port]/swagger로 스웨거 호출 가능.
+    path: /swagger
+
 server:
   port: 20090
 
@@ -28,3 +35,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8080/eureka/
+
+cupeed:
+  jwt:
+    access-header-name: Authorization
+    header-prefix: "Bearer "
+    swagger-bearer-schema: bearerAuth
