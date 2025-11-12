@@ -12,8 +12,8 @@ spring:
               predicates:
                 - Path=/v1/ai-requests/**
             # 20020
-            - id: companies
-              uri: lb://companies
+            - id: company
+              uri: lb://company
               predicates:
                 - Path=/v1/companies/**
             # 20030
