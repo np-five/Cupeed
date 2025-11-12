@@ -1,15 +1,8 @@
 package com.sparta.cupeed.hub.domain;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.sparta.cupeed.hub.common.BaseEntity;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,32 +10,32 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 // 애그리거트 루트 (Aggregate Root)로 지정되어 외부 접근은 이 엔티티를 통해서만 이루어집니다.
-@Entity
-@Table(name = "p_hub")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Hub extends BaseEntity {
+public class Hub {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@Column(nullable = false, unique = true, length = 100)
 	private String name;
 
-	@Column(nullable = false)
 	private String address;
 
 	// 위도
-	@Column(nullable = false)
 	private double latitude;
 
 	// 경도
-	@Column(nullable = false)
 	private double longitude;
+
+	// BaseEntity fields
+	private LocalDateTime createdAt;
+	private String createdBy;
+	private LocalDateTime updatedAt;
+	private String updatedBy;
+	private LocalDateTime deletedAt;
+	private String deletedBy;
 
 	// 1. 생성자 - Hub 생성 시 사용
 	public Hub(String name, String address, Double latitude, Double longitude) {
@@ -72,5 +65,11 @@ public class Hub extends BaseEntity {
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
+	}
+
+	// 소프트 딜리트 로직
+	public void softDelete(String deleter) {
+		this.deletedAt = LocalDateTime.now();
+		this.deletedBy = deleter;
 	}
 }
