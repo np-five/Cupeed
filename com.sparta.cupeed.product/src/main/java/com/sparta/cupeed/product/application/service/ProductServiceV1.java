@@ -2,6 +2,9 @@ package com.sparta.cupeed.product.application.service;
 
 import com.sparta.cupeed.product.domain.model.Product;
 import com.sparta.cupeed.product.domain.repository.ProductRepository;
+import com.sparta.cupeed.product.infrastructure.company.client.CompanyClientV1;
+import com.sparta.cupeed.product.infrastructure.security.auth.UserDetailsImpl;
+import com.sparta.cupeed.product.infrastructure.user.client.UserClientV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
@@ -22,14 +25,28 @@ import java.util.UUID;
 public class ProductServiceV1 {
 
 	private final ProductRepository productRepository;
+	private final UserClientV1 userClient;
+	private final CompanyClientV1 companyClient;
 
 	@Transactional
-	public ProductPostResponseDtoV1 createProduct(ProductPostRequestDtoV1 requestDto) {
+	public ProductPostResponseDtoV1 createProduct(ProductPostRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
+
 		ProductPostRequestDtoV1.ProductDto dto = requestDto.getProduct();
 
+		UUID findCompanyId = userClient.getInternalUser(userDetails.getId());
+		if (findCompanyId == null) {
+			throw new IllegalArgumentException("유효하지 않은 유저 ID입니다.");
+		}
+
+		UUID findHunId = companyClient.getCompany(findCompanyId);
+		if (findHunId == null) {
+			throw new IllegalArgumentException("유효하지 않은 허브 ID입니다.");
+		}
+
+		// 2️⃣ Product 엔티티 생성
 		Product newProduct = Product.builder()
-			.companyId(dto.getCompanyId())
-			.hubId(dto.getHubId())
+			.companyId(findCompanyId)
+			.hubId(findHunId)
 			.name(dto.getName())
 			.category(dto.getCategory())
 			.description(dto.getDescription())
@@ -38,8 +55,7 @@ public class ProductServiceV1 {
 			.build();
 
 		Product savedProduct = productRepository.save(newProduct);
-
-		return ProductPostResponseDtoV1.of(savedProduct); // 엔티티 → DTO 변환
+		return ProductPostResponseDtoV1.of(savedProduct);
 	}
 
 	@Transactional(readOnly = true)
@@ -57,7 +73,7 @@ public class ProductServiceV1 {
 	@Transactional
 	public ProductPostResponseDtoV1 updateProduct(UUID productId, ProductPostRequestDtoV1 requestDto) {
 		Product product = productRepository.findByIdOrElseThrow(productId);
-		ProductPostRequestDtoV1.ProductDto dto = requestDto.getProduct();
+		var dto = requestDto.getProduct();
 
 		Product updated = product.withUpdatedInfo(
 			dto.getName(),
@@ -70,7 +86,6 @@ public class ProductServiceV1 {
 		return ProductPostResponseDtoV1.of(updated);
 	}
 
-	// TODO deleteBy 인증인가가 들어오면 구현
 	@Transactional
 	public void deleteProduct(UUID productId) {
 		Product product = productRepository.findByIdOrElseThrow(productId);
@@ -89,22 +104,16 @@ public class ProductServiceV1 {
 	@Transactional
 	public void decreaseStock(ProductStockRequestDtoV1 requestDto) {
 		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
-			UUID productId = item.getProductId();
-			Long quantity = item.getQuantity();
-			Product product = productRepository.findByIdOrElseThrow(productId);
-			Product updated = product.decreaseQuantity(quantity);
-			productRepository.save(updated);
+			Product product = productRepository.findByIdOrElseThrow(item.getProductId());
+			productRepository.save(product.decreaseQuantity(item.getQuantity()));
 		}
 	}
 
 	@Transactional
 	public void increaseStock(ProductStockRequestDtoV1 requestDto) {
 		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
-			UUID productId = item.getProductId();
-			Long quantity = item.getQuantity();
-			Product product = productRepository.findByIdOrElseThrow(productId);
-			Product updated = product.increaseQuantity(quantity);
-			productRepository.save(updated);
+			Product product = productRepository.findByIdOrElseThrow(item.getProductId());
+			productRepository.save(product.increaseQuantity(item.getQuantity()));
 		}
 	}
 }

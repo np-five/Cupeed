@@ -47,17 +47,15 @@ public class SecurityConfig {
 			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
-				// .requestMatchers(
-				// 	"/swagger-ui/**",
-				// 	"/swagger",
-				// 	"/v3/api-docs/**",
-				// 	"/v3/api-docs.yaml",
-				// 	"/actuator/**"
-				// ).permitAll()
-				// .anyRequest().authenticated()
-
-				// 시큐리티 적용 안하고 테스트중
-				.anyRequest().permitAll()
+				.requestMatchers(
+					"/swagger-ui/**",
+					"/swagger",
+					"/v3/api-docs/**",
+					"/v3/api-docs.yaml",
+					"/actuator/**",
+					"/internal/**"
+				).permitAll()
+				.anyRequest().authenticated()
 			);
 
 		return http.build();
