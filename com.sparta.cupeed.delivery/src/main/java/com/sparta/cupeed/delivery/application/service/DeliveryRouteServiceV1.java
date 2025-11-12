@@ -82,10 +82,6 @@ public class DeliveryRouteServiceV1 {
 			throw new IllegalArgumentException("실제 이동 거리는 0보다 커야 합니다");
 		}
 
-		if (distance > 1000) {
-			throw new IllegalArgumentException("실제 이동 거리가 너무 큽니다 (최대 1000km)");
-		}
-
 		if (duration == null || duration.isBlank()) {
 			throw new IllegalArgumentException("실제 소요시간을 입력해주세요");
 		}

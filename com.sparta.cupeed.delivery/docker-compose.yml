@@ -1,63 +1,21 @@
 services:
   postgresql:
-    container_name: postgres_delivery_cupeed
+    container_name: cupeed_delivery_postgres
     image: postgres:16
     restart: unless-stopped
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: cupeed-delivery
+      POSTGRES_DB: cupeed_delivery_db
     ports:
       - "15433:5432"
     volumes:
-      - cupeed_pg_data:/var/lib/postgresql/data
+      - cupeed_delivery_pg_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cupeed_user} -d ${POSTGRES_DB:-cupeed_db}" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - cupeed
-
-  redis:
-    image: redis:7
-    container_name: cupeed_delivery_redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - cupeed_redis_data:/data
-    command: [ "redis-server", "--appendonly", "no" ]
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - cupeed
-
-  zipkin:
-    image: openzipkin/zipkin:latest
-    container_name: cupeed_zipkin
-    profiles: [ "observability" ]     # 필요할 때만
-    ports:
-      - "9411:9411"              # Zipkin UI 접근용 포트
-    environment:
-      - STORAGE_TYPE=mem         # (기본값: 메모리, DB연동도 가능)
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - cupeed
-
-networks:
-  cupeed:
-    name: cupeed
-    driver: bridge
 
 volumes:
-  cupeed_pg_data:
-  cupeed_redis_data:
+  cupeed_delivery_pg_data:

@@ -105,8 +105,8 @@ public class AiServiceV1 {
 	}
 
 	@Transactional(readOnly = true)
-	public AiHistoriesGetResponseDtoV1 getAiHistories(Pageable pageable) {
-		Page<Ai> aiHistories = aiRepository.findAll(pageable);
+	public AiHistoriesGetResponseDtoV1 getAiHistories(String keyword, Pageable pageable) {
+		Page<Ai> aiHistories = aiRepository.searchAiHistories(keyword, pageable);
 		return AiHistoriesGetResponseDtoV1.of(aiHistories);
 	}
 }

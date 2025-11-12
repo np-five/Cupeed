@@ -15,6 +15,8 @@ public interface CompanyRepository {
 
 	Page<Company> findAll(Pageable pageable);
 
+	Optional<Company> findByBusinessNumber(String businessNumber);
+
 	boolean existsByBusinessNumber(String businessNumber);
 
 	default Company findByIdOrElseThrow(UUID id) {

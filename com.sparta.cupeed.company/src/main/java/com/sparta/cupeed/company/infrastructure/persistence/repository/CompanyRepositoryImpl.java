@@ -54,4 +54,11 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 		return companyJpaRepository.findAll(pageable)
 			.map(companyMapper::toDomain);
 	}
+
+	@Override
+	public Optional<Company> findByBusinessNumber(String businessNumber) {
+		return companyJpaRepository.findByBusinessNumber(businessNumber)
+			.map(companyMapper::toDomain);
+	}
+
 }
