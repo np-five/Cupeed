@@ -1,13 +1,17 @@
 package com.sparta.cupeed.order.infrastructure.delivery.client;
 
-import java.util.UUID;
-
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import com.sparta.cupeed.order.infrastructure.delivery.dto.request.DeliveryCreateRequestDtoV1;
 
 @FeignClient(name = "delivery")
 public interface DeliveryClientV1 {
 	@PostMapping("/v1/deliveries")
-	void createDelivery(@RequestParam UUID orderId, @RequestParam UUID companyId);
+	void createDelivery(
+		@RequestBody DeliveryCreateRequestDtoV1 requestDto,
+		@RequestHeader("X-User-Name") String username
+	);
 }
