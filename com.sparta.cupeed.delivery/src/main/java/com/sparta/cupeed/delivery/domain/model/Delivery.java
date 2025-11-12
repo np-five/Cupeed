@@ -29,7 +29,6 @@ public class Delivery {
 	public static Delivery create(UUID orderId, UUID receiveCompanyId,
 		UUID startHubId, UUID endHubId, String createdBy) {
 		return Delivery.builder()
-			.id(UUID.randomUUID())
 			.orderId(orderId)
 			.receiveCompanyId(receiveCompanyId)
 			.startHubId(startHubId)

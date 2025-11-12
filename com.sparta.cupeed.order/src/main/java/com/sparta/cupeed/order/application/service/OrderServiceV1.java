@@ -113,7 +113,6 @@ public class OrderServiceV1 {
 			.supplyCompanyId(supplyCompanyId)
 			.recieveCompanyId(dummyRecieveCompanyId)
 			.recieveCompanyName(dummyCompanyName)
-			.startHubId(dummyStartHubId)
 			.orderItemList(orderItemList)
 			.totalPrice(totalPrice)
 			.status(Order.Status.REQUESTED)
@@ -138,7 +137,6 @@ public class OrderServiceV1 {
 			.build();
 		productClient.decreaseStock(decreaseRequestDto);
 
-		// TODO : 배송 생성
 		DeliveryCreateRequestDtoV1 deliveryRequestDto = DeliveryCreateRequestDtoV1.builder()
 			.orderId(saved.getId())
 			.receiveCompanyId(saved.getRecieveCompanyId()).build();
@@ -303,9 +301,8 @@ public class OrderServiceV1 {
 	}
 
 	@Transactional(readOnly = true)
-	public OrdersGetResponseDtoV1 getOrders(Pageable pageable) {
-		// TODO : 검색할 때 쿼리 DSL 적용
-		Page<Order> orders = orderRepository.findAllByDeletedAtIsNull(pageable);
+	public OrdersGetResponseDtoV1 getOrders(String keyword, Pageable pageable) {
+		Page<Order> orders = orderRepository.searchOrders(keyword, pageable);
 		return OrdersGetResponseDtoV1.of(orders);
 	}
 }

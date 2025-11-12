@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.order.application.service.OrderServiceV1;
@@ -100,13 +101,14 @@ public class OrderControllerV1 {
 		return ResponseEntity.noContent().build();
 	}
 
-	// 쿼리 DSL 적용 예정
+	// 쿼리 DSL 적용
 	@Operation(summary = "주문 목록 조회", description = "페이지 단위로 주문 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<OrdersGetResponseDtoV1> getOrders(
+		@RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		OrdersGetResponseDtoV1 response = orderServiceV1.getOrders(pageable);
+		OrdersGetResponseDtoV1 response = orderServiceV1.getOrders(keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 }
