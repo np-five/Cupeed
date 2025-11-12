@@ -40,5 +40,10 @@ public class HubRepositoryImpl implements HubRepository {
 	public void delete(Hub hub) {
 		jpaRepository.delete(hub);
 	}
+
+	@Override
+	public Optional<Hub> findByName(String name) {
+		return jpaRepository.findByName(name);
+	}
 }
 

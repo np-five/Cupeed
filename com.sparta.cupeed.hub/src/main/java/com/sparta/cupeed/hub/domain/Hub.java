@@ -30,21 +30,17 @@ public class Hub extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	// 낙관적 잠금 활성화를 위한 @Version 필드 추가
-	// @Version
-	// private Long version;
-
-	@Column(nullable = false, length = 100)
+	@Column(nullable = false, unique = true, length = 100)
 	private String name;
 
-	@Column(nullable = false, length = 255)
+	@Column(nullable = false)
 	private String address;
 
-	// 위도 (double) - 정밀도 확보를 위해 사용
+	// 위도
 	@Column(nullable = false)
 	private double latitude;
 
-	// 경도 (double) - 정밀도 확보를 위해 사용
+	// 경도
 	@Column(nullable = false)
 	private double longitude;
 

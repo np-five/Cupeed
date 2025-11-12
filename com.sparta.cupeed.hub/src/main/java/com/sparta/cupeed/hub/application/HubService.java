@@ -46,7 +46,7 @@ public class HubService {
 	@Transactional(readOnly = true)
 	public HubResponseDto getHubById(UUID hubId) {
 		Hub hub = hubRepository.findById(hubId)
-			.orElseThrow(() -> new IllegalArgumentException("Hub not found with ID: " + hubId));
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 ID입니다." + hubId));
 		return HubResponseDto.mapToResponse(hub);
 	}
 
@@ -63,7 +63,7 @@ public class HubService {
 	public HubResponseDto updateHub(UUID hubId, UpdateHubCommand command) {
 		// 1. Repository를 통해 Hub 애그리거트 루트를 로드
 		Hub hub = hubRepository.findById(hubId)
-			.orElseThrow(() -> new IllegalArgumentException("Hub not found with ID: " + hubId));
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 ID입니다." + hubId));
 
 		// 2. Domain 객체의 비즈니스 메서드 호출
 		hub.updateInfo(
@@ -81,9 +81,15 @@ public class HubService {
 	@Transactional
 	public void deleteHub(UUID hubId) {
 		Hub hub = hubRepository.findById(hubId)
-			.orElseThrow(() -> new IllegalArgumentException("Hub not found with ID: " + hubId));
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 ID입니다." + hubId));
 
 		// 소프트 딜리트
 		hub.softDelete("system");
+	}
+
+	public HubResponseDto getHubByName(String name) {
+		Hub hub = hubRepository.findByName(name)
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 허브 이름입니다."));
+		return HubResponseDto.mapToResponse(hub);
 	}
 }
