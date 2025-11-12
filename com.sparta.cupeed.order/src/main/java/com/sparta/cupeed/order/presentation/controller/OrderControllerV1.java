@@ -105,7 +105,7 @@ public class OrderControllerV1 {
 	@Operation(summary = "주문 목록 조회", description = "페이지 단위로 주문 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<OrdersGetResponseDtoV1> getOrders(
-		@RequestParam(required = false) String keyword,
+		@Parameter(description = "검색 키워드 : 주문 번호, 수령업체명") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
 		OrdersGetResponseDtoV1 response = orderServiceV1.getOrders(keyword, pageable);
