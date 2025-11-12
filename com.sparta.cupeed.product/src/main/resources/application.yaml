@@ -41,6 +41,14 @@ management:
     tracing:
       endpoint: http://localhost:9411/api/v2/spans
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    # http://localhost:[port]/swagger로 스웨거 호출 가능.
+    path: /swagger
+
+
 cupeed:
   jwt:
     secret: ${JWT_SECRET_KEY}
