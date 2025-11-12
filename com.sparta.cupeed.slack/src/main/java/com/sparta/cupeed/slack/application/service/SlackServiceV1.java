@@ -97,14 +97,14 @@ public class SlackServiceV1 {
 		return SlackGetResponseDtoV1.of(slack);
 	}
 
-	@PreAuthorize("hasAnyAuthority('ROLE_MASTER','ROLE_COMPANY')")
+	// @PreAuthorize("hasAnyAuthority('ROLE_MASTER','ROLE_COMPANY')")
 	@Transactional(readOnly = true)
-	public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable, UserDetailsImpl userDetails) {
+	public SlacksGetResponseDtoV1 getSlackMessages(String keyword, Pageable pageable) {
+	// public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable, UserDetailsImpl userDetails) {
 		// 서비스 레이어에서 인가 처리
-		RoleEnum.fromAuthority(userDetails.getRole());
+		// RoleEnum.fromAuthority(userDetails.getRole());
 
-		// TODO : 검색할 때 쿼리 DSL 적용
-		Page<Slack> slacks = slackRepository.findAll(pageable);
+		Page<Slack> slacks = slackRepository.searchSlackMessages(keyword, pageable);
 		return SlacksGetResponseDtoV1.of(slacks);
 	}
 }

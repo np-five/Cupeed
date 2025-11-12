@@ -14,4 +14,6 @@ public interface SlackRepository {
 	Optional<Slack> findById(UUID slackMessageId);
 
 	Page<Slack> findAll(Pageable pageable);
+
+	Page<Slack> searchSlackMessages(String keyword, Pageable pageable);
 }

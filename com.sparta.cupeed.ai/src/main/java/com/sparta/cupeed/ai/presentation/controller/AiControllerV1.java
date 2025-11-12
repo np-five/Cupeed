@@ -56,7 +56,7 @@ public class AiControllerV1 {
 	@Operation(summary = "AI 요청내역 목록 조회", description = "관리자가 AI 요청내역 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<AiHistoriesGetResponseDtoV1> getAiHistories(
-		@Parameter @RequestParam(required = false) String keyword,
+		@Parameter(description = "검색 키워드 : AI 응답 메시지 내용") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
 		AiHistoriesGetResponseDtoV1 response = aiServiceV1.getAiHistories(keyword, pageable);
