@@ -1,6 +1,6 @@
 services:
   postgresql:
-    container_name: postgresql-cupeed
+    container_name: postgres_delivery_cupeed
     image: postgres:16
     restart: unless-stopped
     environment:
