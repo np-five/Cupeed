@@ -21,6 +21,8 @@ public class UserDetailsImpl implements UserDetails {
 	private String userId;
 	private String role;
 	private UUID companyId;
+	private String companyName;
+	private String slackId;
 
 	public static UserDetailsImpl of(DecodedJWT token) {
 		return UserDetailsImpl.builder()
@@ -28,6 +30,8 @@ public class UserDetailsImpl implements UserDetails {
 			.userId(token.getSubject())
 			.role(token.getClaim("role").asString())
 			.companyId(UUID.fromString(token.getClaim("companyId").asString()))
+			.companyName(token.getClaim("companyName").asString())
+			.slackId(token.getClaim("slackId").asString())
 			.build();
 	}
 

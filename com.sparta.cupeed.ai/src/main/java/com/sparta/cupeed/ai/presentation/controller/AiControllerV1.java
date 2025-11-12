@@ -39,9 +39,10 @@ public class AiControllerV1 {
 	@Operation(summary = "Gemini 응답텍스트 생성", description = "주문 정보를 기반으로 발송 담당자에게 보낼 배송 요약메시지를 생성합니다.")
 	@PostMapping
 	public ResponseEntity<AiTextCreateResponseDtoV1> createAiText(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody @Valid GeminiSendRequestDtoV1 requestDto
 	) {
-		AiTextCreateResponseDtoV1 response = aiServiceV1.createAiText(requestDto);
+		AiTextCreateResponseDtoV1 response = aiServiceV1.createAiText(userDetails, requestDto);
 		return ResponseEntity.ok(response);
 	}
 

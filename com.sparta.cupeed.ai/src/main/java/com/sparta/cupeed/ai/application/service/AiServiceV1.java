@@ -38,7 +38,7 @@ public class AiServiceV1 {
 	private final SlackClientV1 slackClient;
 
 	@Transactional(noRollbackFor = AiException.class)
-	public AiTextCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
+	public AiTextCreateResponseDtoV1 createAiText(UserDetailsImpl userDetails, GeminiSendRequestDtoV1 requestDto) {
 		String prompt = promptBuilder.generateAiTextPrompt(requestDto);
 		String errorMessage = null;
 		String aiResponseText = null;
@@ -76,7 +76,7 @@ public class AiServiceV1 {
 			try {
 				slackClient.dmToDliveryManager(
 					SlackMessageCreateRequestDtoV1.builder()
-						.recipientSlackId("U09SFAT4V5E")
+						.recipientSlackId(userDetails.getSlackId()) // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
 						.aiResponseText(aiResponseText)
 						.errorMessage(errorMessage)
 						.build()

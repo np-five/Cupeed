@@ -34,7 +34,7 @@ public class SlackServiceV1 {
 	private final SlackAPIClientV1 slackApiClient;
 
 	@Transactional(noRollbackFor = SlackException.class)
-	public SlackCreateResponseDtoV1 createDMToReciveCompany(SlackReceiveCompanyDMCreateRequestDtoV1 requestDto) {
+	public SlackCreateResponseDtoV1 createDMToReciveCompany(UserDetailsImpl userDetails, SlackReceiveCompanyDMCreateRequestDtoV1 requestDto) {
 		if (requestDto == null || requestDto.getRecipientSlackId() == null) {
 			throw new SlackException(SlackError.SLACK_INVALID_REQUEST);
 		}
@@ -44,21 +44,21 @@ public class SlackServiceV1 {
 			requestDto.getTotalPrice(),
 			requestDto.getRecieveCompanyName()
 		);
-		return sendSlackMessage(requestDto.getRecipientSlackId(), message);
+		return sendSlackMessage(userDetails, requestDto.getRecipientSlackId(), message);
 	}
 
 	@Transactional(noRollbackFor = SlackException.class)
-	public SlackCreateResponseDtoV1 createDMToDliveryManager(SlackDeliveryManagerDMCreateRequestDtoV1 requestDto) {
+	public SlackCreateResponseDtoV1 createDMToDliveryManager(UserDetailsImpl userDetails, SlackDeliveryManagerDMCreateRequestDtoV1 requestDto) {
 		if (requestDto == null || requestDto.getRecipientSlackId() == null) {
 			throw new SlackException(SlackError.SLACK_INVALID_REQUEST);
 		}
-		return sendSlackMessage(requestDto.getRecipientSlackId(), requestDto.getAiResponseText());
+		return sendSlackMessage(userDetails, requestDto.getRecipientSlackId(), requestDto.getAiResponseText());
 	}
 
 	/**
 	 * 공통 Slack 메시지 전송 및 DB 저장 메서드
 	 */
-	private SlackCreateResponseDtoV1 sendSlackMessage(String recipientSlackId, String message) {
+	private SlackCreateResponseDtoV1 sendSlackMessage(UserDetailsImpl userDetails, String recipientSlackId, String message) {
 		Slack.Status status = Slack.Status.REQUESTED;
 		String errorMessage = null;
 
@@ -80,7 +80,7 @@ public class SlackServiceV1 {
 			.status(status)
 			.errorMessage(errorMessage)
 			.createdAt(Instant.now())
-			.createdBy("system")
+			.createdBy(userDetails.getUserId())
 			.build();
 		Slack saved = slackRepository.save(created);
 

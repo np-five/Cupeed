@@ -59,7 +59,7 @@ public class OrderServiceV1 {
 
 		List<OrderItem> orderItemList = new ArrayList<>();
 		BigDecimal totalPrice = BigDecimal.ZERO;
-		UUID supplyCompanyId = UUID.randomUUID();
+		UUID supplyCompanyId = UUID.randomUUID(); // 아래 로직에서 값 세팅됩니다. (임시 값 아님)
 
 		for (OrderPostRequestDtoV1.OrderDto.OrderItemDto itemDto : requestOrder.getOrderItemList()) {
 			UUID productId = itemDto.getProductId();
@@ -113,9 +113,7 @@ public class OrderServiceV1 {
 			receiveCompanyName = "MASTER_DEFAULT_COMPANY";
 		} else {
 			receiveCompanyId = userDetails.getCompanyId();
-			// receiveCompanyName = userDetails.getCompanyName(); // TODO : 수령업체명 필요 (인증 토큰에서 가져와야 함)
-			receiveCompanyName = "Temporary Company Name"; // 임시 값
-
+			receiveCompanyName = userDetails.getCompanyName(); // TODO : 수령업체명 필요 (인증 토큰에서 가져와야 함)
 		}
 
 		String orderNumber = "ORD-" + Instant.now().toEpochMilli();
@@ -160,7 +158,7 @@ public class OrderServiceV1 {
 				.recieveCompanyId(saved.getRecieveCompanyId())
 				.recieveCompanyName(saved.getRecieveCompanyName())
 				.totalPrice(saved.getTotalPrice())
-				.recipientSlackId("U09SFAT4V5E") // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
+				.recipientSlackId(userDetails.getSlackId()) // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
 				.status("REQUESTED")
 				.build()
 		);
@@ -324,7 +322,6 @@ public class OrderServiceV1 {
 	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional(readOnly = true)
 	public OrdersGetResponseDtoV1 getOrders(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
-		// TODO : 목록 조회 메서드 수정
 		Page<Order> orders;
 		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
 		if (role == RoleEnum.MASTER) {
