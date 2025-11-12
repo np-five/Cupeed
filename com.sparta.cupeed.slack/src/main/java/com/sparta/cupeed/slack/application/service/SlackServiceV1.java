@@ -90,21 +90,26 @@ public class SlackServiceV1 {
 		return SlackCreateResponseDtoV1.of(saved);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
-	public SlackGetResponseDtoV1 getSlackMessage(UUID slackMessageId) {
+	public SlackGetResponseDtoV1 getSlackMessage(UserDetailsImpl userDetails, UUID slackMessageId) {
 		Slack slack = slackRepository.findById(slackMessageId)
 			.orElseThrow(() -> new SlackException(SlackError.SLACK_MESSAGE_NOT_FOUND));
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new SlackException(SlackError.SLACK_ACCESS_DENIED);
+		}
 		return SlackGetResponseDtoV1.of(slack);
 	}
 
-	// @PreAuthorize("hasAnyAuthority('ROLE_MASTER','ROLE_COMPANY')")
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
-	public SlacksGetResponseDtoV1 getSlackMessages(String keyword, Pageable pageable) {
-	// public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable, UserDetailsImpl userDetails) {
-		// 서비스 레이어에서 인가 처리
-		// RoleEnum.fromAuthority(userDetails.getRole());
-
+	public SlacksGetResponseDtoV1 getSlackMessages(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
 		Page<Slack> slacks = slackRepository.searchSlackMessages(keyword, pageable);
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new SlackException(SlackError.SLACK_ACCESS_DENIED);
+		}
 		return SlacksGetResponseDtoV1.of(slacks);
 	}
 }

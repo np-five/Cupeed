@@ -59,25 +59,22 @@ public class SlackControllerV1 {
 	@Operation(summary = "슬랙 메시지 상세 조회", description = "관리자가 슬랙 메시지를 상세 조회합니다.")
 	@GetMapping("/{slackMessageId}")
 	public ResponseEntity<SlackGetResponseDtoV1> getSlackMessage(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "슬랙 메시지 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable("slackMessageId") UUID slackMessageId
 	) {
-		SlackGetResponseDtoV1 response = slackService.getSlackMessage(slackMessageId);
+		SlackGetResponseDtoV1 response = slackService.getSlackMessage(userDetails, slackMessageId);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "슬랙 메시지 목록 조회", description = "관리자가 슬랙 메시지 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<SlacksGetResponseDtoV1> getSlackMessages(
-		// @AuthenticationPrincipal UserDetailsImpl userDetails,
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "검색 키워드 : 메시지 내용, 사용자 술랙 ID") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		// userDetails를 통해 Role 가져오기: 'ROLE_MASTER'
-		// RoleEnum.fromAuthority(userDetails.getRole());
-
-		// SlacksGetResponseDtoV1 response = slackService.getSlackMessages(pageable, userDetails);
-		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(keyword, pageable);
+		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(userDetails, keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 
