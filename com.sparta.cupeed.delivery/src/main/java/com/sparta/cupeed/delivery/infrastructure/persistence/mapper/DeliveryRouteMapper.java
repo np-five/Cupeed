@@ -27,7 +27,6 @@ public class DeliveryRouteMapper {
 			.deliveryManagerId(entity.getDeliveryManagerId())
 			.startedAt(entity.getStartedAt())
 			.completedAt(entity.getCompletedAt())
-			// Audit 필드는 BaseEntity에서 자동 관리
 			.createdAt(entity.getCreatedAt())
 			.createdBy(entity.getCreatedBy())
 			.updatedAt(entity.getUpdatedAt())

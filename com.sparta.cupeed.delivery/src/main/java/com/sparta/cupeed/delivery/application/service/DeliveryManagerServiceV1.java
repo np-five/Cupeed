@@ -33,7 +33,7 @@ public class DeliveryManagerServiceV1 {
 		DeliveryManager manager = DeliveryManager.builder()
 			.userId(userId)
 			.hubId(hubId)
-			.deliveryType(deliveryType)
+			.deliveryType(DeliveryManager.DeliveryType.valueOf(deliveryType.name()))
 			.deliverySequence(0)
 			.createdBy(createdBy)
 			.createdAt(Instant.now())
@@ -51,6 +51,12 @@ public class DeliveryManagerServiceV1 {
 	public DeliveryManager getManagerById(UUID managerId) {
 		return deliveryManagerRepository.findById(managerId)
 			.orElseThrow(() -> new IllegalArgumentException("배송 담당자를 찾을 수 없습니다: " + managerId));
+	}
+
+	// 사용자 ID로 배송 담당자 조회
+	public DeliveryManager getManagerByUserId(String userId) {
+		return deliveryManagerRepository.findByUserId(userId)
+			.orElseThrow(() -> new IllegalArgumentException("배송 담당자를 찾을 수 없습니다: " + userId));
 	}
 
 	// 허브별 배송 담당자 조회
@@ -80,7 +86,7 @@ public class DeliveryManagerServiceV1 {
 			manager.changeHub(newHubId);
 		}
 		if (newDeliveryType != null) {
-			manager.changeDeliveryType(newDeliveryType);
+			manager.changeDeliveryType(DeliveryManager.DeliveryType.valueOf(newDeliveryType.name()));
 		}
 		if (newSequence != null) {
 			manager.updateDeliverySequence(newSequence);
@@ -98,5 +104,4 @@ public class DeliveryManagerServiceV1 {
 		manager.markDeleted(deletedBy);
 		deliveryManagerRepository.save(manager);
 	}
-
 }

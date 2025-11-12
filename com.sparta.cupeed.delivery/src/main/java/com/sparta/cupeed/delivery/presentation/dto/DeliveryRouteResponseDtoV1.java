@@ -1,10 +1,9 @@
 package com.sparta.cupeed.delivery.presentation.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import com.sparta.cupeed.delivery.domain.model.DeliveryRoute;
-import com.sparta.cupeed.delivery.domain.model.RouteStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,21 +13,20 @@ import lombok.Setter;
 @Setter
 public class DeliveryRouteResponseDtoV1 {
 	private UUID id;
-	private UUID orderId;
-	private Integer routeSequence;
+	private UUID deliveryId;  // orderId → deliveryId
 	private UUID startHubId;
 	private UUID endHubId;
 	private Double estimatedTotalDistance;
 	private String estimatedTotalDuration;
 	private Double actualTotalDistance;
 	private String actualTotalDuration;
-	private RouteStatus status;
+	private DeliveryRoute.Status status;  // RouteStatus → DeliveryRoute.Status
 	private String deliveryManagerId;
-	private LocalDateTime startedAt;
-	private LocalDateTime completedAt;
-	private LocalDateTime createdAt;
+	private Instant startedAt;  // LocalDateTime → Instant
+	private Instant completedAt;  // LocalDateTime → Instant
+	private Instant createdAt;  // LocalDateTime → Instant
 	private String createdBy;
-	private LocalDateTime updatedAt;
+	private Instant updatedAt;  // LocalDateTime → Instant
 	private String updatedBy;
 
 	public DeliveryRouteResponseDtoV1() {
@@ -37,8 +35,7 @@ public class DeliveryRouteResponseDtoV1 {
 	public static DeliveryRouteResponseDtoV1 from(DeliveryRoute route) {
 		DeliveryRouteResponseDtoV1 dto = new DeliveryRouteResponseDtoV1();
 		dto.id = route.getId();
-		dto.orderId = route.getOrderId();
-		dto.routeSequence = route.getRouteSequence();
+		dto.deliveryId = route.getDeliveryId();  // orderId → deliveryId
 		dto.startHubId = route.getStartHubId();
 		dto.endHubId = route.getEndHubId();
 		dto.estimatedTotalDistance = route.getEstimatedTotalDistance();
@@ -55,5 +52,4 @@ public class DeliveryRouteResponseDtoV1 {
 		dto.updatedBy = route.getUpdatedBy();
 		return dto;
 	}
-
 }

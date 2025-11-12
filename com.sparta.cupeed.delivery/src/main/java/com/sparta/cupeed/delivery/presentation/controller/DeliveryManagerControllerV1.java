@@ -1,51 +1,61 @@
 package com.sparta.cupeed.delivery.presentation.controller;
 
-import com.sparta.cupeed.delivery.presentation.dto.DeliveryManagerCreateRequestDtoV1;
-import com.sparta.cupeed.delivery.presentation.dto.DeliveryManagerResponseDtoV1;
-import com.sparta.cupeed.delivery.presentation.dto.*;
-import com.sparta.cupeed.delivery.domain.model.DeliveryType;
-import com.sparta.cupeed.delivery.application.service.DeliveryManagerServiceV1;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.UUID;
+import com.sparta.cupeed.delivery.application.service.DeliveryManagerServiceV1;
+import com.sparta.cupeed.delivery.domain.model.DeliveryManager;
+import com.sparta.cupeed.delivery.domain.model.DeliveryType;
+import com.sparta.cupeed.delivery.presentation.dto.DeliveryManagerCreateRequestDtoV1;
+import com.sparta.cupeed.delivery.presentation.dto.DeliveryManagerResponseDtoV1;
+import com.sparta.cupeed.delivery.presentation.dto.DeliveryManagerUpdateRequestDtoV1;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/delivery-managers")
+@RequestMapping("/v1/delivery-managers")
+@RequiredArgsConstructor
 public class DeliveryManagerControllerV1 {
 
 	private final DeliveryManagerServiceV1 deliveryManagerServiceV1;
 
-	public DeliveryManagerControllerV1(DeliveryManagerServiceV1 deliveryManagerServiceV1) {
-		this.deliveryManagerServiceV1 = deliveryManagerServiceV1;
-	}
-
 	//배송 담당자 생성
 	@PostMapping
 	public ResponseEntity<DeliveryManagerResponseDtoV1> createDeliveryManager(
-		@RequestBody DeliveryManagerCreateRequestDtoV1 request,
-		@RequestHeader(value = "X-User-Name", required = false) String username
-	) {
-		validateAuthentication(username);
+		@Valid @RequestBody DeliveryManagerCreateRequestDtoV1 request,
+		@RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
 
-		DeliveryManagerResponseDtoV1 response = deliveryManagerServiceV1.createDeliveryManager(request, username);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		validateAuthentication(userId);
+
+		DeliveryManager manager = deliveryManagerServiceV1.createManager(
+			request.getUserId(),
+			request.getHubId(),
+			request.getDeliveryType(),
+			userId
+		);
+
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(DeliveryManagerResponseDtoV1.from(manager));
 	}
 
 	//배송 담당자 전체 조회
 	@GetMapping
-	public ResponseEntity<DeliveryManagersResponseDtoV1> getDeliveryManagers(
-		@PageableDefault(size = 10) Pageable pageable,
-		@RequestHeader(value = "X-User-Id", required = false) String userId
-	) {
+	public ResponseEntity<List<DeliveryManagerResponseDtoV1>> getAllDeliveryManagers(
+		@RequestHeader(value = "X-User-Id", required = false) String userId) {
+
 		validateAuthentication(userId);
 
-		DeliveryManagersResponseDtoV1 response = deliveryManagerServiceV1.getDeliveryManagers(pageable);
+		List<DeliveryManagerResponseDtoV1> response = deliveryManagerServiceV1.getAllActiveManagers()
+			.stream()
+			.map(DeliveryManagerResponseDtoV1::from)
+			.collect(Collectors.toList());
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -53,37 +63,39 @@ public class DeliveryManagerControllerV1 {
 	@GetMapping("/{managerId}")
 	public ResponseEntity<DeliveryManagerResponseDtoV1> getDeliveryManager(
 		@PathVariable UUID managerId,
-		@RequestHeader(value = "X-User-Id", required = false) String userId
-	) {
+		@RequestHeader(value = "X-User-Id", required = false) String userId) {
+
 		validateAuthentication(userId);
 
-		DeliveryManagerResponseDtoV1 response = deliveryManagerServiceV1.getDeliveryManager(managerId);
-		return ResponseEntity.ok(response);
+		DeliveryManager manager = deliveryManagerServiceV1.getManagerById(managerId);
+		return ResponseEntity.ok(DeliveryManagerResponseDtoV1.from(manager));
+	}
+
+	//사용자 ID로 배송 담당자 조회
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<DeliveryManagerResponseDtoV1> getDeliveryManagerByUserId(
+		@PathVariable String userId,
+		@RequestHeader(value = "X-User-Id", required = false) String requestUserId) {
+
+		validateAuthentication(requestUserId);
+
+		DeliveryManager manager = deliveryManagerServiceV1.getManagerByUserId(userId);
+		return ResponseEntity.ok(DeliveryManagerResponseDtoV1.from(manager));
 	}
 
 	//허브별 배송 담당자 조회
 	@GetMapping("/hub/{hubId}")
 	public ResponseEntity<List<DeliveryManagerResponseDtoV1>> getDeliveryManagersByHub(
 		@PathVariable UUID hubId,
-		@RequestHeader(value = "X-User-Id", required = false) String userId
-	) {
+		@RequestHeader(value = "X-User-Id", required = false) String userId) {
+
 		validateAuthentication(userId);
 
-		List<DeliveryManagerResponseDtoV1> response = deliveryManagerServiceV1.getDeliveryManagersByHub(hubId);
-		return ResponseEntity.ok(response);
-	}
+		List<DeliveryManagerResponseDtoV1> response = deliveryManagerServiceV1.getManagersByHubId(hubId)
+			.stream()
+			.map(DeliveryManagerResponseDtoV1::from)
+			.collect(Collectors.toList());
 
-	//허브,타입별 배송 담당자 조회
-	@GetMapping("/hub/{hubId}/type/{deliveryType}")
-	public ResponseEntity<List<DeliveryManagerResponseDtoV1>> getDeliveryManagersByHubAndType(
-		@PathVariable UUID hubId,
-		@PathVariable DeliveryType deliveryType,
-		@RequestHeader(value = "X-User-Id", required = false) String userId
-	) {
-		validateAuthentication(userId);
-
-		List<DeliveryManagerResponseDtoV1> response = deliveryManagerServiceV1
-			.getDeliveryManagersByHubAndType(hubId, deliveryType);
 		return ResponseEntity.ok(response);
 	}
 
@@ -91,28 +103,35 @@ public class DeliveryManagerControllerV1 {
 	@PatchMapping("/{managerId}")
 	public ResponseEntity<DeliveryManagerResponseDtoV1> updateDeliveryManager(
 		@PathVariable UUID managerId,
-		@RequestBody DeliveryManagerUpdateRequestDtoV1 request,
-		@RequestHeader(value = "X-User-Name", required = false) String username
-	) {
-		validateAuthentication(username);
+		@Valid @RequestBody DeliveryManagerUpdateRequestDtoV1 request,
+		@RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
 
-		DeliveryManagerResponseDtoV1 response = deliveryManagerServiceV1
-			.updateDeliveryManager(managerId, request, username);
-		return ResponseEntity.ok(response);
+		validateAuthentication(userId);
+
+		DeliveryManager manager = deliveryManagerServiceV1.updateManager(
+			managerId,
+			request.getHubId(),
+			request.getDeliveryType(),
+			request.getDeliverySequence(),
+			userId
+		);
+
+		return ResponseEntity.ok(DeliveryManagerResponseDtoV1.from(manager));
 	}
 
-	//배송 담당자 삭제
+	//배송 담당자 삭제 (소프트 딜리트)
 	@DeleteMapping("/{managerId}")
 	public ResponseEntity<Void> deleteDeliveryManager(
 		@PathVariable UUID managerId,
-		@RequestHeader(value = "X-User-Name", required = false) String username
-	) {
-		validateAuthentication(username);
+		@RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
 
-		deliveryManagerServiceV1.deleteDeliveryManager(managerId, username);
+		validateAuthentication(userId);
+
+		deliveryManagerServiceV1.deleteManager(managerId, userId);
 		return ResponseEntity.noContent().build();
 	}
 
+	//인증 정보 검증
 	private void validateAuthentication(String authInfo) {
 		if (authInfo == null || authInfo.isEmpty()) {
 			throw new IllegalArgumentException("인증 정보가 없습니다.");
