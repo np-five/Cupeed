@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/user")
+@RequestMapping("/v1/users")
 @RequiredArgsConstructor
 public class UserControllerV1 {
 
