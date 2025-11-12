@@ -73,30 +73,12 @@ public class ProductControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
-	// 주문용: 재고 차감
-	// @PostMapping("/{productId}/decrease-stock")
-	// public ResponseEntity<Void> decreaseStock(
-	// 	@PathVariable UUID productId,
-	// 	@RequestParam Long quantity
-	// ) {
-	// 	productServiceV1.decreaseProductQuantityByAmount(productId, quantity);
-	// 	return ResponseEntity.ok().build();
-	// }
 	@PostMapping("/decrease-stock")
 	public ResponseEntity<Void> decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.decreaseStock(requestDto);
 		return ResponseEntity.ok().build();
 	}
 
-	// 주문 취소용: 재고 복원
-	// @PostMapping("/{productId}/restore-stock")
-	// public ResponseEntity<Void> restoreStock(
-	// 	@PathVariable UUID productId,
-	// 	@RequestParam Long quantity
-	// ) {
-	// 	productServiceV1.increaseProductQuantityByAmount(productId, quantity);
-	// 	return ResponseEntity.ok().build();
-	// }
 	@PostMapping("/restore-stock")
 	public ResponseEntity<Void> restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.increaseStock(requestDto);
