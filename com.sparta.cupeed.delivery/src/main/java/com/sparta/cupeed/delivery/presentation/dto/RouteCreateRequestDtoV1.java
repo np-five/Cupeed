@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteCreateRequestDto {
+public class RouteCreateRequestDtoV1 {
 
 	@NotNull(message = "배송 ID를 입력해주세요")
 	private UUID deliveryId;

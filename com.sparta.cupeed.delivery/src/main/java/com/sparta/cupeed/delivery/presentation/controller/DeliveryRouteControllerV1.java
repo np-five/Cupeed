@@ -8,12 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.sparta.cupeed.delivery.application.service.DeliveryRouteService;
+import com.sparta.cupeed.delivery.application.service.DeliveryRouteServiceV1;
 import com.sparta.cupeed.delivery.domain.model.DeliveryRoute;
-import com.sparta.cupeed.delivery.presentation.dto.RouteCompleteRequestDto;
-import com.sparta.cupeed.delivery.presentation.dto.RouteCreateRequestDto;
-import com.sparta.cupeed.delivery.presentation.dto.RouteStartRequestDto;
-import com.sparta.cupeed.delivery.presentation.dto.RouteResponseDto;
+import com.sparta.cupeed.delivery.presentation.dto.RouteCompleteRequestDtoV1;
+import com.sparta.cupeed.delivery.presentation.dto.RouteCreateRequestDtoV1;
+import com.sparta.cupeed.delivery.presentation.dto.RouteStartRequestDtoV1;
+import com.sparta.cupeed.delivery.presentation.dto.RouteResponseDtoV1;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +21,18 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/deliveries/{deliveryId}/routes")
 @RequiredArgsConstructor
-public class DeliveryRouteController {
+public class DeliveryRouteControllerV1 {
 
-	private final DeliveryRouteService deliveryRouteService;
+	private final DeliveryRouteServiceV1 deliveryRouteServiceV1;
 
 	//배송 경로 생성
 	@PostMapping
-	public ResponseEntity<RouteResponseDto> createRoute(
+	public ResponseEntity<RouteResponseDtoV1> createRoute(
 		@PathVariable UUID deliveryId,
-		@Valid @RequestBody RouteCreateRequestDto requestDto,
+		@Valid @RequestBody RouteCreateRequestDtoV1 requestDto,
 		@RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
 
-		DeliveryRoute route = deliveryRouteService.createRoute(
+		DeliveryRoute route = deliveryRouteServiceV1.createRoute(
 			deliveryId,
 			requestDto.getStartHubId(),
 			requestDto.getEndHubId(),
@@ -42,47 +42,47 @@ public class DeliveryRouteController {
 		);
 
 		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(RouteResponseDto.from(route));
+			.body(RouteResponseDtoV1.from(route));
 	}
 
 	//배송 경로 시작
 	@PatchMapping("/{routeId}/start")
-	public ResponseEntity<RouteResponseDto> startRoute(
+	public ResponseEntity<RouteResponseDtoV1> startRoute(
 		@PathVariable UUID deliveryId,
 		@PathVariable UUID routeId,
-		@Valid @RequestBody RouteStartRequestDto requestDto,
+		@Valid @RequestBody RouteStartRequestDtoV1 requestDto,
 		@RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
 
-		DeliveryRoute route = deliveryRouteService.startRoute(
+		DeliveryRoute route = deliveryRouteServiceV1.startRoute(
 			routeId,
 			requestDto.getDeliveryManagerId(),
 			userId
 		);
 
-		return ResponseEntity.ok(RouteResponseDto.from(route));
+		return ResponseEntity.ok(RouteResponseDtoV1.from(route));
 	}
 
 	//배송 경로 완료 (배송 담당자가 실제 거리와 소요시간을 직접 입력)
 	@PatchMapping("/{routeId}/complete")
-	public ResponseEntity<RouteResponseDto> completeRoute(
+	public ResponseEntity<RouteResponseDtoV1> completeRoute(
 		@PathVariable UUID deliveryId,
 		@PathVariable UUID routeId,
-		@Valid @RequestBody RouteCompleteRequestDto requestDto,
+		@Valid @RequestBody RouteCompleteRequestDtoV1 requestDto,
 		@RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
 
-		DeliveryRoute route = deliveryRouteService.completeRoute(
+		DeliveryRoute route = deliveryRouteServiceV1.completeRoute(
 			routeId,
 			requestDto.getActualDistance(),
 			requestDto.getActualDuration(),
 			userId
 		);
 
-		return ResponseEntity.ok(RouteResponseDto.from(route));
+		return ResponseEntity.ok(RouteResponseDtoV1.from(route));
 	}
 
 	//배송 경로 상태 변경
 	@PatchMapping("/{routeId}/status")
-	public ResponseEntity<RouteResponseDto> updateRouteStatus(
+	public ResponseEntity<RouteResponseDtoV1> updateRouteStatus(
 		@PathVariable UUID deliveryId,
 		@PathVariable UUID routeId,
 		@RequestParam String status,
@@ -90,23 +90,23 @@ public class DeliveryRouteController {
 
 		DeliveryRoute.Status newStatus = DeliveryRoute.Status.valueOf(status);
 
-		DeliveryRoute route = deliveryRouteService.updateRouteStatus(
+		DeliveryRoute route = deliveryRouteServiceV1.updateRouteStatus(
 			routeId,
 			newStatus,
 			userId
 		);
 
-		return ResponseEntity.ok(RouteResponseDto.from(route));
+		return ResponseEntity.ok(RouteResponseDtoV1.from(route));
 	}
 
 	//배송 ID로 경로 목록 조회
 	@GetMapping
-	public ResponseEntity<List<RouteResponseDto>> getRoutesByDeliveryId(
+	public ResponseEntity<List<RouteResponseDtoV1>> getRoutesByDeliveryId(
 		@PathVariable UUID deliveryId) {
 
-		List<RouteResponseDto> routes = deliveryRouteService.getRoutesByDeliveryId(deliveryId)
+		List<RouteResponseDtoV1> routes = deliveryRouteServiceV1.getRoutesByDeliveryId(deliveryId)
 			.stream()
-			.map(RouteResponseDto::from)
+			.map(RouteResponseDtoV1::from)
 			.collect(Collectors.toList());
 
 		return ResponseEntity.ok(routes);
@@ -114,20 +114,20 @@ public class DeliveryRouteController {
 
 	//배송 경로 단건 조회
 	@GetMapping("/{routeId}")
-	public ResponseEntity<RouteResponseDto> getRoute(
+	public ResponseEntity<RouteResponseDtoV1> getRoute(
 		@PathVariable UUID deliveryId,
 		@PathVariable UUID routeId) {
 
-		DeliveryRoute route = deliveryRouteService.getRouteById(routeId);
-		return ResponseEntity.ok(RouteResponseDto.from(route));
+		DeliveryRoute route = deliveryRouteServiceV1.getRouteById(routeId);
+		return ResponseEntity.ok(RouteResponseDtoV1.from(route));
 	}
 
 	//모든 배송 경로 조회
 	@GetMapping("/all")
-	public ResponseEntity<List<RouteResponseDto>> getAllRoutes() {
-		List<RouteResponseDto> routes = deliveryRouteService.getAllRoutes()
+	public ResponseEntity<List<RouteResponseDtoV1>> getAllRoutes() {
+		List<RouteResponseDtoV1> routes = deliveryRouteServiceV1.getAllRoutes()
 			.stream()
-			.map(RouteResponseDto::from)
+			.map(RouteResponseDtoV1::from)
 			.collect(Collectors.toList());
 
 		return ResponseEntity.ok(routes);

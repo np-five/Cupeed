@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteStartRequestDto {
+public class RouteStartRequestDtoV1 {
 
 	@NotBlank(message = "배송 담당자 ID를 입력해주세요")
 	private String deliveryManagerId;  // 배송 담당자 ID
