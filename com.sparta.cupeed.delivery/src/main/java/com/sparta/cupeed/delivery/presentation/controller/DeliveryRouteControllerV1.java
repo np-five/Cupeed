@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/deliveries/{deliveryId}/routes")
+@RequestMapping("/v1/deliveries/{deliveryId}/routes")
 @RequiredArgsConstructor
 public class DeliveryRouteControllerV1 {
 
