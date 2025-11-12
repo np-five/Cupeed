@@ -73,12 +73,14 @@ public class ProductControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
+	// 주문용: 재고 차감
 	@PostMapping("/decrease-stock")
 	public ResponseEntity<Void> decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.decreaseStock(requestDto);
 		return ResponseEntity.ok().build();
 	}
 
+	// 주문 취소용: 재고 복원
 	@PostMapping("/restore-stock")
 	public ResponseEntity<Void> restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.increaseStock(requestDto);
