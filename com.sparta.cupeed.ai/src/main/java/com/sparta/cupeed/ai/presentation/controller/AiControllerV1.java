@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.ai.application.service.AiServiceV1;
@@ -51,12 +52,14 @@ public class AiControllerV1 {
 		return ResponseEntity.ok(response);
 	}
 
+	// 쿼리 DSL 적용
 	@Operation(summary = "AI 요청내역 목록 조회", description = "관리자가 AI 요청내역 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<AiHistoriesGetResponseDtoV1> getAiHistories(
+		@Parameter @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		AiHistoriesGetResponseDtoV1 response = aiServiceV1.getAiHistories(pageable);
+		AiHistoriesGetResponseDtoV1 response = aiServiceV1.getAiHistories(keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 }

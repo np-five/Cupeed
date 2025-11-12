@@ -14,4 +14,6 @@ public interface AiRepository {
 	Optional<Ai> findById(UUID aiRequestId);
 
 	Page<Ai> findAll(Pageable pageable);
+
+	Page<Ai> searchAiHistories(String keyword, Pageable pageable);
 }

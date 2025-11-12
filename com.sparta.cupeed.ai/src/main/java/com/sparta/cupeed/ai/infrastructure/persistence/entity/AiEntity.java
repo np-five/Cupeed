@@ -1,6 +1,5 @@
 package com.sparta.cupeed.ai.infrastructure.persistence.entity;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.DynamicInsert;
