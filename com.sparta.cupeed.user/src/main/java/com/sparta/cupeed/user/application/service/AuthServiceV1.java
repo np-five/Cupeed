@@ -97,11 +97,7 @@ public class AuthServiceV1 {
 					throw new AuthException(AuthError.AUTH_EMPTY_COMPANY_INFO);
 				}
 
-				// UUID companyId = companyClientV1.getInternalCompanyByBusinessNo(authSignUpRequestDtoV1.businessNo());
-				// newUser = userBuilder.companyId(companyId).build();
-
-				// TODO: 이 코드는 random UUID 이므로, 상단의 api를 company service에 구현 할 것.
-				UUID companyId = UUID.randomUUID();
+				UUID companyId = companyClientV1.getInternalCompanyByBusinessNo(authSignUpRequestDtoV1.businessNo());
 				newUser = userBuilder.companyId(companyId).build();
 
 				newUserCompany = UserCompany.builder()
