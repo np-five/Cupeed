@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class RouteResponseDto {
+public class RouteResponseDtoV1 {
 
 	private UUID id;
 	private UUID deliveryId;
@@ -29,8 +29,8 @@ public class RouteResponseDto {
 	private Instant updatedAt;
 	private String updatedBy;
 
-	public static RouteResponseDto from(DeliveryRoute route) {
-		return RouteResponseDto.builder()
+	public static RouteResponseDtoV1 from(DeliveryRoute route) {
+		return RouteResponseDtoV1.builder()
 			.id(route.getId())
 			.deliveryId(route.getDeliveryId())
 			.startHubId(route.getStartHubId())

@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class DeliveryRouteService {
+public class DeliveryRouteServiceV1 {
 
 	private final DeliveryRouteRepository deliveryRouteRepository;
 

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteCompleteRequestDto {
+public class RouteCompleteRequestDtoV1 {
 
 	//배송 담당자가 배송 완료 시 실제 거리와 소요시간을 입력
 	@NotNull(message = "실제 이동 거리를 입력해주세요")
