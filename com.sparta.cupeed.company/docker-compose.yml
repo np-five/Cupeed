@@ -1,0 +1,28 @@
+services:
+  postgresql:
+    container_name: postgresql-company
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_DB: cupeed-company
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "15432:5432"
+    networks:
+      - cupeed-net
+
+#  zipkin:
+#    container_name: zipkin-cupeed
+#    image: openzipkin/zipkin:latest
+#    ports:
+#      - "9411:9411"              # Zipkin UI 접근용 포트
+#    environment:
+#      - STORAGE_TYPE=mem         # (기본값: 메모리, DB연동도 가능)
+#    networks:
+#      - cupeed-net
+
+networks:
+  cupeed-net:
+    name: cupeed-company
+    driver: bridge

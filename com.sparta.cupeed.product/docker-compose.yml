@@ -1,6 +1,6 @@
 services:
   postgresql:
-    container_name: postgresql-cupeed
+    container_name: postgresql-product
     image: postgres:18
     restart: always
     environment:
@@ -12,14 +12,14 @@ services:
     networks:
       - cupeed-net
 
-  redis:
-    container_name: redis-cupeed
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    command: ["redis-server"]
-    networks:
-      - cupeed-net
+#  redis:
+#    container_name: redis-cupeed
+#    image: redis:latest
+#    ports:
+#      - "6379:6379"
+#    command: ["redis-server"]
+#    networks:
+#      - cupeed-net
 
   zipkin:
     container_name: zipkin-cupeed
@@ -33,5 +33,5 @@ services:
 
 networks:
   cupeed-net:
-    name: cupeed
+    name: cupeed-product
     driver: bridge
