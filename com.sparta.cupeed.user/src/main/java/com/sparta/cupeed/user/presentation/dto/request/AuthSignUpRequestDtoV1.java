@@ -24,11 +24,9 @@ public record AuthSignUpRequestDtoV1(
 	String role,
 
 	// COMPANY
-	@NotBlank(message = "회사명을 입력해주세요.")
 	@Schema(description = "회사명", example = "스파르타코딩클럽")
 	String companyName,
 
-	@NotBlank(message = "사업자 등록 번호를 입력해주세요.")
 	@Schema(description = "사업자 등록 번호", example = "123-45-67890")
 	String businessNo,
 

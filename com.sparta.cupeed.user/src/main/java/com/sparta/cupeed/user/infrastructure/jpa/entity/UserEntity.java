@@ -73,4 +73,8 @@ public class UserEntity extends BaseEntity {
 			delivery.setUser(this);
 		}
 	}
+
+	public void updateStatus(StatusEnum statusEnum) {
+		this.status = statusEnum;
+	}
 }
