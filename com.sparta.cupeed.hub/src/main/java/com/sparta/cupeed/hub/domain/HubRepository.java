@@ -20,6 +20,9 @@ public interface HubRepository {
 	// Hub 삭제
 	void delete(Hub hub);
 
+	// HubName 으로 단건 조회 (feignClinet 용)
+	Optional<Hub> findByName(String name);
+
 	boolean existsById(UUID hubId);
 }
 
