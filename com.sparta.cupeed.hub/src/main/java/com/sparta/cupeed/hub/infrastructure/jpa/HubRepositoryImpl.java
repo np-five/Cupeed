@@ -51,5 +51,10 @@ public class HubRepositoryImpl implements HubRepository {
 	public Optional<Hub> findByName(String name) {
 		return jpaRepository.findByName(name).map(hubMapper::toDomain);
 	}
+
+	@Override
+	public boolean existsById(UUID hubId) {
+		return jpaRepository.existsById(hubId);
+	}
 }
 
