@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/cupeed-hub
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:15434}/${DB_NAME:cupeed-hub}
+    username: ${DB_USERNAME:cupeed-hub-user}
+    password: ${DB_PASSWORD:cupeed-hub-pwd}
 
   jpa:
     hibernate:
