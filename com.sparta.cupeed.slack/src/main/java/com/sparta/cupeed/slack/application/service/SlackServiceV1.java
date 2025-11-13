@@ -79,8 +79,6 @@ public class SlackServiceV1 {
 			.recipientSlackId(recipientSlackId)
 			.status(status)
 			.errorMessage(errorMessage)
-			.createdAt(Instant.now())
-			.createdBy(userDetails.getUserId())
 			.build();
 		Slack saved = slackRepository.save(created);
 

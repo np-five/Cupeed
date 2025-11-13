@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.hub.application.HubService;
@@ -39,15 +40,15 @@ public class HubController {
 	// 2. 허브 목록 조회 (GET /v1/hubs)
 	@GetMapping
 	public ResponseEntity<List<HubResponseDto>> getAllHubs() {
-		List<HubResponseDto> response = hubService.getAllHubs();
-		return ResponseEntity.ok(response);
+		List<HubResponseDto> responseDto = hubService.getAllHubs();
+		return ResponseEntity.ok(responseDto);
 	}
 
 	// 3. 허브 단건 조회 (GET /v1/hubs/{hubId})
 	@GetMapping("/{hubId}")
 	public ResponseEntity<HubResponseDto> getHubById(@PathVariable UUID hubId) {
-		HubResponseDto response = hubService.getHubById(hubId);
-		return ResponseEntity.ok(response);
+		HubResponseDto responseDto = hubService.getHubById(hubId);
+		return ResponseEntity.ok(responseDto);
 	}
 
 	// 4. 허브 수정 (PATCH /v1/hubs/{hubId})
@@ -57,8 +58,8 @@ public class HubController {
 	@PutMapping("/{hubId}")
 	public ResponseEntity<HubResponseDto> updateHub(@PathVariable UUID hubId,
 		@Valid @RequestBody UpdateHubCommand command) {
-		HubResponseDto response = hubService.updateHub(hubId, command);
-		return ResponseEntity.ok(response);
+		HubResponseDto responseDto = hubService.updateHub(hubId, command);
+		return ResponseEntity.ok(responseDto);
 	}
 
 	// 5. 허브 삭제 (DELETE /v1/hubs/{hubId})
@@ -66,5 +67,17 @@ public class HubController {
 	public ResponseEntity<Void> deleteHub(@PathVariable UUID hubId) {
 		hubService.deleteHub(hubId);
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/by-name")
+	public ResponseEntity<HubResponseDto> getHubByName(@RequestParam String name) {
+		HubResponseDto responseDto = hubService.getHubByName(name);
+		return ResponseEntity.ok(responseDto);
+	}
+
+	@PostMapping("{hubId}/exists")
+	public ResponseEntity<Boolean> checkHubExists(@PathVariable("hubId") UUID hubId) {
+		boolean exists = hubService.isHubExists(hubId);
+		return ResponseEntity.ok(exists);
 	}
 }

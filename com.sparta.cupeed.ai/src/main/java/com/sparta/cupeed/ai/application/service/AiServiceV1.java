@@ -68,7 +68,6 @@ public class AiServiceV1 {
 				.aiResponseText(aiResponseText)
 				.status(status)
 				.errorMessage(errorMessage)
-				.createdAt(Instant.now())
 				.build();
 			Ai saved = aiRepository.save(created);
 
@@ -94,7 +93,6 @@ public class AiServiceV1 {
 			.aiResponseText(aiResponseText)
 			.status(status)
 			.errorMessage(errorMessage)
-			.createdAt(Instant.now())
 			.build();
 		Ai saved = aiRepository.save(created);
 		return AiTextCreateResponseDtoV1.of(saved);
