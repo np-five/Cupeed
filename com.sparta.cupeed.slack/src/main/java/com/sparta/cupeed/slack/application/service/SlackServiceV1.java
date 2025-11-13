@@ -80,7 +80,7 @@ public class SlackServiceV1 {
 			.status(status)
 			.errorMessage(errorMessage)
 			.createdAt(Instant.now())
-			.createdBy(userDetails.getUserId())
+			.createdBy(String.valueOf(userDetails.getId()))
 			.build();
 		Slack saved = slackRepository.save(created);
 

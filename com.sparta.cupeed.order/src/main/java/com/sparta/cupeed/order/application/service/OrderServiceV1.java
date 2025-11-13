@@ -99,7 +99,7 @@ public class OrderServiceV1 {
 				.subtotal(subtotal)
 				.companyId(companyId)
 				.createdAt(Instant.now())
-				.createdBy(userDetails.getUserId())
+				.createdBy(String.valueOf(userDetails.getId()))
 				.build();
 
 			orderItemList.add(orderItem);
@@ -127,7 +127,7 @@ public class OrderServiceV1 {
 			.totalPrice(totalPrice)
 			.status(Order.Status.REQUESTED)
 			.createdAt(Instant.now())
-			.createdBy(userDetails.getUserId())
+			.createdBy(String.valueOf(userDetails.getId()))
 			.build();
 
 		Order saved = orderRepository.save(created);
