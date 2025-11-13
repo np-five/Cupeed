@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.cupeed.delivery.domain.model.DeliveryRoute;
 import com.sparta.cupeed.delivery.domain.repository.DeliveryRouteRepository;
+import com.sparta.cupeed.delivery.infrastructure.ai.client.AiClientV1;
+import com.sparta.cupeed.delivery.infrastructure.ai.dto.GeminiSendRequestDtoV1;
+import com.sparta.cupeed.delivery.presentation.dto.DeliveryCreateRequestDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class DeliveryRouteServiceV1 {
 
 	private final DeliveryRouteRepository deliveryRouteRepository;
+	private final AiClientV1 aiClient;
 
 	//배송 경로 생성
 	@Transactional
@@ -47,7 +51,44 @@ public class DeliveryRouteServiceV1 {
 		route.startDelivery(managerId, Instant.now());
 		DeliveryRoute savedRoute = deliveryRouteRepository.save(route);
 
-		//TODO: 슬랙 알림 연동
+		//TODO: AI에게 배송 정보 전송 - GeminiSendRequestDtoV1에 있는 정보들을 AiClent에게 넘겨줘야 함
+		// {
+		//   "orderId": "5a4f0e4c-9e6a-4f8c-8f26-31e6b1e7f0f5",
+		//   "orderNumber": "ORD-20251208-001",
+		//   "recieveCompanyName": "해산물월드",
+		//   "orderDate": "2025-12-08T10:00:00Z",
+		//   "products": [
+		//     {
+		//       "productName": "마른 오징어",
+		//       "quantity": 600
+		//     },
+		//     {
+		//       "productName": "건어물",
+		//       "quantity": 1000
+		//     }
+		//   ],
+		//   "customerRequest": "12월 12일 오후 3시까지 도착하도록 해주세요.",
+		//   "deliveryManagerName": "고길동",
+		//   "startHubName": "경기 북부 센터",
+		//   "endHubName": "부산시 사하구 낙동대로 1번길 1 해산물월드"
+		// }
+		List<GeminiSendRequestDtoV1.ProductInfo> productList = List.of(
+			GeminiSendRequestDtoV1.ProductInfo.builder()
+				.productName()
+				.quantity()
+				.build()
+		);
+		GeminiSendRequestDtoV1 aiRequestDto = GeminiSendRequestDtoV1.builder()
+				.orderId()
+				.orderNumber()
+				.recieveCompanyName()
+				.orderDate()
+			    .products(productList)
+			    .customerRequest()
+			    .deliveryManagerName()
+			    .startHubName()
+			    .endHubName().build();
+		aiClient.createAiText(aiRequestDto);
 
 		return savedRoute;
 	}
