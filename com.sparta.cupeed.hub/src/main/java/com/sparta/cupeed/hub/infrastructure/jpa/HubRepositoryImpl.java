@@ -37,23 +37,9 @@ public class HubRepositoryImpl implements HubRepository {
 
 	@Override
 	public Hub save(Hub hub) {
-		// if (hub.getId() == null) {
-		// 생성
 		HubEntity newEntity = hubMapper.toEntity(hub);
 		HubEntity savedEntity = jpaRepository.save(newEntity);
 		return hubMapper.toDomain(savedEntity);
-		// } else {
-		// 	// 수정
-		// 	HubEntity existingEntity = jpaRepository.findById(hub.getId())
-		// 		.orElseThrow(() -> new IllegalArgumentException("Hub not found for update: " + hub.getId()));
-		// 	hubMapper.updateEntityFromDomain(hub, existingEntity);
-		// 	// soft-delete 필드 업데이트
-		// 	if (hub.getDeletedAt() != null) {
-		// 		existingEntity.softDelete(hub.getDeletedBy());
-		// 	}
-		// 	HubEntity savedEntity = jpaRepository.save(existingEntity);
-		// 	return hubMapper.toDomain(savedEntity);
-		// }
 	}
 
 	@Override
