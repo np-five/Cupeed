@@ -1,0 +1,15 @@
+package com.sparta.cupeed.hubroute.application.command;
+
+import java.util.UUID;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+
+@Getter
+public class CreateHubRouteCommand {
+	@NotNull(message = "시작 Hub ID는 필수입니다.")
+	UUID startHubId;
+
+	@NotNull(message = "도착 Hub ID는 필수입니다.")
+	UUID endHubId;
+}

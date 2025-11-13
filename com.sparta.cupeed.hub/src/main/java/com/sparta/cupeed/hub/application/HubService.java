@@ -86,4 +86,8 @@ public class HubService {
 		// 소프트 딜리트
 		hub.softDelete("system");
 	}
+
+	public boolean isHubExists(UUID hubId) {
+		return hubRepository.existsById(hubId);
+	}
 }

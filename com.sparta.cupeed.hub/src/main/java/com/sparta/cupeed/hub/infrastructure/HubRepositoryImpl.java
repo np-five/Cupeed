@@ -40,5 +40,10 @@ public class HubRepositoryImpl implements HubRepository {
 	public void delete(Hub hub) {
 		jpaRepository.delete(hub);
 	}
+
+	@Override
+	public boolean existsById(UUID hubId) {
+		return jpaRepository.existsById(hubId);
+	}
 }
 
