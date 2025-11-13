@@ -72,23 +72,23 @@ public class DeliveryRouteServiceV1 {
 		//   "startHubName": "경기 북부 센터",
 		//   "endHubName": "부산시 사하구 낙동대로 1번길 1 해산물월드"
 		// }
-		List<GeminiSendRequestDtoV1.ProductInfo> productList = List.of(
-			GeminiSendRequestDtoV1.ProductInfo.builder()
-				.productName()
-				.quantity()
-				.build()
-		);
-		GeminiSendRequestDtoV1 aiRequestDto = GeminiSendRequestDtoV1.builder()
-				.orderId()
-				.orderNumber()
-				.recieveCompanyName()
-				.orderDate()
-			    .products(productList)
-			    .customerRequest()
-			    .deliveryManagerName()
-			    .startHubName()
-			    .endHubName().build();
-		aiClient.createAiText(aiRequestDto);
+		// List<GeminiSendRequestDtoV1.ProductInfo> productList = List.of(
+		// 	GeminiSendRequestDtoV1.ProductInfo.builder()
+		// 		.productName()
+		// 		.quantity()
+		// 		.build()
+		// );
+		// GeminiSendRequestDtoV1 aiRequestDto = GeminiSendRequestDtoV1.builder()
+		// 		.orderId()
+		// 		.orderNumber()
+		// 		.recieveCompanyName()
+		// 		.orderDate()
+		// 	    .products(productList)
+		// 	    .customerRequest()
+		// 	    .deliveryManagerName()
+		// 	    .startHubName()
+		// 	    .endHubName().build();
+		// aiClient.createAiText(aiRequestDto);
 
 		return savedRoute;
 	}
