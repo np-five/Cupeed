@@ -15,6 +15,7 @@ import java.util.UUID;
 public class DeliveryJpaEntity {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(columnDefinition = "UUID")
 	private UUID id;
 
@@ -32,7 +33,7 @@ public class DeliveryJpaEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(length = 100, nullable = false)
-	private String status;
+	private DeliveryStatus status;
 
 	@Column(name = "delivery_manager_id", columnDefinition = "UUID")
 	private UUID deliveryManagerId;
@@ -54,4 +55,12 @@ public class DeliveryJpaEntity {
 
 	@Column(name = "deleted_by", length = 100)
 	private String deletedBy;
+
+	public enum DeliveryStatus {
+		READY,              // 허브 대기중
+		HUB_TRANSIT,        // 허브 이동중
+		HUB_ARRIVED,        // 목적지 허브 도착
+		COMPANY_TRANSIT,    // 업체 이동중
+		DELIVERED           // 배송 완료
+	}
 }

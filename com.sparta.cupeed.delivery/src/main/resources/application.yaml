@@ -6,25 +6,19 @@ spring:
     name: delivery
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/cupeed-product
+    url: jdbc:postgresql://localhost:15433/cupeed_delivery_db
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create # 개발 단계에서는 update, 운영에서는 validate 권장
+      ddl-auto: update # 개발 단계에서는 update, 운영에서는 validate 권장
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     open-in-view: false
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      # password: (설정 시 추가)
 
 eureka:
   client:
@@ -32,18 +26,3 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8080/eureka/
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
-
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 10000

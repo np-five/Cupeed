@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.slack.application.service.SlackServiceV1;
@@ -68,13 +69,15 @@ public class SlackControllerV1 {
 	@Operation(summary = "슬랙 메시지 목록 조회", description = "관리자가 슬랙 메시지 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<SlacksGetResponseDtoV1> getSlackMessages(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		// @AuthenticationPrincipal UserDetailsImpl userDetails,
+		@Parameter(description = "검색 키워드 : 메시지 내용, 사용자 술랙 ID") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
 		// userDetails를 통해 Role 가져오기: 'ROLE_MASTER'
-		RoleEnum.fromAuthority(userDetails.getRole());
+		// RoleEnum.fromAuthority(userDetails.getRole());
 
-		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(pageable, userDetails);
+		// SlacksGetResponseDtoV1 response = slackService.getSlackMessages(pageable, userDetails);
+		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 

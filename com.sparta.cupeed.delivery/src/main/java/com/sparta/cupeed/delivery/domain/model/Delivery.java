@@ -25,11 +25,9 @@ public class Delivery {
 	private LocalDateTime deletedAt;
 	private String deletedBy;
 
-	// 정적 팩토리 메서드
 	public static Delivery create(UUID orderId, UUID receiveCompanyId,
 		UUID startHubId, UUID endHubId, String createdBy) {
 		return Delivery.builder()
-			.id(UUID.randomUUID())
 			.orderId(orderId)
 			.receiveCompanyId(receiveCompanyId)
 			.startHubId(startHubId)

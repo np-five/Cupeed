@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.cupeed.order.domain.model.Order;
 import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
+import com.sparta.cupeed.order.infrastructure.delivery.client.DeliveryClientV1;
+import com.sparta.cupeed.order.infrastructure.delivery.dto.request.DeliveryCreateRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
@@ -36,7 +38,7 @@ public class OrderServiceV1 {
 
 	private final OrderRepository orderRepository;
 	private final ProductClientV1 productClient;
-	// private final DeliveryClientV1 deliveryClient;
+	private final DeliveryClientV1 deliveryClient;
 	private final SlackClientV1 slackClient;
 
 	@Transactional
@@ -111,7 +113,6 @@ public class OrderServiceV1 {
 			.supplyCompanyId(supplyCompanyId)
 			.recieveCompanyId(dummyRecieveCompanyId)
 			.recieveCompanyName(dummyCompanyName)
-			.startHubId(dummyStartHubId)
 			.orderItemList(orderItemList)
 			.totalPrice(totalPrice)
 			.status(Order.Status.REQUESTED)
@@ -136,8 +137,10 @@ public class OrderServiceV1 {
 			.build();
 		productClient.decreaseStock(decreaseRequestDto);
 
-		// TODO : 배송 생성
-		// deliveryClient.createDelivery(saved.getId(), saved.getRecieveCompanyId());
+		DeliveryCreateRequestDtoV1 deliveryRequestDto = DeliveryCreateRequestDtoV1.builder()
+			.orderId(saved.getId())
+			.receiveCompanyId(saved.getRecieveCompanyId()).build();
+		deliveryClient.createDelivery(deliveryRequestDto, "X-User-Chohee");
 
 		slackClient.dmToReceiveCompany(
 			SlackMessageCreateRequestDtoV1.builder()
@@ -298,9 +301,8 @@ public class OrderServiceV1 {
 	}
 
 	@Transactional(readOnly = true)
-	public OrdersGetResponseDtoV1 getOrders(Pageable pageable) {
-		// TODO : 검색할 때 쿼리 DSL 적용
-		Page<Order> orders = orderRepository.findAllByDeletedAtIsNull(pageable);
+	public OrdersGetResponseDtoV1 getOrders(String keyword, Pageable pageable) {
+		Page<Order> orders = orderRepository.searchOrders(keyword, pageable);
 		return OrdersGetResponseDtoV1.of(orders);
 	}
 }

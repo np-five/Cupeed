@@ -5,9 +5,11 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.sparta.cupeed.product.application.service.ProductServiceV1;
+import com.sparta.cupeed.product.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
@@ -27,8 +29,8 @@ public class ProductControllerV1 {
 
 	// 상품 생성
 	@PostMapping
-	public ResponseEntity<ProductPostResponseDtoV1> createProduct(@RequestBody @Valid ProductPostRequestDtoV1 requestDto) {
-		ProductPostResponseDtoV1 response = productServiceV1.createProduct(requestDto);
+	public ResponseEntity<ProductPostResponseDtoV1> createProduct(@RequestBody @Valid ProductPostRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		ProductPostResponseDtoV1 response = productServiceV1.createProduct(requestDto, userDetails);
 		return ResponseEntity.ok(response);
 	}
 
@@ -74,14 +76,6 @@ public class ProductControllerV1 {
 	}
 
 	// 주문용: 재고 차감
-	// @PostMapping("/{productId}/decrease-stock")
-	// public ResponseEntity<Void> decreaseStock(
-	// 	@PathVariable UUID productId,
-	// 	@RequestParam Long quantity
-	// ) {
-	// 	productServiceV1.decreaseProductQuantityByAmount(productId, quantity);
-	// 	return ResponseEntity.ok().build();
-	// }
 	@PostMapping("/decrease-stock")
 	public ResponseEntity<Void> decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.decreaseStock(requestDto);
@@ -89,14 +83,6 @@ public class ProductControllerV1 {
 	}
 
 	// 주문 취소용: 재고 복원
-	// @PostMapping("/{productId}/restore-stock")
-	// public ResponseEntity<Void> restoreStock(
-	// 	@PathVariable UUID productId,
-	// 	@RequestParam Long quantity
-	// ) {
-	// 	productServiceV1.increaseProductQuantityByAmount(productId, quantity);
-	// 	return ResponseEntity.ok().build();
-	// }
 	@PostMapping("/restore-stock")
 	public ResponseEntity<Void> restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto) {
 		productServiceV1.increaseStock(requestDto);

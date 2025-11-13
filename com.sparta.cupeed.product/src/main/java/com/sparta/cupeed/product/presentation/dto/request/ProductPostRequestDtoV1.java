@@ -1,7 +1,5 @@
 package com.sparta.cupeed.product.presentation.dto.request;
 
-import java.util.UUID;
-
 import com.sparta.cupeed.product.domain.vo.ProductCategory;
 
 import jakarta.validation.Valid;
@@ -22,12 +20,6 @@ public class ProductPostRequestDtoV1 {
 	@Getter
 	@Builder
 	public static class ProductDto {
-
-		@NotNull(message = "업체 ID를 입력해주세요.")
-		private UUID companyId;
-
-		@NotNull(message = "허브 ID를 입력해주세요.")
-		private UUID hubId;
 
 		@NotBlank(message = "상품명을 입력해주세요.")
 		private String name;

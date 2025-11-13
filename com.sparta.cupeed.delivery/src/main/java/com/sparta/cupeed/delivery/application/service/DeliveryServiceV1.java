@@ -25,7 +25,25 @@ public class DeliveryServiceV1 {
 	// 배송 생성
 	@Transactional
 	public DeliveryResponseDtoV1 createDelivery(DeliveryCreateRequestDtoV1 request, String username) {
-		Delivery delivery = request.toEntity(username);
+
+		// TODO : 허브 Client 호출
+		UUID startHubId = UUID.randomUUID();
+		UUID endHubId = UUID.randomUUID();
+		// TODO : 배송 담당자 호출
+		UUID deliveryManagerId = UUID.randomUUID();
+
+		// request 복사해서 null 값을 임시값으로 채움
+		// --> 주문에서는 orderId, receiveCompanyId만 넘겨줄 수 있음
+		// 효선님이 만들어 놓으신 toEntity 사용해서 임시 방편으로 일단 이렇게 구현해놨습니다!
+		DeliveryCreateRequestDtoV1 temporaryRequest = DeliveryCreateRequestDtoV1.builder()
+			.orderId(request.getOrderId())
+			.receiveCompanyId(request.getReceiveCompanyId())
+			.startHubId(startHubId)
+			.endHubId(endHubId)
+			.deliveryManagerId(deliveryManagerId)
+			.build();
+
+		Delivery delivery = temporaryRequest.toEntity(username);
 		Delivery savedDelivery = deliveryRepository.save(delivery);
 		return DeliveryResponseDtoV1.from(savedDelivery);
 	}
