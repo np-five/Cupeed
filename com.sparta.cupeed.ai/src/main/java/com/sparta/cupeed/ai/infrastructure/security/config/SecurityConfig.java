@@ -1,4 +1,4 @@
-package com.sparta.cupeed.slack.infrastructure.security.config;
+package com.sparta.cupeed.ai.infrastructure.security.config;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import com.sparta.cupeed.slack.infrastructure.security.filter.JwtAuthorizationFilter;
+import com.sparta.cupeed.ai.infrastructure.security.filter.JwtAuthorizationFilter;
 
 import lombok.RequiredArgsConstructor;
 
