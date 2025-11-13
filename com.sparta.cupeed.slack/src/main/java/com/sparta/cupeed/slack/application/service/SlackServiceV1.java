@@ -34,7 +34,7 @@ public class SlackServiceV1 {
 	private final SlackAPIClientV1 slackApiClient;
 
 	@Transactional(noRollbackFor = SlackException.class)
-	public SlackCreateResponseDtoV1 createDMToReciveCompany(SlackReceiveCompanyDMCreateRequestDtoV1 requestDto) {
+	public SlackCreateResponseDtoV1 createDMToReciveCompany(UserDetailsImpl userDetails, SlackReceiveCompanyDMCreateRequestDtoV1 requestDto) {
 		if (requestDto == null || requestDto.getRecipientSlackId() == null) {
 			throw new SlackException(SlackError.SLACK_INVALID_REQUEST);
 		}
@@ -44,21 +44,21 @@ public class SlackServiceV1 {
 			requestDto.getTotalPrice(),
 			requestDto.getRecieveCompanyName()
 		);
-		return sendSlackMessage(requestDto.getRecipientSlackId(), message);
+		return sendSlackMessage(userDetails, requestDto.getRecipientSlackId(), message);
 	}
 
 	@Transactional(noRollbackFor = SlackException.class)
-	public SlackCreateResponseDtoV1 createDMToDliveryManager(SlackDeliveryManagerDMCreateRequestDtoV1 requestDto) {
+	public SlackCreateResponseDtoV1 createDMToDliveryManager(UserDetailsImpl userDetails, SlackDeliveryManagerDMCreateRequestDtoV1 requestDto) {
 		if (requestDto == null || requestDto.getRecipientSlackId() == null) {
 			throw new SlackException(SlackError.SLACK_INVALID_REQUEST);
 		}
-		return sendSlackMessage(requestDto.getRecipientSlackId(), requestDto.getAiResponseText());
+		return sendSlackMessage(userDetails, requestDto.getRecipientSlackId(), requestDto.getAiResponseText());
 	}
 
 	/**
 	 * 공통 Slack 메시지 전송 및 DB 저장 메서드
 	 */
-	private SlackCreateResponseDtoV1 sendSlackMessage(String recipientSlackId, String message) {
+	private SlackCreateResponseDtoV1 sendSlackMessage(UserDetailsImpl userDetails, String recipientSlackId, String message) {
 		Slack.Status status = Slack.Status.REQUESTED;
 		String errorMessage = null;
 
@@ -80,7 +80,7 @@ public class SlackServiceV1 {
 			.status(status)
 			.errorMessage(errorMessage)
 			.createdAt(Instant.now())
-			.createdBy("system")
+			.createdBy(userDetails.getUserId())
 			.build();
 		Slack saved = slackRepository.save(created);
 
@@ -90,21 +90,26 @@ public class SlackServiceV1 {
 		return SlackCreateResponseDtoV1.of(saved);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
-	public SlackGetResponseDtoV1 getSlackMessage(UUID slackMessageId) {
+	public SlackGetResponseDtoV1 getSlackMessage(UserDetailsImpl userDetails, UUID slackMessageId) {
 		Slack slack = slackRepository.findById(slackMessageId)
 			.orElseThrow(() -> new SlackException(SlackError.SLACK_MESSAGE_NOT_FOUND));
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new SlackException(SlackError.SLACK_ACCESS_DENIED);
+		}
 		return SlackGetResponseDtoV1.of(slack);
 	}
 
-	// @PreAuthorize("hasAnyAuthority('ROLE_MASTER','ROLE_COMPANY')")
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
-	public SlacksGetResponseDtoV1 getSlackMessages(String keyword, Pageable pageable) {
-	// public SlacksGetResponseDtoV1 getSlackMessages(Pageable pageable, UserDetailsImpl userDetails) {
-		// 서비스 레이어에서 인가 처리
-		// RoleEnum.fromAuthority(userDetails.getRole());
-
+	public SlacksGetResponseDtoV1 getSlackMessages(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
 		Page<Slack> slacks = slackRepository.searchSlackMessages(keyword, pageable);
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new SlackException(SlackError.SLACK_ACCESS_DENIED);
+		}
 		return SlacksGetResponseDtoV1.of(slacks);
 	}
 }

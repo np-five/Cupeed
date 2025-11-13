@@ -63,5 +63,4 @@ public class SlackRepositoryImpl implements SlackRepository {
 
 		return new PageImpl<>(domainResults, pageable, total);
 	}
-
 }
