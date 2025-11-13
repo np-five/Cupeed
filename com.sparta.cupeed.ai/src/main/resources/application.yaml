@@ -3,7 +3,7 @@ spring:
     name: ai
 
   datasource:
-    url: jdbc:postgresql://localhost:5431/cupeed_ai_db
+    url: jdbc:postgresql://localhost:15431/cupeed_ai_db
     username: cupeed_ai_user
     password: cupeed_ai_pass
     driver-class-name: org.postgresql.Driver
@@ -13,13 +13,33 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.orm.jdbc.bind: TRACE
 
 google:
   ai:
     api-key: ${GOOGLE_AI_API_KEY}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    # http://localhost:[port]/swagger로 스웨거 호출 가능.
+    path: /swagger
+
+cupeed:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-expiration-time: 3600000 # 1 hour in milliseconds
+    access-header-name: Authorization
+    header-prefix: "Bearer "
+    swagger-bearer-schema: bearerAuth
 
 server:
   port: 20010

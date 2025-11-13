@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/cupeed-hub-route
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:15435}/${DB_NAME:cupeed-hubroute}
+    username: ${DB_USERNAME:cupeed-hubroute-user}
+    password: ${DB_PASSWORD:cupeed-hubroute-pwd}
 
   jpa:
     hibernate:
@@ -28,7 +28,6 @@ eureka:
 
 naver:
   api:
-    client-id: wv1t40z5u4
-    client-secret: KMGJNOcwDxtKHJjKvudRRswYBAFdxKbtzC4Molpr
-#    client-id: ${NAVER_CLIENT_ID}
-#    client-secret: ${NAVER_CLIENT_SECRET}
+   client-id: ${NAVER_CLIENT_ID}
+   client-secret: ${NAVER_CLIENT_SECRET}
+

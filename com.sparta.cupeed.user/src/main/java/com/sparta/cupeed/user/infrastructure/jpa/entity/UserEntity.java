@@ -1,0 +1,80 @@
+package com.sparta.cupeed.user.infrastructure.jpa.entity;
+
+import java.util.UUID;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "p_user")
+public class UserEntity extends BaseEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(name = "id", nullable = false, updatable = false)
+	private UUID id;
+
+	@Column(name = "user_id", nullable = false, updatable = false, unique = true)
+	private String userId;
+
+	@Column(name = "password", nullable = false)
+	private String password;
+
+	@Column(name = "slack_id", nullable = false, unique = true)
+	private String slackId;
+
+	@Column(name = "role", nullable = false, updatable = false)
+	@Enumerated(EnumType.STRING)
+	private RoleEnum role;
+
+	@Column(name = "status", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private StatusEnum status;
+
+	@Column(name = "company_id", updatable = false)
+	private UUID companyId;
+
+	@Column(name = "hub_id", updatable = false)
+	private UUID hubId;
+
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private UserCompanyEntity userCompany;
+
+	@OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private UserDeliveryEntity userDelivery;
+
+	public void attachUserCompany(UserCompanyEntity company) {
+		this.userCompany = company;
+		if (company != null) {
+			company.setUser(this);
+		}
+	}
+
+	public void attachUserDelivery(UserDeliveryEntity delivery) {
+		this.userDelivery = delivery;
+		if (delivery != null) {
+			delivery.setUser(this);
+		}
+	}
+
+	public void updateStatus(StatusEnum statusEnum) {
+		this.status = statusEnum;
+	}
+}

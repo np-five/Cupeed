@@ -1,0 +1,21 @@
+services:
+  postgresql:
+    container_name: cupeed_delivery_postgres
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: cupeed_delivery_db
+    ports:
+      - "15433:5432"
+    volumes:
+      - cupeed_delivery_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cupeed_user} -d ${POSTGRES_DB:-cupeed_db}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cupeed_delivery_pg_data:

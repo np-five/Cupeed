@@ -14,4 +14,6 @@ public interface OrderRepository {
 	Optional<Order> findById(UUID orderId);
 
 	Page<Order> findAllByDeletedAtIsNull(Pageable pageable);
+
+	Page<Order> searchOrders(UUID receiveCompanyId, String keyword, Pageable pageable);
 }

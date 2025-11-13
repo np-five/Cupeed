@@ -3,26 +3,38 @@ spring:
     name: order
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/cupeed_order_db
+    url: jdbc:postgresql://localhost:15436/cupeed_order_db
     username: cupeed_order_user
     password: cupeed_order_pass
     driver-class-name: org.postgresql.Driver
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
 
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.orm.jdbc.bind: TRACE
 
-  cache:
-    type: redis
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    # http://localhost:[port]/swagger로 스웨거 호출 가능.
+    path: /swagger
+
+cupeed:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-expiration-time: 3600000 # 1 hour in milliseconds
+    access-header-name: Authorization
+    header-prefix: "Bearer "
+    swagger-bearer-schema: bearerAuth
 
 server:
   port: 20060

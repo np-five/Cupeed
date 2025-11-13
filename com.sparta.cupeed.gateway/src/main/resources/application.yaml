@@ -12,8 +12,8 @@ spring:
               predicates:
                 - Path=/v1/ai-requests/**
             # 20020
-            - id: companies
-              uri: lb://companies
+            - id: company
+              uri: lb://company
               predicates:
                 - Path=/v1/companies/**
             # 20030
@@ -47,11 +47,9 @@ spring:
                 - Path=/v1/products/**
             # 20080
             - id: user
-              uri: http://localhost:19092/
+              uri: lb://user
               predicates:
-                - Path=/user/**
-              filters:
-                - StripPrefix=1
+                - Path=/v1/users/**, /v1/auth/**
           discovery:
             locator:
               enabled: true
@@ -63,3 +61,11 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8080/eureka/
+
+cupeed:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-expiration-time: 3600000 # 1 hour in milliseconds
+    access-header-name: Authorization
+    header-prefix: "Bearer "
+    swagger-bearer-schema: bearerAuth
