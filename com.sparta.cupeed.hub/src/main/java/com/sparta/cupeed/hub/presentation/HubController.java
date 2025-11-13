@@ -68,7 +68,7 @@ public class HubController {
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("{hubId}/exists")
+	@PostMapping("{hubId}/exists")
 	public ResponseEntity<Boolean> checkHubExists(@PathVariable("hubId") UUID hubId) {
 		boolean exists = hubService.isHubExists(hubId);
 		return ResponseEntity.ok(exists);
