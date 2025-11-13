@@ -1,5 +1,7 @@
 #  Cupeed💘🪽 - 물류 관리 및 배송 시스템
 
+![KakaoTalk_20251108_102825384](https://github.com/user-attachments/assets/f45a8e89-fffe-40d5-afee-27e87df27a4e)
+
 ---
 
 ## 💖 개요
