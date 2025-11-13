@@ -38,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceV1 {
-	// TODO : Client한테 userDetails 전달
 
 	private final OrderRepository orderRepository;
 	private final ProductClientV1 productClient;
@@ -50,7 +49,6 @@ public class OrderServiceV1 {
 	public OrderPostResponseDtoV1 createOrder(UserDetailsImpl userDetails, OrderPostRequestDtoV1 requestDto) {
 		OrderPostRequestDtoV1.OrderDto requestOrder = requestDto.getOrder();
 
-		// 상품 중복 검사
 		if (requestOrder.getOrderItemList().stream()
 			.map(OrderPostRequestDtoV1.OrderDto.OrderItemDto::getProductId)
 			.collect(Collectors.toSet()).size() != requestOrder.getOrderItemList().size()) {
@@ -69,7 +67,6 @@ public class OrderServiceV1 {
 				throw new OrderException(OrderError.ORDER_INVALID_QUANTITY);
 			}
 
-			// 상품 정보 조회
 			ProductGetResponseDtoV1 response = productClient.getProduct(productId);
 			ProductGetResponseDtoV1.ProductDto productInfo = response.getProduct();
 
@@ -111,7 +108,7 @@ public class OrderServiceV1 {
 			receiveCompanyName = "MASTER_DEFAULT_COMPANY";
 		} else {
 			receiveCompanyId = userDetails.getCompanyId();
-			receiveCompanyName = userDetails.getCompanyName(); // TODO : 수령업체명 필요 (인증 토큰에서 가져와야 함)
+			receiveCompanyName = userDetails.getCompanyName();
 		}
 
 		String orderNumber = "ORD-" + Instant.now().toEpochMilli();
@@ -154,7 +151,7 @@ public class OrderServiceV1 {
 				.recieveCompanyId(saved.getRecieveCompanyId())
 				.recieveCompanyName(saved.getRecieveCompanyName())
 				.totalPrice(saved.getTotalPrice())
-				.recipientSlackId(userDetails.getSlackId()) // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
+				.recipientSlackId(userDetails.getSlackId())
 				.status("REQUESTED")
 				.build()
 		);
