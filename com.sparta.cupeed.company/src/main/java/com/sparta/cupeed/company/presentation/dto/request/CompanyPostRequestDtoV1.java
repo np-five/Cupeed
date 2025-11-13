@@ -28,8 +28,8 @@ public class CompanyPostRequestDtoV1 {
 
 		private String address;
 
-		@NotNull(message = "허브 ID를 입력해주세요.")
-		private UUID hubId;
+		@NotNull(message = "허브 이름을 입력해주세요.")
+		private String hubName;
 
 		@NotNull(message = "담당자(대표자) ID를 입력해주세요.")
 		private UUID managerId;

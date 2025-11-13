@@ -1,6 +1,7 @@
 package com.sparta.cupeed.company.presentation.controller;
 
 import com.sparta.cupeed.company.application.service.CompanyServiceV1;
+import com.sparta.cupeed.company.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.company.presentation.dto.request.CompanyPostRequestDtoV1;
 import com.sparta.cupeed.company.presentation.dto.response.CompanyGetResponseDtoV1;
 
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,8 +24,8 @@ public class CompanyControllerV1 {
 	// 1. 업체 생성
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public CompanyGetResponseDtoV1 createCompany(@RequestBody CompanyPostRequestDtoV1 requestDto) {
-		return companyService.createCompany(requestDto);
+	public CompanyGetResponseDtoV1 createCompany(@RequestBody CompanyPostRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		return companyService.createCompany(requestDto, userDetails);
 	}
 
 	// 2. 업체 목록 조회 (페이징)

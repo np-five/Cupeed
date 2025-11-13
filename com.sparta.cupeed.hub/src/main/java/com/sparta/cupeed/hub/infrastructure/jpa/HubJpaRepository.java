@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.sparta.cupeed.hub.domain.Hub;
 import com.sparta.cupeed.hub.infrastructure.persistence.HubEntity;
 
 // Spring Data JPA가 제공하는 기본 CRUD 기능을 활용합니다.

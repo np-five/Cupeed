@@ -57,4 +57,3 @@ public class HubRepositoryImpl implements HubRepository {
 		return jpaRepository.existsById(hubId);
 	}
 }
-

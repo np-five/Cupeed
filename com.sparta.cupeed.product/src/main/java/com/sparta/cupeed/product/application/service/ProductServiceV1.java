@@ -5,6 +5,7 @@ import com.sparta.cupeed.product.domain.repository.ProductRepository;
 import com.sparta.cupeed.product.infrastructure.company.client.CompanyClientV1;
 import com.sparta.cupeed.product.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.product.infrastructure.user.client.UserClientV1;
+import com.sparta.cupeed.product.infrastructure.user.dto.response.InternalUserResponseDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
@@ -33,19 +34,19 @@ public class ProductServiceV1 {
 
 		ProductPostRequestDtoV1.ProductDto dto = requestDto.getProduct();
 
-		UUID findCompanyId = userClient.getInternalUser(userDetails.getId());
-		if (findCompanyId == null) {
+		InternalUserResponseDtoV1 findUser = userClient.getInternalUser(userDetails.getId());
+		if (findUser == null) {
 			throw new IllegalArgumentException("유효하지 않은 유저 ID입니다.");
 		}
 
-		UUID findHunId = companyClient.getCompany(findCompanyId);
+		UUID findHunId = companyClient.getCompany(findUser.getUser().getCompanyId());
 		if (findHunId == null) {
 			throw new IllegalArgumentException("유효하지 않은 허브 ID입니다.");
 		}
 
 		// 2️⃣ Product 엔티티 생성
 		Product newProduct = Product.builder()
-			.companyId(findCompanyId)
+			.companyId(findUser.getUser().getCompanyId())
 			.hubId(findHunId)
 			.name(dto.getName())
 			.category(dto.getCategory())

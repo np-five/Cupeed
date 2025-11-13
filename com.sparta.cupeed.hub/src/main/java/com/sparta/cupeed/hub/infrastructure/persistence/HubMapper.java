@@ -50,4 +50,3 @@ public class HubMapper {
 		return domain;
 	}
 }
-
