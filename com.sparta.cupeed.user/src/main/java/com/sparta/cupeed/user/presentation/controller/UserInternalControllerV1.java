@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.user.application.service.UserServiceV1;
+import com.sparta.cupeed.user.presentation.dto.response.InternalUserResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,7 @@ public class UserInternalControllerV1 {
 	private final UserServiceV1 userService;
 
 	@GetMapping("/{userId}")
-	public UUID getInternalCompanyIdByUserId(@PathVariable UUID userId) {
-		return userService.getInternalCompanyIdByUserId(userId);
+	public InternalUserResponseDtoV1 getInternalCompanyIdByUserId(@PathVariable UUID userId) {
+		return userService.getInternalUserByUserId(userId);
 	}
 }

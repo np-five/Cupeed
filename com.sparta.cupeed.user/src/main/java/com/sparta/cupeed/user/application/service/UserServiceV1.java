@@ -12,6 +12,7 @@ import com.sparta.cupeed.user.domain.vo.UserStatusEnum;
 import com.sparta.cupeed.user.presentation.advice.AuthError;
 import com.sparta.cupeed.user.presentation.advice.AuthException;
 import com.sparta.cupeed.user.presentation.dto.request.UserUpdateStatusRequestDtoV1;
+import com.sparta.cupeed.user.presentation.dto.response.InternalUserResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,8 +38,16 @@ public class UserServiceV1 {
 		userRepository.saveStatus(user, userUpdateStatusRequestDtoV1.status());
 	}
 
-	public UUID getInternalCompanyIdByUserId(UUID userId) {
+	public InternalUserResponseDtoV1 getInternalUserByUserId(UUID userId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		return user.getCompanyId();
+
+		return InternalUserResponseDtoV1.builder()
+			.user(
+				InternalUserResponseDtoV1.UserDto.builder()
+					.id(user.getId())
+					.companyId(user.getCompanyId())
+					.build()
+			)
+			.build();
 	}
 }

@@ -12,6 +12,7 @@ import com.sparta.cupeed.hub.application.command.UpdateHubCommand;
 import com.sparta.cupeed.hub.application.dto.HubResponseDto;
 import com.sparta.cupeed.hub.domain.Hub;
 import com.sparta.cupeed.hub.domain.HubRepository;
+import com.sparta.cupeed.hub.presentation.HubInternalResponseDtoV1;
 import com.sparta.cupeed.hub.infrastructure.client.Coordinates;
 import com.sparta.cupeed.hub.infrastructure.client.NaverGeocodingService;
 
@@ -90,6 +91,12 @@ public class HubService {
 
 		// 소프트 딜리트
 		hub.softDelete("system");
+	}
+
+	public HubInternalResponseDtoV1 getInternalHubByName(String hubName) {
+		Hub hub = hubRepository.findByName(hubName)
+			.orElseThrow(() -> new IllegalArgumentException("허브를 찾을 수 없습니다: " + hubName));
+		return HubInternalResponseDtoV1.of(hub);
 	}
 
 	public HubResponseDto getHubByName(String name) {
