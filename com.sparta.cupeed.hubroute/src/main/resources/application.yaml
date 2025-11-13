@@ -17,3 +17,17 @@ spring:
         format_sql: true
         show_sql: true  # 콘솔에 SQL 출력 (개발용)
     open-in-view: false
+
+server:
+  port: 20050
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
+
+naver:
+  api:
+   client-id: ${NAVER_CLIENT_ID}
+   client-secret: ${NAVER_CLIENT_SECRET}
+

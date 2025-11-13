@@ -22,5 +22,7 @@ public interface HubRepository {
 
 	// HubName 으로 단건 조회 (feignClinet 용)
 	Optional<Hub> findByName(String name);
+
+	boolean existsById(UUID hubId);
 }
 

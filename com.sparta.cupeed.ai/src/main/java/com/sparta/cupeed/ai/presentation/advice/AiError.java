@@ -14,6 +14,7 @@ public enum AiError {
 	AI_PROMPT_BUILD_FAILED(HttpStatus.BAD_REQUEST, "AI 프롬프트 생성 중 오류가 발생했습니다."),
 	AI_SLACK_NOTIFICATION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AI 응답을 슬랙으로 전송하는 데 실패했습니다."),
 	AI_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI 요청 결과 저장 중 오류가 발생했습니다."),
+	AI_ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
 	// GeminiAPIClient Error
 	GEMINI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "Gemini로부터 유효한 응답을 받지 못했습니다."),

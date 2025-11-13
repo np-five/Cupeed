@@ -74,4 +74,10 @@ public class HubController {
 		HubResponseDto responseDto = hubService.getHubByName(name);
 		return ResponseEntity.ok(responseDto);
 	}
+
+	@PostMapping("{hubId}/exists")
+	public ResponseEntity<Boolean> checkHubExists(@PathVariable("hubId") UUID hubId) {
+		boolean exists = hubService.isHubExists(hubId);
+		return ResponseEntity.ok(exists);
+	}
 }

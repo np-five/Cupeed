@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,8 @@ import com.sparta.cupeed.ai.domain.repository.AiRepository;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.client.GeminiAPIClientV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSendRequestDtoV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
+import com.sparta.cupeed.ai.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.ai.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.ai.infrastructure.slack.client.SlackClientV1;
 import com.sparta.cupeed.ai.infrastructure.slack.dto.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.ai.presentation.advice.AiError;
@@ -35,7 +38,7 @@ public class AiServiceV1 {
 	private final SlackClientV1 slackClient;
 
 	@Transactional(noRollbackFor = AiException.class)
-	public AiTextCreateResponseDtoV1 createAiText(GeminiSendRequestDtoV1 requestDto) {
+	public AiTextCreateResponseDtoV1 createAiText(UserDetailsImpl userDetails, GeminiSendRequestDtoV1 requestDto) {
 		String prompt = promptBuilder.generateAiTextPrompt(requestDto);
 		String errorMessage = null;
 		String aiResponseText = null;
@@ -65,7 +68,6 @@ public class AiServiceV1 {
 				.aiResponseText(aiResponseText)
 				.status(status)
 				.errorMessage(errorMessage)
-				.createdAt(Instant.now())
 				.build();
 			Ai saved = aiRepository.save(created);
 
@@ -73,7 +75,7 @@ public class AiServiceV1 {
 			try {
 				slackClient.dmToDliveryManager(
 					SlackMessageCreateRequestDtoV1.builder()
-						.recipientSlackId("U09SFAT4V5E")
+						.recipientSlackId(userDetails.getSlackId()) // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
 						.aiResponseText(aiResponseText)
 						.errorMessage(errorMessage)
 						.build()
@@ -91,22 +93,31 @@ public class AiServiceV1 {
 			.aiResponseText(aiResponseText)
 			.status(status)
 			.errorMessage(errorMessage)
-			.createdAt(Instant.now())
 			.build();
 		Ai saved = aiRepository.save(created);
 		return AiTextCreateResponseDtoV1.of(saved);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
-	public AiHistoryGetResponseDtoV1 getAiHistory(UUID aiRequestId) {
+	public AiHistoryGetResponseDtoV1 getAiHistory(UserDetailsImpl userDetails, UUID aiRequestId) {
 		Ai aiHistory = aiRepository.findById(aiRequestId)
 				.orElseThrow(() -> new AiException(AiError.AI_HISTORY_NOT_FOUND));
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new AiException(AiError.AI_ACCESS_DENIED);
+		}
 		return AiHistoryGetResponseDtoV1.of(aiHistory);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@Transactional(readOnly = true)
-	public AiHistoriesGetResponseDtoV1 getAiHistories(String keyword, Pageable pageable) {
+	public AiHistoriesGetResponseDtoV1 getAiHistories(UserDetailsImpl userDetails, String keyword, Pageable pageable) {
 		Page<Ai> aiHistories = aiRepository.searchAiHistories(keyword, pageable);
+		RoleEnum role = RoleEnum.fromAuthority(userDetails.getRole());
+		if (role != RoleEnum.MASTER) {
+			throw new AiException(AiError.AI_ACCESS_DENIED);
+		}
 		return AiHistoriesGetResponseDtoV1.of(aiHistories);
 	}
 }

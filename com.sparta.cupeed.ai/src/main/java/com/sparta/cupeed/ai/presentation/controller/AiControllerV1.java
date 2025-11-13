@@ -6,6 +6,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.ai.application.service.AiServiceV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSendRequestDtoV1;
+import com.sparta.cupeed.ai.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoriesGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiHistoryGetResponseDtoV1;
 import com.sparta.cupeed.ai.presentation.dto.response.AiTextCreateResponseDtoV1;
@@ -37,18 +39,20 @@ public class AiControllerV1 {
 	@Operation(summary = "Gemini 응답텍스트 생성", description = "주문 정보를 기반으로 발송 담당자에게 보낼 배송 요약메시지를 생성합니다.")
 	@PostMapping
 	public ResponseEntity<AiTextCreateResponseDtoV1> createAiText(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody @Valid GeminiSendRequestDtoV1 requestDto
 	) {
-		AiTextCreateResponseDtoV1 response = aiServiceV1.createAiText(requestDto);
+		AiTextCreateResponseDtoV1 response = aiServiceV1.createAiText(userDetails, requestDto);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "AI 요청내역 상세 조회", description = "관리자가 AI 요청내역을 상세 조회합니다.")
 	@GetMapping("/{aiRequestId}")
 	public ResponseEntity<AiHistoryGetResponseDtoV1> getAiHistory(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "AI 요청 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable("aiRequestId") UUID aiRequestId) {
-		AiHistoryGetResponseDtoV1 response = aiServiceV1.getAiHistory(aiRequestId);
+		AiHistoryGetResponseDtoV1 response = aiServiceV1.getAiHistory(userDetails, aiRequestId);
 		return ResponseEntity.ok(response);
 	}
 
@@ -56,10 +60,11 @@ public class AiControllerV1 {
 	@Operation(summary = "AI 요청내역 목록 조회", description = "관리자가 AI 요청내역 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<AiHistoriesGetResponseDtoV1> getAiHistories(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "검색 키워드 : AI 응답 메시지 내용") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		AiHistoriesGetResponseDtoV1 response = aiServiceV1.getAiHistories(keyword, pageable);
+		AiHistoriesGetResponseDtoV1 response = aiServiceV1.getAiHistories(userDetails, keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 }

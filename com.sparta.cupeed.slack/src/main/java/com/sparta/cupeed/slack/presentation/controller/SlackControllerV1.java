@@ -41,43 +41,42 @@ public class SlackControllerV1 {
 	@Operation(summary = "주문완료 DM 전송", description = "주문이 완료되면 수령업체에게 주문완료 알림을 보냅니다.")
 	@PostMapping("/dm/toReceiveCompany")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToReciveCompany(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody @Valid SlackReceiveCompanyDMCreateRequestDtoV1 requestDto
 	) {
-		SlackCreateResponseDtoV1 response = slackService.createDMToReciveCompany(requestDto);
+		SlackCreateResponseDtoV1 response = slackService.createDMToReciveCompany(userDetails, requestDto);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "배송 요약메시지 DM 전송", description = "배송 담당자가 정해지면 Gemini가 생성한 배송 요약메시지를 발송 담당자에게 전송합니다.")
 	@PostMapping("/dm/toDliveryManager")
 	public ResponseEntity<SlackCreateResponseDtoV1> createDMToDliveryManager(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody @Valid SlackDeliveryManagerDMCreateRequestDtoV1 requestDto
 	) {
-		SlackCreateResponseDtoV1 response = slackService.createDMToDliveryManager(requestDto);
+		SlackCreateResponseDtoV1 response = slackService.createDMToDliveryManager(userDetails, requestDto);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "슬랙 메시지 상세 조회", description = "관리자가 슬랙 메시지를 상세 조회합니다.")
 	@GetMapping("/{slackMessageId}")
 	public ResponseEntity<SlackGetResponseDtoV1> getSlackMessage(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "슬랙 메시지 ID", example = "b18d6d27-9a9e-4c6d-8db0-3aefb174edc1", required = true)
 		@PathVariable("slackMessageId") UUID slackMessageId
 	) {
-		SlackGetResponseDtoV1 response = slackService.getSlackMessage(slackMessageId);
+		SlackGetResponseDtoV1 response = slackService.getSlackMessage(userDetails, slackMessageId);
 		return ResponseEntity.ok(response);
 	}
 
 	@Operation(summary = "슬랙 메시지 목록 조회", description = "관리자가 슬랙 메시지 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<SlacksGetResponseDtoV1> getSlackMessages(
-		// @AuthenticationPrincipal UserDetailsImpl userDetails,
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@Parameter(description = "검색 키워드 : 메시지 내용, 사용자 술랙 ID") @RequestParam(required = false) String keyword,
 		@ParameterObject @PageableDefault(size = 5) Pageable pageable
 	) {
-		// userDetails를 통해 Role 가져오기: 'ROLE_MASTER'
-		// RoleEnum.fromAuthority(userDetails.getRole());
-
-		// SlacksGetResponseDtoV1 response = slackService.getSlackMessages(pageable, userDetails);
-		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(keyword, pageable);
+		SlacksGetResponseDtoV1 response = slackService.getSlackMessages(userDetails, keyword, pageable);
 		return ResponseEntity.ok(response);
 	}
 

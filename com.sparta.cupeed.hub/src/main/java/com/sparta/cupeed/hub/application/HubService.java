@@ -97,4 +97,8 @@ public class HubService {
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 허브 이름입니다."));
 		return HubResponseDto.mapToResponse(hub);
 	}
+
+	public boolean isHubExists(UUID hubId) {
+		return hubRepository.existsById(hubId);
+	}
 }
