@@ -3,15 +3,23 @@ package com.sparta.cupeed.delivery.application.service;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.cupeed.delivery.domain.model.Delivery;
+import com.sparta.cupeed.delivery.domain.model.DeliveryManager;
 import com.sparta.cupeed.delivery.domain.model.DeliveryRoute;
+import com.sparta.cupeed.delivery.domain.repository.DeliveryManagerRepository;
+import com.sparta.cupeed.delivery.domain.repository.DeliveryRepository;
 import com.sparta.cupeed.delivery.domain.repository.DeliveryRouteRepository;
 import com.sparta.cupeed.delivery.infrastructure.ai.client.AiClientV1;
+import com.sparta.cupeed.delivery.infrastructure.ai.client.HubClientV1;
+import com.sparta.cupeed.delivery.infrastructure.ai.client.OrderClientV1;
 import com.sparta.cupeed.delivery.infrastructure.ai.dto.GeminiSendRequestDtoV1;
-import com.sparta.cupeed.delivery.presentation.dto.DeliveryCreateRequestDtoV1;
+import com.sparta.cupeed.delivery.infrastructure.ai.dto.HubResponseDtoV1;
+import com.sparta.cupeed.delivery.infrastructure.ai.dto.OrderResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +30,10 @@ public class DeliveryRouteServiceV1 {
 
 	private final DeliveryRouteRepository deliveryRouteRepository;
 	private final AiClientV1 aiClient;
+	private final DeliveryRepository deliveryRepository;
+	private final DeliveryManagerRepository deliveryManagerRepository;
+	private final OrderClientV1 orderClient;
+	private final HubClientV1 hubClientV1;
 
 	//배송 경로 생성
 	@Transactional
@@ -51,44 +63,43 @@ public class DeliveryRouteServiceV1 {
 		route.startDelivery(managerId, Instant.now());
 		DeliveryRoute savedRoute = deliveryRouteRepository.save(route);
 
-		//TODO: AI에게 배송 정보 전송 - GeminiSendRequestDtoV1에 있는 정보들을 AiClent에게 넘겨줘야 함
-		// {
-		//   "orderId": "5a4f0e4c-9e6a-4f8c-8f26-31e6b1e7f0f5",
-		//   "orderNumber": "ORD-20251208-001",
-		//   "recieveCompanyName": "해산물월드",
-		//   "orderDate": "2025-12-08T10:00:00Z",
-		//   "products": [
-		//     {
-		//       "productName": "마른 오징어",
-		//       "quantity": 600
-		//     },
-		//     {
-		//       "productName": "건어물",
-		//       "quantity": 1000
-		//     }
-		//   ],
-		//   "customerRequest": "12월 12일 오후 3시까지 도착하도록 해주세요.",
-		//   "deliveryManagerName": "고길동",
-		//   "startHubName": "경기 북부 센터",
-		//   "endHubName": "부산시 사하구 낙동대로 1번길 1 해산물월드"
-		// }
-		// List<GeminiSendRequestDtoV1.ProductInfo> productList = List.of(
-		// 	GeminiSendRequestDtoV1.ProductInfo.builder()
-		// 		.productName()
-		// 		.quantity()
-		// 		.build()
-		// );
-		// GeminiSendRequestDtoV1 aiRequestDto = GeminiSendRequestDtoV1.builder()
-		// 		.orderId()
-		// 		.orderNumber()
-		// 		.recieveCompanyName()
-		// 		.orderDate()
-		// 	    .products(productList)
-		// 	    .customerRequest()
-		// 	    .deliveryManagerName()
-		// 	    .startHubName()
-		// 	    .endHubName().build();
-		// aiClient.createAiText(aiRequestDto);
+		//출발허브, 도착허브 받아오기
+		UUID deliveryId = route.getDeliveryId();
+		UUID startHubId = route.getStartHubId();
+		UUID endHubId = route.getEndHubId();
+
+		Delivery delivery = deliveryRepository.findById(deliveryId)
+			.orElseThrow(() -> new IllegalArgumentException("배송을 찾을 수 없습니다"));
+		UUID orderId = delivery.getOrderId();
+
+		OrderResponseDtoV1 orderInfo = orderClient.getOrderById(orderId);
+
+		HubResponseDtoV1 startHub = hubClientV1.getHubById(startHubId);
+		HubResponseDtoV1 endHub = hubClientV1.getHubById(endHubId);
+
+		DeliveryManager manager = deliveryManagerRepository.findById(UUID.fromString(managerId))
+			.orElseThrow(() -> new IllegalArgumentException("배송 담당자를 찾을 수 없습니다"));
+
+		List<GeminiSendRequestDtoV1.ProductInfo> productList = orderInfo.getOrderItemList().stream()
+			.map(item -> GeminiSendRequestDtoV1.ProductInfo.builder()
+				.productName(item.getProductName())
+				.quantity(item.getQuantity())
+				.build())
+			.collect(Collectors.toList());
+
+		GeminiSendRequestDtoV1 aiRequestDto = GeminiSendRequestDtoV1.builder()
+			.orderId(orderInfo.getOrderId())
+			.orderNumber(orderInfo.getOrderNumber())
+			.recieveCompanyName(orderInfo.getRecieveCompanyName())
+			.orderDate(orderInfo.getOrderDate())
+			.products(productList)
+			.customerRequest(orderInfo.getCustomerRequest() != null
+				? orderInfo.getCustomerRequest()
+				: "요청사항 없음")
+			.deliveryManagerName(manager.getUserId())
+			.startHubName(startHub.getName())
+			.endHubName(endHub.getAddress()).build();
+		aiClient.createAiText(aiRequestDto);
 
 		return savedRoute;
 	}
