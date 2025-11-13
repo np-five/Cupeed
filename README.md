@@ -59,13 +59,13 @@
 
 # 💿 ERD
 
-![ERD.png](images/ERD.png)
+![ERD.png](exec/images/ERD.png)
 
 ---
 
 # 🏛️ 아키텍쳐
 
-![SA.png](images/SA.png)
+![SA.png](exec/images/SA.png)
 
 ---
 
