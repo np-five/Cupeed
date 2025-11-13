@@ -5,9 +5,11 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.sparta.cupeed.product.application.service.ProductServiceV1;
+import com.sparta.cupeed.product.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
@@ -27,8 +29,8 @@ public class ProductControllerV1 {
 
 	// 상품 생성
 	@PostMapping
-	public ResponseEntity<ProductPostResponseDtoV1> createProduct(@RequestBody @Valid ProductPostRequestDtoV1 requestDto) {
-		ProductPostResponseDtoV1 response = productServiceV1.createProduct(requestDto);
+	public ResponseEntity<ProductPostResponseDtoV1> createProduct(@RequestBody @Valid ProductPostRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		ProductPostResponseDtoV1 response = productServiceV1.createProduct(requestDto, userDetails);
 		return ResponseEntity.ok(response);
 	}
 

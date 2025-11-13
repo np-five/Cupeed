@@ -83,4 +83,12 @@ public class CompanyServiceV1 {
 			.orElseThrow(() -> new RuntimeException("Company not found: " + businessNumber));
 		return company.getId();
 	}
+
+	@Transactional(readOnly = true)
+	public UUID getInternalHubIdByCompanyId(UUID companyId) {
+		Company company = companyRepository.findById(companyId)
+			.orElseThrow(() -> new IllegalArgumentException("Company not found: " + companyId));
+
+		return company.getHubId();
+	}
 }
