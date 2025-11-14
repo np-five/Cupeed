@@ -22,7 +22,7 @@ public class GeminiSendRequestDtoV1 {
 
 	@Getter
 	@Builder
-	public static class ProductInfo {
+	public class ProductInfo {
 		private String productName;
 		private Long quantity;
 	}
