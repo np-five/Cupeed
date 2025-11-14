@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:15433/cupeed_delivery_db
-    username: root
-    password: root
+    username: cupeed
+    password: cupeed
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -25,7 +25,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8080/eureka/
+      defaultZone: http://localhost:8761/eureka/
 
 management:
   tracing:
