@@ -1,6 +1,6 @@
 #  Cupeed💘🪽 - 물류 관리 및 배송 시스템
 
-![KakaoTalk_20251108_102825384](https://github.com/user-attachments/assets/f45a8e89-fffe-40d5-afee-27e87df27a4e)
+![main_kitti.jpeg](exec/images/main_kitti.jpeg)
 
 ---
 
@@ -77,11 +77,11 @@
 
 > 💝 사랑스러운 서비스들을 연결해주는 마법의 인프라에요!
 
-| 🎀 서비스 | 💕 포트 | 💫 설명 |
+| 🎀 서비스 | 💕 포트  | 💫 설명 |
 |:--------:|:------:|:-------|
-| **Eureka Server** | `8080` | 서비스 디스커버리 및 레지스트리 |
-| **Config Server** | `19090` | 중앙 집중식 설정 관리 |
-| **Gateway** | `19091` | API Gateway 및 라우팅 |
+| **Eureka Server** | `8761` | 서비스 디스커버리 및 레지스트리 |
+| **Config Server** | `8888` | 중앙 집중식 설정 관리 |
+| **Gateway** | `8080` | API Gateway 및 라우팅 |
 
 ## 💖 비즈니스 서비스
 
@@ -152,23 +152,8 @@ cp .env
 
 ## 💖 2. 인프라 서비스 실행
 
-### 2.1 Eureka Server 실행 ✨
+### 2.1 서버별 Postgres와 공통 Zipkin, 공통 Redis 실행 ✨
 ```bash
-cd eureka
-docker-compose up -d
-./gradlew bootRun
-```
-
-### 2.2 Config Server 실행 🎀
-```bash
-cd config
-docker-compose up -d
-./gradlew bootRun
-```
-
-### 2.3 Gateway 실행 💫
-```bash
-cd gateway
 docker-compose up -d
 ./gradlew bootRun
 ```
@@ -180,32 +165,31 @@ docker-compose up -d
 ### 예시: AI Server 실행 🤖
 ```bash
 cd com.sparta.cupeed.ai
-docker-compose up -d
 ./gradlew bootRun
 ```
 
 ### 💖 모든 서비스 실행 순서 (권장)
-1. 💫 Eureka Server (8080)
-2. 🎀 Config Server (19090)
-3. ✨ Gateway (19091)
+1. 💫 Eureka Server (8761)
+2. 🎀 Config Server (8888)
+3. ✨ Gateway (8080)
 4. 👤 User Server (20080) - 인증/권한 관리
 5. 💕 나머지 비즈니스 서비스들 (순서 무관)
 
 ## 🌸 4. 서비스 상태 확인
 
-- 💝 Eureka Dashboard: http://localhost:8080
-- 🎀 Gateway: http://localhost:19091
+- 💝 Eureka Dashboard: http://localhost:8761
+- 🎀 Gateway: http://localhost:8080
 
 ## 💫 5. API 테스트
 
-- ✨ 모든 API는 Gateway(19091)를 통해 접근
+- ✨ 모든 API는 Gateway(8080)를 통해 접근
 - 💖 Postman 또는 Swagger를 통해 테스트
 
 ### API 엔드포인트 예시 💕
 ```
-http://localhost:19091/v1/users      # User Service 👤
-http://localhost:19091/v1/orders     # Order Service 📦
-http://localhost:19091/v1/products   # Product Service 🛒
+http://localhost:8080/v1/users      # User Service 👤
+http://localhost:8080/v1/orders     # Order Service 📦
+http://localhost:8080/v1/products   # Product Service 🛒
 ```
 
 ### 🎀 서비스 간 내부 통신 (FeignClient)

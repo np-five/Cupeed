@@ -1,0 +1,225 @@
+version: '3.8'
+
+# =========================================================================
+# 1. Services: 컨테이너로 실행할 서비스(애플리케이션)들을 정의합니다.
+# =========================================================================
+services:
+  # ---------------------------------------------------
+  # 1-1. 중앙 인프라 서비스 (공통적으로 사용하는 서비스)
+  # ---------------------------------------------------
+  zipkin:
+    container_name: zipkin-cupeed
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"               # 외부에서 Zipkin UI에 접근할 수 있도록 포트를 연결 (Host: 9411 -> Container: 9411)
+    environment:
+      - STORAGE_TYPE=mem          # 추적 데이터를 메모리에 저장하도록 설정
+    networks:
+      - cupeed_msa_network        # 모든 서비스가 사용할 단일 네트워크에 연결
+
+  redis:
+    container_name: redis-cupeed
+    image: redis:latest
+    ports:
+      - "6379:6379"               # Redis 접속 포트 연결 (Host: 6379 -> Container: 6379)
+    command: ["redis-server"]     # 컨테이너 시작 시 실행될 명령어
+    networks:
+      - cupeed_msa_network
+
+  # ---------------------------------------------------
+  # 1-2. 개별 서비스용 PostgreSQL (명명 규칙 및 인증 정보 통일)
+  # ---------------------------------------------------
+  cupeed_ai_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_ai_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_ai_db       # DB명 통일 (기존과 동일)
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15431:5432"
+    volumes:
+      - cupeed_ai_pg_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+  cupeed_company_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_company_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: cupeed_company_db  # DB명 통일: _db 추가
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15432:5432"
+    volumes:
+      - cupeed_company_pg_data:/var/lib/postgresql/data # 볼륨 추가 (데이터 영속성 확보)
+    networks:
+      - cupeed_msa_network
+
+  cupeed_delivery_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_delivery_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_delivery_db # DB명 통일 (기존과 동일)
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15433:5432"
+    volumes:
+      - cupeed_delivery_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U cupeed -d cupeed_delivery_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+  cupeed_hub_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_hub_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_hub_db      # DB명 통일: _db 추가
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15434:5432"
+    volumes:
+      - cupeed_hub_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed -d cupeed_hub_db"] # 헬스체크 반영
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+  cupeed_hubroute_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_hubroute_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_hubroute_db # DB명 통일: _db 추가
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15435:5432"
+    volumes:
+      - cupeed_hubroute_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed -d cupeed_hubroute_db"] # 헬스체크 반영
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+  cupeed_order_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_order_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_order_db    # DB명 통일 (기존과 동일)
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15436:5432"
+    volumes:
+      - cupeed_order_pg_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+  cupeed_product_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_product_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: cupeed_product_db  # DB명 통일: _db 추가
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15437:5432"
+    volumes:
+      - cupeed_product_pg_data:/var/lib/postgresql/data # 볼륨 추가 (데이터 영속성 확보)
+    networks:
+      - cupeed_msa_network
+
+  cupeed_user_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_user_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_user_db     # DB명 통일: _db 추가
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15438:5432"
+    volumes:
+      - cupeed_user_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed -d cupeed_user_db"] # 헬스체크 반영
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+  cupeed_slack_postgres:
+    image: postgres:16-alpine
+    container_name: cupeed_slack_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cupeed_slack_db    # DB명 통일 (기존과 동일)
+      POSTGRES_USER: cupeed           # ID 통일: cupeed
+      POSTGRES_PASSWORD: cupeed       # 비밀번호 통일: cupeed
+    ports:
+      - "15439:5432"
+    volumes:
+      - cupeed_slack_pg_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cupeed"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cupeed_msa_network
+
+# =========================================================================
+# 2. Networks: 컨테이너 간 통신을 위한 네트워크를 정의합니다.
+# =========================================================================
+networks:
+  cupeed_msa_network:
+    name: cupeed_msa_network_bridge
+    driver: bridge
+
+# =========================================================================
+# 3. Volumes: 컨테이너의 데이터를 영구적으로 저장할 볼륨을 정의합니다.
+# =========================================================================
+volumes:
+  cupeed_ai_pg_data:
+  cupeed_company_pg_data:
+  cupeed_delivery_pg_data:
+  cupeed_hub_pg_data:
+  cupeed_hubroute_pg_data:
+  cupeed_order_pg_data:
+  cupeed_product_pg_data:
+  cupeed_user_pg_data:
+  cupeed_slack_pg_data:
