@@ -1,9 +1,14 @@
 package com.sparta.cupeed.product.domain.model;
 
 import com.sparta.cupeed.product.domain.vo.ProductCategory;
+import com.sparta.cupeed.product.presentation.code.ProductErrorCode;
+import com.sparta.cupeed.global.exception.BizException;
+
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -48,44 +53,48 @@ public class Product {
 	}
 
 	// 상품 정보 수정
-	public Product withUpdatedInfo(String name,
-		ProductCategory category,
-		String description,
-		Long unitPrice) {
+	public Product withUpdatedInfo(String name, ProductCategory category, String description,
+		@NotNull(message = "단가를 입력해주세요.") @Min(value = 0, message = "단가는 0 이상이어야 합니다.") Long price,
+		Long unitPrice, String userId) {
+		if (unitPrice != null && unitPrice < 0) {
+			throw new BizException(ProductErrorCode.INVALID_UNIT_PRICE);
+		}
 		return toBuilder()
 			.name(name != null ? name : this.name)
 			.category(category != null ? category : this.category)
 			.description(description != null ? description : this.description)
 			.unitPrice(unitPrice != null ? unitPrice : this.unitPrice)
 			.updatedAt(Instant.now())
+			.updatedBy(userId)
 			.build();
 	}
 
 	// 재고 수량 변경
-	public Product withQuantity(Long quantity) {
-		if (quantity < 0) throw new IllegalArgumentException("재고 수량은 0 이상이어야 합니다.");
+	public Product withQuantity(Long quantity, String userId) {
+		if (quantity < 0) throw new BizException(ProductErrorCode.INVALID_QUANTITY);
 		return toBuilder()
 			.quantity(quantity)
 			.updatedAt(Instant.now())
+			.updatedBy(userId)
 			.build();
 	}
 
-	public Product increaseQuantity(Long amount) {
-		if (amount < 0) throw new IllegalArgumentException("증가량은 0 이상이어야 합니다.");
-		return withQuantity(this.quantity + amount);
+	public Product increaseQuantity(Long amount, String userId) {
+		if (amount < 0) throw new BizException(ProductErrorCode.NEGATIVE_INCREASE);
+		return withQuantity(this.quantity + amount, userId);
 	}
 
-	public Product decreaseQuantity(Long amount) {
-		if (amount < 0) throw new IllegalArgumentException("감소량은 0 이상이어야 합니다.");
-		if (this.quantity - amount < 0) throw new IllegalArgumentException("재고는 0 미만이 될 수 없습니다.");
-		return withQuantity(this.quantity - amount);
+	public Product decreaseQuantity(Long amount, String userId) {
+		if (amount < 0) throw new BizException(ProductErrorCode.NEGATIVE_DECREASE);
+		if (this.quantity - amount < 0) throw new BizException(ProductErrorCode.OUT_OF_STOCK);
+		return withQuantity(this.quantity - amount, userId);
 	}
 
 	// 논리 삭제
-	public Product markDeleted() {
+	public Product markDeleted(String userId) {
 		return toBuilder()
 			.deletedAt(Instant.now())
-			.deletedBy("system") // 임시 값
+			.deletedBy(userId)
 			.build();
 	}
 
@@ -99,11 +108,11 @@ public class Product {
 		Long unitPrice,
 		Long initialQuantity
 	) {
-		Objects.requireNonNull(companyId, "회사 ID는 필수입니다.");
-		Objects.requireNonNull(hubId, "허브 ID는 필수입니다.");
-		Objects.requireNonNull(name, "상품명은 필수입니다.");
-		if (unitPrice < 0) throw new IllegalArgumentException("단가는 0 이상이어야 합니다.");
-		if (initialQuantity < 0) throw new IllegalArgumentException("재고 수량은 0 이상이어야 합니다.");
+		if (companyId == null) throw new BizException(ProductErrorCode.MISSING_COMPANY_ID);
+		if (hubId == null) throw new BizException(ProductErrorCode.MISSING_HUB_ID);
+		if (name == null) throw new BizException(ProductErrorCode.MISSING_PRODUCT_NAME);
+		if (unitPrice < 0) throw new BizException(ProductErrorCode.INVALID_UNIT_PRICE);
+		if (initialQuantity < 0) throw new BizException(ProductErrorCode.INVALID_QUANTITY);
 
 		return Product.builder()
 			.id(UUID.randomUUID())
@@ -117,4 +126,5 @@ public class Product {
 			.createdAt(Instant.now())
 			.build();
 	}
+
 }

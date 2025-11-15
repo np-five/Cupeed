@@ -55,6 +55,7 @@ public class SecurityConfig {
 					"/actuator/**",
 					"/internal/**"
 				).permitAll()
+				.requestMatchers("/products/**").hasRole("HUB")
 				.anyRequest().authenticated()
 			);
 
