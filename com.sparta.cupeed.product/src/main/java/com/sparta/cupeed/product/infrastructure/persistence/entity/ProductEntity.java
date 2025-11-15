@@ -2,7 +2,9 @@ package com.sparta.cupeed.product.infrastructure.persistence.entity;
 
 import java.util.UUID;
 
+import com.sparta.cupeed.global.exception.BizException;
 import com.sparta.cupeed.product.domain.vo.ProductCategory;
+import com.sparta.cupeed.product.presentation.code.ProductErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -65,22 +67,8 @@ public class ProductEntity extends BaseEntity {
 
 	public void updateQuantity(Long quantity) {
 		if (quantity == null || quantity < 0)
-			throw new IllegalArgumentException("재고 수량은 0 이상이어야 합니다.");
+			throw new BizException(ProductErrorCode.INVALID_QUANTITY);
 		this.quantity = quantity;
-	}
-
-	public void increaseQuantity(Long amount) {
-		if (amount < 0)
-			throw new IllegalArgumentException("증가량은 0 이상이어야 합니다.");
-		updateQuantity(this.quantity + amount);
-	}
-
-	public void decreaseQuantity(Long amount) {
-		if (amount < 0)
-			throw new IllegalArgumentException("감소량은 0 이상이어야 합니다.");
-		if (this.quantity - amount < 0)
-			throw new IllegalArgumentException("재고는 0 미만이 될 수 없습니다.");
-		updateQuantity(this.quantity - amount);
 	}
 
 }

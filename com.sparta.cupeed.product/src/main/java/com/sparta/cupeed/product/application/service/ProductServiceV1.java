@@ -1,11 +1,14 @@
 package com.sparta.cupeed.product.application.service;
 
+import com.sparta.cupeed.global.exception.BizException;
 import com.sparta.cupeed.product.domain.model.Product;
 import com.sparta.cupeed.product.domain.repository.ProductRepository;
 import com.sparta.cupeed.product.infrastructure.company.client.CompanyClientV1;
+import com.sparta.cupeed.product.infrastructure.persistence.repository.ProductRepositoryImpl;
 import com.sparta.cupeed.product.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.product.infrastructure.user.client.UserClientV1;
 import com.sparta.cupeed.product.infrastructure.user.dto.response.InternalUserResponseDtoV1;
+import com.sparta.cupeed.product.presentation.code.ProductErrorCode;
 import com.sparta.cupeed.product.presentation.dto.request.ProductPostRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductQuantityUpdateRequestDtoV1;
 import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
@@ -19,40 +22,42 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceV1 {
 
-	private final ProductRepository productRepository;
+	private final ProductRepositoryImpl productRepository;
 	private final UserClientV1 userClient;
 	private final CompanyClientV1 companyClient;
 
 	@Transactional
 	public ProductPostResponseDtoV1 createProduct(ProductPostRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
 
-		ProductPostRequestDtoV1.ProductDto dto = requestDto.getProduct();
-
 		InternalUserResponseDtoV1 findUser = userClient.getInternalUser(userDetails.getId());
 		if (findUser == null) {
-			throw new IllegalArgumentException("유효하지 않은 유저 ID입니다.");
+			throw new BizException(ProductErrorCode.INVALID_USER);
 		}
 
 		UUID findHunId = companyClient.getCompany(findUser.getUser().getCompanyId());
 		if (findHunId == null) {
-			throw new IllegalArgumentException("유효하지 않은 허브 ID입니다.");
+			throw new BizException(ProductErrorCode.INVALID_HUB);
 		}
 
-		// 2️⃣ Product 엔티티 생성
 		Product newProduct = Product.builder()
 			.companyId(findUser.getUser().getCompanyId())
 			.hubId(findHunId)
-			.name(dto.getName())
-			.category(dto.getCategory())
-			.description(dto.getDescription())
-			.unitPrice(dto.getUnitPrice())
-			.quantity(dto.getQuantity())
+			.name(requestDto.getProduct().getName())
+			.category(requestDto.getProduct().getCategory())
+			.description(requestDto.getProduct().getDescription())
+			.unitPrice(requestDto.getProduct().getUnitPrice())
+			.quantity(requestDto.getProduct().getQuantity())
+			.createdBy(String.valueOf(userDetails.getId()))
+			.updatedBy(String.valueOf(userDetails.getId()))
 			.build();
 
 		Product savedProduct = productRepository.save(newProduct);
@@ -72,15 +77,16 @@ public class ProductServiceV1 {
 	}
 
 	@Transactional
-	public ProductPostResponseDtoV1 updateProduct(UUID productId, ProductPostRequestDtoV1 requestDto) {
+	public ProductPostResponseDtoV1 updateProduct(UUID productId, ProductPostRequestDtoV1 requestDto,  UserDetailsImpl userDetails) {
 		Product product = productRepository.findByIdOrElseThrow(productId);
-		var dto = requestDto.getProduct();
 
 		Product updated = product.withUpdatedInfo(
-			dto.getName(),
-			dto.getCategory(),
-			dto.getDescription(),
-			dto.getUnitPrice()
+			requestDto.getProduct().getName(),
+			requestDto.getProduct().getCategory(),
+			requestDto.getProduct().getDescription(),
+			requestDto.getProduct().getUnitPrice(),
+			requestDto.getProduct().getQuantity(),
+			userDetails.getUserId()
 		);
 
 		productRepository.save(updated);
@@ -88,33 +94,48 @@ public class ProductServiceV1 {
 	}
 
 	@Transactional
-	public void deleteProduct(UUID productId) {
+	public void deleteProduct(UUID productId, UserDetailsImpl userDetails) {
 		Product product = productRepository.findByIdOrElseThrow(productId);
-		Product deleted = product.markDeleted();
+		Product deleted = product.markDeleted(String.valueOf(userDetails.getId()));
 		productRepository.save(deleted);
 	}
 
 	@Transactional
-	public ProductPostResponseDtoV1 updateProductQuantity(UUID productId, ProductQuantityUpdateRequestDtoV1 requestDto) {
+	public ProductPostResponseDtoV1 updateProductQuantity(UUID productId, ProductQuantityUpdateRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
 		Product product = productRepository.findByIdOrElseThrow(productId);
-		Product updated = product.withQuantity(requestDto.getQuantity());
+		Product updated = product.withQuantity(requestDto.getQuantity(), String.valueOf(userDetails.getId()));
 		productRepository.save(updated);
 		return ProductPostResponseDtoV1.of(updated);
 	}
 
 	@Transactional
-	public void decreaseStock(ProductStockRequestDtoV1 requestDto) {
-		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
-			Product product = productRepository.findByIdOrElseThrow(item.getProductId());
-			productRepository.save(product.decreaseQuantity(item.getQuantity()));
-		}
+	public void decreaseStock(ProductStockRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
+		// 1. 요청된 상품 ID들을 모두 추출
+		List<UUID> productIds = requestDto.getProductStocks().stream()
+			.map(ProductStockRequestDtoV1.ProductStockDto::getProductId)
+			.toList();
+
+		// 2. 한 번에 조회
+		List<Product> products = productRepository.findAllById(productIds);
+
+		// 3. DTO와 맵핑해서 재고 차감
+		Map<UUID, Long> quantityMap = requestDto.getProductStocks().stream()
+			.collect(Collectors.toMap(ProductStockRequestDtoV1.ProductStockDto::getProductId,
+				ProductStockRequestDtoV1.ProductStockDto::getQuantity));
+
+		List<Product> updatedProducts = products.stream()
+			.map(product -> product.decreaseQuantity(quantityMap.get(product.getId()), String.valueOf(userDetails.getId())))
+			.toList();
+
+		// 4. 한 번에 저장
+		productRepository.saveAll(updatedProducts);
 	}
 
 	@Transactional
-	public void increaseStock(ProductStockRequestDtoV1 requestDto) {
+	public void increaseStock(ProductStockRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
 		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
 			Product product = productRepository.findByIdOrElseThrow(item.getProductId());
-			productRepository.save(product.increaseQuantity(item.getQuantity()));
+			productRepository.save(product.increaseQuantity(item.getQuantity(), String.valueOf(userDetails.getId())));
 		}
 	}
 }

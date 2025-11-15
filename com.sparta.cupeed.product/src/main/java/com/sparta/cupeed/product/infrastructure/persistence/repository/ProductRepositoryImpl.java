@@ -4,6 +4,8 @@ import com.sparta.cupeed.product.domain.model.Product;
 import com.sparta.cupeed.product.domain.repository.ProductRepository;
 import com.sparta.cupeed.product.infrastructure.persistence.entity.ProductEntity;
 import com.sparta.cupeed.product.infrastructure.persistence.mapper.ProductMapper;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +51,25 @@ public class ProductRepositoryImpl implements ProductRepository {
 	public Page<Product> findAll(Pageable pageable) {
 		return productJpaRepository.findAll(pageable)
 			.map(productMapper::toDomain);
+	}
+
+	@Override
+	public List<Product> findAllById(List<UUID> productIds) {
+		// JpaRepository에서 엔티티를 한 번에 조회 후 도메인으로 매핑
+		List<ProductEntity> entities = productJpaRepository.findAllById(productIds);
+		return entities.stream()
+			.map(productMapper::toDomain)
+			.toList();
+	}
+
+	@Override
+	@Transactional
+	public void saveAll(List<Product> updatedProducts) {
+		// 도메인을 엔티티로 변환하고 일괄 저장
+		List<ProductEntity> entities = updatedProducts.stream()
+			.map(productMapper::toEntity)
+			.toList();
+
+		productJpaRepository.saveAll(entities);
 	}
 }

@@ -23,4 +23,6 @@ public interface CompanyRepository {
 		return findById(id)
 			.orElseThrow(() -> new RuntimeException("Company not found: " + id));
 	}
+
+	boolean existsById(UUID id);
 }

@@ -50,6 +50,11 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 	}
 
 	@Override
+	public boolean existsById(UUID id) {
+		return companyJpaRepository.existsById(id);
+	}
+
+	@Override
 	public Page<Company> findAll(Pageable pageable) {
 		return companyJpaRepository.findAll(pageable)
 			.map(companyMapper::toDomain);
