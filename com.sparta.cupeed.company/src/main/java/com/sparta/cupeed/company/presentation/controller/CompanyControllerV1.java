@@ -2,16 +2,20 @@ package com.sparta.cupeed.company.presentation.controller;
 
 import com.sparta.cupeed.company.application.service.CompanyServiceV1;
 import com.sparta.cupeed.company.infrastructure.security.auth.UserDetailsImpl;
+import com.sparta.cupeed.company.presentation.controller.code.CompanySuccessCode;
 import com.sparta.cupeed.company.presentation.dto.request.CompanyPostRequestDtoV1;
 import com.sparta.cupeed.company.presentation.dto.response.CompanyGetResponseDtoV1;
+import com.sparta.cupeed.global.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -24,35 +28,39 @@ public class CompanyControllerV1 {
 	// 1. 업체 생성
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public CompanyGetResponseDtoV1 createCompany(@RequestBody CompanyPostRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-		return companyService.createCompany(requestDto, userDetails);
+	public ResponseEntity<ApiResponse<Void>> createCompany(@RequestBody CompanyPostRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		CompanyGetResponseDtoV1 newCompany = companyService.createCompany(requestDto, userDetails);
+		URI location = URI.create("/companies/" + newCompany.getCompany().getId());
+		return ResponseEntity.created(location).body(ApiResponse.success(CompanySuccessCode.CREATED));
 	}
 
 	// 2. 업체 목록 조회 (페이징)
 	@GetMapping
-	public Page<CompanyGetResponseDtoV1> getCompanies(Pageable pageable) {
-		return companyService.getCompanies(pageable);
+	public ResponseEntity<ApiResponse<Page<CompanyGetResponseDtoV1>>> getCompanies(Pageable pageable) {
+		return ResponseEntity.ok(ApiResponse.success(CompanySuccessCode.OK, companyService.getCompanies(pageable)));
 	}
 
 	// 3. 업체 상세 조회
 	@GetMapping("/{companyId}")
-	public CompanyGetResponseDtoV1 getCompany(@PathVariable UUID companyId) {
-		return companyService.getCompany(companyId);
+	public ResponseEntity<ApiResponse<CompanyGetResponseDtoV1>> getCompany(@PathVariable UUID companyId) {
+		return ResponseEntity.ok(ApiResponse.success(CompanySuccessCode.OK, companyService.getCompany(companyId)));
 	}
 
 	// 4. 업체 수정
 	@PatchMapping("/{companyId}")
-	public CompanyGetResponseDtoV1 updateCompany(
+	public ResponseEntity<ApiResponse<CompanyGetResponseDtoV1>> updateCompany(
 		@PathVariable UUID companyId,
-		@RequestBody CompanyPostRequestDtoV1 requestDto
+		@RequestBody CompanyPostRequestDtoV1 requestDto,
+		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
-		return companyService.updateCompany(companyId, requestDto);
+		return ResponseEntity.ok(ApiResponse.success(CompanySuccessCode.OK, companyService.updateCompany(companyId, requestDto, userDetails)));
 	}
 
 	// 5. 업체 삭제
 	@DeleteMapping("/{companyId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteCompany(@PathVariable UUID companyId) {
-		companyService.deleteCompany(companyId);
+	public ResponseEntity<ApiResponse<Void>> deleteCompany(@PathVariable UUID companyId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		companyService.deleteCompany(companyId, userDetails);
+		return ResponseEntity.ok(ApiResponse.success(CompanySuccessCode.OK));
 	}
 }

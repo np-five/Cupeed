@@ -44,7 +44,7 @@ public class Company {
 	}
 
 	// === 정보 수정 ===
-	public Company withUpdatedInfo(String name, String businessNumber, String address, UUID hubId, UUID managerId) {
+	public Company withUpdatedInfo(String name, String businessNumber, String address, UUID hubId, UUID managerId, String userId) {
 		return toBuilder()
 			.name(name != null ? name : this.name)
 			.businessNumber(businessNumber != null ? businessNumber : this.businessNumber)
@@ -52,6 +52,7 @@ public class Company {
 			.hubId(hubId != null ? hubId : this.hubId)
 			.managerId(managerId != null ? managerId : this.managerId)
 			.updatedAt(Instant.now())
+			.updatedBy(userId)
 			.build();
 	}
 
@@ -63,10 +64,10 @@ public class Company {
 	// 		.build();
 	// }
 
-	public Company markDeleted() {
+	public Company markDeleted(String userId) {
 		return toBuilder()
 			.deletedAt(Instant.now())
-			.deletedBy("system")
+			.deletedBy(userId)
 			.build();
 	}
 

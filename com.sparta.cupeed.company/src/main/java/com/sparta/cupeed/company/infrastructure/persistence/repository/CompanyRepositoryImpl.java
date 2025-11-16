@@ -45,6 +45,12 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 	}
 
 	@Override
+	public Optional<Company> findByIdAndDeletedAtIsNull(UUID id) {
+		return companyJpaRepository.findByIdAndDeletedAtIsNotNull(id)
+			.map(companyMapper::toDomain);
+	}
+
+	@Override
 	public boolean existsByBusinessNumber(String businessNumber) {
 		return companyJpaRepository.existsByBusinessNumber(businessNumber);
 	}
@@ -57,6 +63,12 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 	@Override
 	public Page<Company> findAll(Pageable pageable) {
 		return companyJpaRepository.findAll(pageable)
+			.map(companyMapper::toDomain);
+	}
+
+	@Override
+	public Page<Company> findAllByDeletedAtIsNull(Pageable pageable) {
+		return companyJpaRepository.findAllByDeletedAtIsNotNull(pageable)
 			.map(companyMapper::toDomain);
 	}
 
