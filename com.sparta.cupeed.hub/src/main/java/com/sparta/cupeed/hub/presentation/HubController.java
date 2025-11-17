@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,11 +20,14 @@ import com.sparta.cupeed.hub.application.HubService;
 import com.sparta.cupeed.hub.application.command.CreateHubCommand;
 import com.sparta.cupeed.hub.application.command.UpdateHubCommand;
 import com.sparta.cupeed.hub.application.dto.HubResponseDto;
+import com.sparta.cupeed.hub.infrastructure.security.auth.UserDetailsImpl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 // Presentation Layer: HTTP 요청을 받고 응답을 반환합니다.
+@Slf4j
 @RestController
 @RequestMapping("/v1/hubs")
 @RequiredArgsConstructor
@@ -31,8 +36,11 @@ public class HubController {
 	private final HubService hubService;
 
 	// 1. 허브 생성 (POST /v1/hubs)
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@PostMapping
-	public ResponseEntity<HubResponseDto> createHub(@Valid @RequestBody CreateHubCommand command) {
+	public ResponseEntity<HubResponseDto> createHub(@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@Valid @RequestBody CreateHubCommand command) {
+		log.info("Request from user: {}", userDetails.getUserId());
 		HubResponseDto responseDto = hubService.createHub(command);
 		return ResponseEntity.ok(responseDto);
 	}
@@ -55,6 +63,7 @@ public class HubController {
 	// 요청 예시:
 	// PATCH /v1/hubs/aa0e8400-e29b-41d4-a716-446655440000
 	// { "name" : "새로운 서울센터", "latitude" : 37.567890 }
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@PutMapping("/{hubId}")
 	public ResponseEntity<HubResponseDto> updateHub(@PathVariable UUID hubId,
 		@Valid @RequestBody UpdateHubCommand command) {
@@ -63,6 +72,7 @@ public class HubController {
 	}
 
 	// 5. 허브 삭제 (DELETE /v1/hubs/{hubId})
+	@PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
 	@DeleteMapping("/{hubId}")
 	public ResponseEntity<Void> deleteHub(@PathVariable UUID hubId) {
 		hubService.deleteHub(hubId);

@@ -12,9 +12,9 @@ import com.sparta.cupeed.hub.application.command.UpdateHubCommand;
 import com.sparta.cupeed.hub.application.dto.HubResponseDto;
 import com.sparta.cupeed.hub.domain.Hub;
 import com.sparta.cupeed.hub.domain.HubRepository;
-import com.sparta.cupeed.hub.presentation.HubInternalResponseDtoV1;
 import com.sparta.cupeed.hub.infrastructure.client.Coordinates;
 import com.sparta.cupeed.hub.infrastructure.client.NaverGeocodingService;
+import com.sparta.cupeed.hub.presentation.HubInternalResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
