@@ -7,8 +7,10 @@ import com.sparta.cupeed.company.infrastructure.hub.client.dto.response.HubInter
 import com.sparta.cupeed.company.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.company.infrastructure.user.client.UserClientV1;
 import com.sparta.cupeed.company.infrastructure.user.dto.response.InternalUserResponseDtoV1;
+import com.sparta.cupeed.company.presentation.controller.code.CompanyErrorCode;
 import com.sparta.cupeed.company.presentation.dto.request.CompanyPostRequestDtoV1;
 import com.sparta.cupeed.company.presentation.dto.response.CompanyGetResponseDtoV1;
+import com.sparta.cupeed.global.exception.BizException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,13 +34,13 @@ public class CompanyServiceV1 {
 
 		// 1️⃣ 중복 사업자번호 체크
 		if (companyRepository.existsByBusinessNumber(dto.getBusinessNumber())) {
-			throw new IllegalArgumentException("이미 존재하는 사업자 등록번호입니다.");
+			throw new BizException(CompanyErrorCode.BUSINESS_NUMBER_EXISTS);
 		}
 
 		// 2️⃣ 허브 이름으로 허브 ID 조회
 		HubInternalResponseDtoV1 findHub = hubClient.getInternalHubIdByName(dto.getHubName());
 		if (findHub == null) {
-			throw new IllegalArgumentException("해당 허브 이름으로 허브를 찾을 수 없습니다: " + dto.getHubName());
+			throw new BizException(CompanyErrorCode.HUB_NOT_FOUND);
 		}
 
 		// 3️⃣ 매니저 ID 유효성 확인
@@ -47,7 +49,7 @@ public class CompanyServiceV1 {
 			// managerId가 본인과 다르면, 실제 존재하는 유저인지 조회
 			InternalUserResponseDtoV1 userResponse = userClient.getInternalUser(managerId);
 			if (userResponse == null || userResponse.getUser() == null) {
-				throw new IllegalArgumentException("존재하지 않는 사용자입니다. managerId=" + managerId);
+				throw new BizException(CompanyErrorCode.INVALID_MANAGER);
 			}
 		}
 
@@ -58,6 +60,8 @@ public class CompanyServiceV1 {
 			.address(dto.getAddress())
 			.hubId(findHub.getHub().getId())
 			.managerId(managerId)
+			.createdBy(userDetails.getUserId())
+			.updatedBy(userDetails.getUserId())
 			.build();
 
 		Company savedCompany = companyRepository.save(newCompany);
@@ -77,17 +81,28 @@ public class CompanyServiceV1 {
 	}
 
 	@Transactional
-	public CompanyGetResponseDtoV1 updateCompany(UUID companyId, CompanyPostRequestDtoV1 requestDto) {
+	public CompanyGetResponseDtoV1 updateCompany(UUID companyId, CompanyPostRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
 		Company company = companyRepository.findByIdOrElseThrow(companyId);
+
+		// 자신의 업체만 수정 가능
+		if (!company.getManagerId().toString().equals(String.valueOf(userDetails.getId()))) {
+			throw new BizException(CompanyErrorCode.NOT_AUTHORIZED);
+		}
+
 		CompanyPostRequestDtoV1.CompanyDto dto = requestDto.getCompany();
-		HubInternalResponseDtoV1 findhub = hubClient.getInternalHubIdByName(dto.getHubName());
+		HubInternalResponseDtoV1 findHub = hubClient.getInternalHubIdByName(dto.getHubName());
+
+		if (findHub == null) {
+			throw new BizException(CompanyErrorCode.HUB_NOT_FOUND);
+		}
 
 		Company updated = company.withUpdatedInfo(
 			dto.getName(),
 			dto.getBusinessNumber(),
 			dto.getAddress(),
-			findhub.getHub().getId(),
-			dto.getManagerId()
+			findHub.getHub().getId(),
+			dto.getManagerId(),
+			String.valueOf(userDetails.getId())
 		);
 
 		companyRepository.save(updated);
@@ -95,24 +110,23 @@ public class CompanyServiceV1 {
 	}
 
 	@Transactional
-	public void deleteCompany(UUID companyId) {
+	public void deleteCompany(UUID companyId, UserDetailsImpl userDetails) {
 		Company company = companyRepository.findByIdOrElseThrow(companyId);
-		// TODO deletedBy 수정 필요
-		Company deleted = company.markDeleted();
-		companyRepository.save(deleted); // @Transactional 내에서 dirty checking으로 update 됨, save() 생략 가능
+		Company deleted = company.markDeleted(String.valueOf(userDetails.getId()));
+		companyRepository.save(deleted);
 	}
 
 	@Transactional(readOnly = true)
 	public UUID getCompanyIdByBusinessNumber(String businessNumber) {
 		Company company = companyRepository.findByBusinessNumber(businessNumber)
-			.orElseThrow(() -> new RuntimeException("Company not found: " + businessNumber));
+			.orElseThrow(() -> new BizException(CompanyErrorCode.BUSINESS_NUMBER_NOT_FOUND));
 		return company.getId();
 	}
 
 	@Transactional(readOnly = true)
 	public UUID getInternalHubIdByCompanyId(UUID companyId) {
 		Company company = companyRepository.findById(companyId)
-			.orElseThrow(() -> new IllegalArgumentException("Company not found: " + companyId));
+			.orElseThrow(() -> new BizException(CompanyErrorCode.COMPANY_NOT_FOUND));
 
 		return company.getHubId();
 	}

@@ -53,9 +53,13 @@ public class Product {
 	}
 
 	// 상품 정보 수정
-	public Product withUpdatedInfo(String name, ProductCategory category, String description,
-		@NotNull(message = "단가를 입력해주세요.") @Min(value = 0, message = "단가는 0 이상이어야 합니다.") Long price,
-		Long unitPrice, String userId) {
+	public Product withUpdatedInfo(
+			String name,
+			ProductCategory category,
+			String description,
+			@NotNull(message = "단가를 입력해주세요.") @Min(value = 0, message = "단가는 0 이상이어야 합니다.") Long price,
+			Long unitPrice, String userId
+	) {
 		if (unitPrice != null && unitPrice < 0) {
 			throw new BizException(ProductErrorCode.INVALID_UNIT_PRICE);
 		}

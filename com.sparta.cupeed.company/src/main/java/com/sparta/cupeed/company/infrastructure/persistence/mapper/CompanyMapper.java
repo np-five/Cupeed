@@ -29,7 +29,7 @@ public class CompanyMapper {
 	public CompanyEntity toEntity(Company domain) {
 		if (domain == null) return null;
 
-		return CompanyEntity.builder()
+		CompanyEntity entity = CompanyEntity.builder()
 			.id(domain.getId())
 			.name(domain.getName())
 			.businessNumber(domain.getBusinessNumber())
@@ -37,6 +37,13 @@ public class CompanyMapper {
 			.hubId(domain.getHubId())
 			.managerId(domain.getManagerId())
 			.build();
+
+		// BaseEntity 필드 직접 반영
+		if (domain.getDeletedAt() != null) {
+			entity.markDeleted(domain.getDeletedAt(), domain.getDeletedBy());
+		}
+
+		return entity;
 	}
 
 	public void applyDomain(Company domain, CompanyEntity entity) {
@@ -48,5 +55,9 @@ public class CompanyMapper {
 			domain.getHubId(),
 			domain.getManagerId()
 		);
+
+		if (domain.getDeletedAt() != null) {
+			entity.markDeleted(domain.getDeletedAt(), domain.getDeletedBy());
+		}
 	}
 }
