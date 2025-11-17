@@ -120,11 +120,20 @@ public class ProductServiceV1 {
 
 		// 3. DTO와 맵핑해서 재고 차감
 		Map<UUID, Long> quantityMap = requestDto.getProductStocks().stream()
-			.collect(Collectors.toMap(ProductStockRequestDtoV1.ProductStockDto::getProductId,
-				ProductStockRequestDtoV1.ProductStockDto::getQuantity));
+			.collect(Collectors.toMap(
+				ProductStockRequestDtoV1.ProductStockDto::getProductId,
+				ProductStockRequestDtoV1.ProductStockDto::getQuantity,
+				(existing, replacement) -> existing // 혹시 중복될 경우 기존 값 유지
+			));
 
 		List<Product> updatedProducts = products.stream()
-			.map(product -> product.decreaseQuantity(quantityMap.get(product.getId()), String.valueOf(userDetails.getId())))
+			.map(product -> {
+				Long qty = quantityMap.get(product.getId());
+				if (qty == null) {
+					throw new BizException(ProductErrorCode.INVALID_QUANTITY);
+				}
+				return product.decreaseQuantity(qty, String.valueOf(userDetails.getId()));
+			})
 			.toList();
 
 		// 4. 한 번에 저장
@@ -133,9 +142,29 @@ public class ProductServiceV1 {
 
 	@Transactional
 	public void increaseStock(ProductStockRequestDtoV1 requestDto, UserDetailsImpl userDetails) {
-		for (ProductStockRequestDtoV1.ProductStockDto item : requestDto.getProductStocks()) {
-			Product product = productRepository.findByIdOrElseThrow(item.getProductId());
-			productRepository.save(product.increaseQuantity(item.getQuantity(), String.valueOf(userDetails.getId())));
-		}
+		List<UUID> productIds = requestDto.getProductStocks().stream()
+			.map(ProductStockRequestDtoV1.ProductStockDto::getProductId)
+			.toList();
+
+		List<Product> products = productRepository.findAllById(productIds);
+
+		Map<UUID, Long> quantityMap = requestDto.getProductStocks().stream()
+			.collect(Collectors.toMap(
+				ProductStockRequestDtoV1.ProductStockDto::getProductId,
+				ProductStockRequestDtoV1.ProductStockDto::getQuantity,
+				(existing, replacement) -> existing
+			));
+
+		List<Product> updatedProducts = products.stream()
+			.map(product -> {
+				Long qty = quantityMap.get(product.getId());
+				if (qty == null) {
+					throw new BizException(ProductErrorCode.INVALID_QUANTITY);
+				}
+				return product.increaseQuantity(qty, String.valueOf(userDetails.getId()));
+			})
+			.toList();
+
+		productRepository.saveAll(updatedProducts);
 	}
 }
