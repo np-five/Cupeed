@@ -13,10 +13,10 @@ import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetRes
 
 @FeignClient(name = "product")
 public interface ProductClientV1 {
-	@PostMapping("/internal/v1/products/{productId}/decrease-stock")
+	@PostMapping("/internal/v1/products/decrease-stock")
 	void decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto);
 
-	@PostMapping("/internal/v1/products/{productId}/restore-stock")
+	@PostMapping("/internal/v1/products/restore-stock")
 	void restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto);
 
 	@GetMapping("/v1/products/{productId}")
