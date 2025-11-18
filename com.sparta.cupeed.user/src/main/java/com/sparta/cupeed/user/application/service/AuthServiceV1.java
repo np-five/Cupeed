@@ -15,7 +15,7 @@ import com.sparta.cupeed.user.domain.vo.UserRoleEnum;
 import com.sparta.cupeed.user.domain.vo.UserStatusEnum;
 import com.sparta.cupeed.user.infrastructure.company.client.CompanyClientV1;
 import com.sparta.cupeed.user.infrastructure.hub.client.HubClientV1;
-import com.sparta.cupeed.user.infrastructure.hub.dto.response.HubGetResponseDtoV1;
+import com.sparta.cupeed.user.infrastructure.hub.dto.response.HubInternalGetResponseDtoV1;
 import com.sparta.cupeed.user.infrastructure.security.jwt.JwtGenerator;
 import com.sparta.cupeed.user.presentation.advice.UserError;
 import com.sparta.cupeed.user.presentation.advice.UserException;
@@ -24,9 +24,7 @@ import com.sparta.cupeed.user.presentation.dto.request.AuthSignUpRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.response.AuthLogInResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -85,10 +83,10 @@ public class AuthServiceV1 {
 					throw new UserException(UserError.AUTH_EMPTY_HUB_NAME);
 				}
 
-				HubGetResponseDtoV1 hubGetResponseDtoV1 = hubClientV1.getHubByName(authSignUpRequestDtoV1.hubName());
-				log.info("HubGetResponseDtoV1: {}", hubGetResponseDtoV1.toString());
+				HubInternalGetResponseDtoV1 hubInternalGetResponseDtoV1 =
+					hubClientV1.getInternalHubByName(authSignUpRequestDtoV1.hubName());
 
-				newUser = userBuilder.hubId(hubGetResponseDtoV1.getId()).build();
+				newUser = userBuilder.hubId(hubInternalGetResponseDtoV1.getHub().getId()).build();
 
 				userRepository.save(newUser);
 			}
@@ -128,10 +126,10 @@ public class AuthServiceV1 {
 					throw new UserException(UserError.AUTH_INVALID_DELIVERY_ORDER);
 				}
 
-				HubGetResponseDtoV1 hubGetResponseDtoV1 = hubClientV1.getHubByName(authSignUpRequestDtoV1.hubName());
-				log.info("HubGetResponseDtoV1: {}", hubGetResponseDtoV1.toString());
+				HubInternalGetResponseDtoV1 hubInternalGetResponseDtoV1 =
+					hubClientV1.getInternalHubByName(authSignUpRequestDtoV1.hubName());
 
-				newUser = userBuilder.hubId(hubGetResponseDtoV1.getId()).build();
+				newUser = userBuilder.hubId(hubInternalGetResponseDtoV1.getHub().getId()).build();
 
 				newUserDelivery = UserDelivery.builder()
 					.deliveryType(deliveryType)

@@ -12,6 +12,7 @@ import com.sparta.cupeed.user.domain.repository.UserRepository;
 import com.sparta.cupeed.user.domain.vo.UserRoleEnum;
 import com.sparta.cupeed.user.domain.vo.UserStatusEnum;
 import com.sparta.cupeed.user.infrastructure.hub.client.HubClientV1;
+import com.sparta.cupeed.user.infrastructure.hub.dto.response.HubGetResponseDtoV1;
 import com.sparta.cupeed.user.presentation.advice.UserError;
 import com.sparta.cupeed.user.presentation.advice.UserException;
 import com.sparta.cupeed.user.presentation.dto.request.UserUpdateStatusRequestDtoV1;
@@ -63,10 +64,8 @@ public class UserServiceV1 {
 		UserCompany userCompany = userRepository.findCompanyByUserIdOrElseGetNull(id);
 		UserDelivery userDelivery = userRepository.findDeliveryByUserIdOrElseGetNull(id);
 
-		// TODO: hub client 동작 확인
-		// HubGetResponseDtoV1 hub = hubClientV1.getHubById(user.getHubId());
+		HubGetResponseDtoV1 hub = hubClientV1.getHubById(user.getHubId());
 
-		return UserGetMyUserResponseDtoV1.of(user, userCompany, userDelivery, "임시 허브");
-		// return UserGetMyUserResponseDtoV1.of(user, userCompany, userDelivery, hub.getName());
+		return UserGetMyUserResponseDtoV1.of(user, userCompany, userDelivery, hub.getName());
 	}
 }
