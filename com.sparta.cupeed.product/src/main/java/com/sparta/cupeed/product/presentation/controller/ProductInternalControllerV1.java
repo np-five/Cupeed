@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import com.sparta.cupeed.product.application.service.ProductServiceV1;
 import com.sparta.cupeed.product.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.product.presentation.code.ProductSuccessCode;
 import com.sparta.cupeed.product.presentation.dto.request.ProductStockRequestDtoV1;
+import com.sparta.cupeed.product.presentation.dto.response.ProductGetResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,5 +39,11 @@ public class ProductInternalControllerV1 {
 	public ResponseEntity<ApiResponse<Void>> restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 		productServiceV1.increaseStock(requestDto, userDetails);
 		return ResponseEntity.ok(ApiResponse.success(ProductSuccessCode.OK));
+	}
+
+	@GetMapping("/{productId}")
+	public ProductGetResponseDtoV1 getProduct(@PathVariable("productId") UUID productId) {
+		ProductGetResponseDtoV1 product = productServiceV1.getProduct(productId);
+		return product;
 	}
 }
