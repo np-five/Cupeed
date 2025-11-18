@@ -15,15 +15,18 @@ import com.sparta.cupeed.user.domain.vo.UserRoleEnum;
 import com.sparta.cupeed.user.domain.vo.UserStatusEnum;
 import com.sparta.cupeed.user.infrastructure.company.client.CompanyClientV1;
 import com.sparta.cupeed.user.infrastructure.hub.client.HubClientV1;
+import com.sparta.cupeed.user.infrastructure.hub.dto.response.HubGetResponseDtoV1;
 import com.sparta.cupeed.user.infrastructure.security.jwt.JwtGenerator;
-import com.sparta.cupeed.user.presentation.advice.AuthError;
-import com.sparta.cupeed.user.presentation.advice.AuthException;
+import com.sparta.cupeed.user.presentation.advice.UserError;
+import com.sparta.cupeed.user.presentation.advice.UserException;
 import com.sparta.cupeed.user.presentation.dto.request.AuthLogInRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.request.AuthSignUpRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.response.AuthLogInResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -42,13 +45,13 @@ public class AuthServiceV1 {
 		// 아이디 중복 확인
 		User user = userRepository.findByUserId(authSignUpRequestDtoV1.userId()).orElse(null);
 		if (user != null) {
-			throw new AuthException(AuthError.AUTH_USER_ID_ALREADY_EXISTS);
+			throw new UserException(UserError.AUTH_USER_ID_ALREADY_EXISTS);
 		}
 
 		// 슬랙 아이디 중복 확인
 		user = userRepository.findBySlackId(authSignUpRequestDtoV1.slackId()).orElse(null);
 		if (user != null) {
-			throw new AuthException(AuthError.AUTH_USER_ID_ALREADY_EXISTS);
+			throw new UserException(UserError.AUTH_USER_ID_ALREADY_EXISTS);
 		}
 
 		// role 체크
@@ -56,7 +59,7 @@ public class AuthServiceV1 {
 		try {
 			userRoleEnum = UserRoleEnum.valueOf(authSignUpRequestDtoV1.role());
 		} catch (IllegalArgumentException e) {
-			throw new AuthException(AuthError.AUTH_INVALID_ROLE);
+			throw new UserException(UserError.AUTH_INVALID_ROLE);
 		}
 
 		User.UserBuilder userBuilder = User.builder()
@@ -79,22 +82,20 @@ public class AuthServiceV1 {
 			case HUB -> {
 				// 허브 ID
 				if (authSignUpRequestDtoV1.hubName() == null) {
-					throw new AuthException(AuthError.AUTH_EMPTY_HUB_NAME);
+					throw new UserException(UserError.AUTH_EMPTY_HUB_NAME);
 				}
 
-				// UUID hubId = hubClientV1.getInternalHubByName(authSignUpRequestDtoV1.hubName());
-				// newUser = userBuilder.hubId(hubId).build();
+				HubGetResponseDtoV1 hubGetResponseDtoV1 = hubClientV1.getHubByName(authSignUpRequestDtoV1.hubName());
+				log.info("HubGetResponseDtoV1: {}", hubGetResponseDtoV1.toString());
 
-				// TODO: 이 코드는 random UUID 이므로, 상단의 api를 hub service에 구현 할 것.
-				UUID hubId = UUID.randomUUID();
-				newUser = userBuilder.hubId(hubId).build();
+				newUser = userBuilder.hubId(hubGetResponseDtoV1.getId()).build();
 
 				userRepository.save(newUser);
 			}
 			case COMPANY -> {
 				// 업체 ID, 업체 이름, 사업자 등록 번호
 				if (authSignUpRequestDtoV1.companyName() == null || authSignUpRequestDtoV1.businessNo() == null) {
-					throw new AuthException(AuthError.AUTH_EMPTY_COMPANY_INFO);
+					throw new UserException(UserError.AUTH_EMPTY_COMPANY_INFO);
 				}
 
 				UUID companyId = companyClientV1.getInternalCompanyByBusinessNo(authSignUpRequestDtoV1.businessNo());
@@ -111,28 +112,26 @@ public class AuthServiceV1 {
 			case DELIVERY -> {
 				// 허브 ID, 타입, 배송 순번
 				if (authSignUpRequestDtoV1.hubName() == null) {
-					throw new AuthException(AuthError.AUTH_EMPTY_HUB_NAME);
+					throw new UserException(UserError.AUTH_EMPTY_HUB_NAME);
 				}
 
 				UserDeliveryTypeEnum deliveryType;
 				try {
 					deliveryType = UserDeliveryTypeEnum.valueOf(authSignUpRequestDtoV1.deliveryType());
 				} catch (IllegalArgumentException e) {
-					throw new AuthException(AuthError.AUTH_INVALID_DELIVERY_TYPE);
+					throw new UserException(UserError.AUTH_INVALID_DELIVERY_TYPE);
 				}
 
 				if (authSignUpRequestDtoV1.deliveryOrder() == null
 					|| authSignUpRequestDtoV1.deliveryOrder() < 1
 					|| authSignUpRequestDtoV1.deliveryOrder() > 10) {
-					throw new AuthException(AuthError.AUTH_INVALID_DELIVERY_ORDER);
+					throw new UserException(UserError.AUTH_INVALID_DELIVERY_ORDER);
 				}
 
-				// UUID hubId = hubClientV1.getInternalHubByName(authSignUpRequestDtoV1.hubName());
-				// newUser = userBuilder.hubId(hubId).build();
+				HubGetResponseDtoV1 hubGetResponseDtoV1 = hubClientV1.getHubByName(authSignUpRequestDtoV1.hubName());
+				log.info("HubGetResponseDtoV1: {}", hubGetResponseDtoV1.toString());
 
-				// TODO: 이 코드는 random UUID 이므로, 상단의 api를 hub service에 구현 할 것.
-				UUID hubId = UUID.randomUUID();
-				newUser = userBuilder.hubId(hubId).build();
+				newUser = userBuilder.hubId(hubGetResponseDtoV1.getId()).build();
 
 				newUserDelivery = UserDelivery.builder()
 					.deliveryType(deliveryType)
@@ -148,7 +147,7 @@ public class AuthServiceV1 {
 		User user = userRepository.findByUserIdOrElseThrow(authLogInRequestDtoV1.userId());
 
 		if (!passwordEncoder.matches(authLogInRequestDtoV1.password(), user.getPassword())) {
-			throw new AuthException(AuthError.AUTH_INVALID_PASSWORD);
+			throw new UserException(UserError.AUTH_INVALID_PASSWORD);
 		}
 
 		return AuthLogInResponseDtoV1.of(jwtGenerator.createToken(user));

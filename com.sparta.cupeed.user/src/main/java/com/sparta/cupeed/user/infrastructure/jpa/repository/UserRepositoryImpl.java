@@ -15,8 +15,8 @@ import com.sparta.cupeed.user.infrastructure.jpa.entity.UserCompanyEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.UserDeliveryEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.entity.UserEntity;
 import com.sparta.cupeed.user.infrastructure.jpa.mapper.UserMapper;
-import com.sparta.cupeed.user.presentation.advice.AuthError;
-import com.sparta.cupeed.user.presentation.advice.AuthException;
+import com.sparta.cupeed.user.presentation.advice.UserError;
+import com.sparta.cupeed.user.presentation.advice.UserException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +31,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User findByIdOrElseThrow(UUID id) {
 		UserEntity userEntity = userJpaRepository.findById(id).orElseThrow(() ->
-			new AuthException(AuthError.AUTH_USER_NOT_FOUND));
+			new UserException(UserError.AUTH_USER_NOT_FOUND));
 
 		return userMapper.toDomain(userEntity);
 	}
@@ -39,7 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User findByUserIdOrElseThrow(String userId) {
 		UserEntity userEntity = userJpaRepository.findByUserId(userId).orElseThrow(() ->
-			new AuthException(AuthError.AUTH_USER_NOT_FOUND));
+			new UserException(UserError.AUTH_USER_NOT_FOUND));
 
 		return userMapper.toDomain(userEntity);
 	}
@@ -86,15 +86,37 @@ public class UserRepositoryImpl implements UserRepository {
 	public void saveStatus(User user, String status) {
 		// 영속성 컨텍스트에서 이미 조회된 엔티티를 재사용 (DB 쿼리 없음)
 		UserEntity userEntity = userJpaRepository.findById(user.getId())
-			.orElseThrow(() -> new AuthException(AuthError.AUTH_USER_NOT_FOUND));
+			.orElseThrow(() -> new UserException(UserError.AUTH_USER_NOT_FOUND));
 
 		StatusEnum statusEnum;
 		try {
 			statusEnum = StatusEnum.valueOf(status);
 		} catch (IllegalArgumentException e) {
-			throw new AuthException(AuthError.AUTH_INVALID_STATUS);
+			throw new UserException(UserError.USER_INVALID_STATUS);
 		}
 
 		userEntity.updateStatus(statusEnum);
+	}
+
+	@Override
+	public UserCompany findCompanyByUserIdOrElseGetNull(UUID id) {
+		UserEntity userEntity = userJpaRepository.findById(id).orElse(null);
+
+		if (userEntity == null || userEntity.getUserCompany() == null) {
+			return null;
+		}
+
+		return userMapper.toDomain(userEntity.getUserCompany());
+	}
+
+	@Override
+	public UserDelivery findDeliveryByUserIdOrElseGetNull(UUID id) {
+		UserEntity userEntity = userJpaRepository.findById(id).orElse(null);
+
+		if (userEntity == null || userEntity.getUserDelivery() == null) {
+			return null;
+		}
+
+		return userMapper.toDomain(userEntity.getUserDelivery());
 	}
 }

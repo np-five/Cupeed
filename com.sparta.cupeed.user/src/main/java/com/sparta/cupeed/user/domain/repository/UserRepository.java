@@ -24,4 +24,8 @@ public interface UserRepository {
 	void save(User user, UserDelivery newUserDelivery);
 
 	void saveStatus(User user, String statusEnum);
+
+	UserCompany findCompanyByUserIdOrElseGetNull(UUID id);
+
+	UserDelivery findDeliveryByUserIdOrElseGetNull(UUID id);
 }

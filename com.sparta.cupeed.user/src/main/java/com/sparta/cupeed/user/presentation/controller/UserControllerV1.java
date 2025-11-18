@@ -1,16 +1,19 @@
 package com.sparta.cupeed.user.presentation.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.user.application.service.UserServiceV1;
+import com.sparta.cupeed.user.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.user.presentation.advice.ApiResponse;
 import com.sparta.cupeed.user.presentation.dto.request.UserUpdateStatusRequestDtoV1;
+import com.sparta.cupeed.user.presentation.dto.response.UserGetMyUserResponseDtoV1;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,14 @@ public class UserControllerV1 {
 	) {
 		userServiceV1.updateUserStatus(userUpdateStatusRequestDtoV1);
 
-		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("사용자 가입 상태를 성공적으로 변경했습니다."));
+		return ResponseEntity.ok(ApiResponse.success("사용자 가입 상태를 성공적으로 변경했습니다."));
+	}
+
+	@Operation(summary = "내 정보 조회", description = "내 정보를 조회하는 api")
+	@GetMapping("/me")
+	public ResponseEntity<ApiResponse<UserGetMyUserResponseDtoV1>> getMyUserInfo(
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		return ResponseEntity.ok(
+			ApiResponse.success("내 정보 조회에 성공했습니다.", userServiceV1.getMyUserInfo(userDetails.getId())));
 	}
 }

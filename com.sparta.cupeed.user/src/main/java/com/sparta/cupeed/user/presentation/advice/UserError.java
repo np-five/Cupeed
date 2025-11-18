@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AuthError {
+public enum UserError {
 
 	// 공통
 	INTERNAL_SERVER_ERROR("AU000", "서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -28,9 +28,12 @@ public enum AuthError {
 	AUTH_INVALID_PASSWORD("AU020", "잘못된 비밀번호입니다.", HttpStatus.BAD_REQUEST),
 
 	// 사용자 상태 변경
-	AUTH_STATUS_NOT_PENDING("AU030", "PENDING 상태의 사용자의 상태만 변경할 수 있습니다.", HttpStatus.FORBIDDEN),
-	AUTH_INVALID_STATUS("AU031", "상태값을 찾을 수 없습니다. APPROVED/REJECTED 중 하나의 상태를 입력해주세요.", HttpStatus.BAD_REQUEST),
-	AUTH_UPDATE_MASTER_FORBIDDEN("AU032", "MASTER 사용자의 상태값을 변경할 수 없습니다.", HttpStatus.FORBIDDEN);
+	USER_STATUS_NOT_PENDING("U010", "PENDING 상태의 사용자의 상태만 변경할 수 있습니다.", HttpStatus.FORBIDDEN),
+	USER_INVALID_STATUS("U011", "상태값을 찾을 수 없습니다. APPROVED/REJECTED 중 하나의 상태를 입력해주세요.", HttpStatus.BAD_REQUEST),
+	USER_UPDATE_MASTER_FORBIDDEN("U012", "MASTER 사용자의 상태값을 변경할 수 없습니다.", HttpStatus.FORBIDDEN),
+
+	// 사용자 정보 조회
+	USER_INVALID_ID("U020", "토큰의 id가 UUID 형태가 아닙니다.", HttpStatus.BAD_REQUEST);
 
 	private final String code;
 	private final String message;
