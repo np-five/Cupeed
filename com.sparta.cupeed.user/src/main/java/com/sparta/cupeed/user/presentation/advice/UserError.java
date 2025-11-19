@@ -23,6 +23,8 @@ public enum UserError {
 	AUTH_EMPTY_COMPANY_INFO("AU014", "업체 정보를 입력해주세요.", HttpStatus.BAD_REQUEST),
 	AUTH_INVALID_DELIVERY_TYPE("AU012", "배달 타입을 찾을 수 없습니다. HUB/COMPANY 중 하나의 역할을 입력해주세요.", HttpStatus.BAD_REQUEST),
 	AUTH_INVALID_DELIVERY_ORDER("AU012", "올바른 배달 순번을 입력해주세요.", HttpStatus.BAD_REQUEST),
+	AUTH_SIGN_UP_FAILED("AU013", "회원가입에 실패했습니다.", HttpStatus.GONE),
+	AUTH_DELIVERY_ID_ALREADY_EXISTS("AU014", "중복된 배송 순번입니다.", HttpStatus.BAD_REQUEST),
 
 	// 로그인
 	AUTH_INVALID_PASSWORD("AU020", "잘못된 비밀번호입니다.", HttpStatus.BAD_REQUEST),

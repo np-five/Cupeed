@@ -17,11 +17,11 @@ public interface UserRepository {
 
 	Optional<User> findBySlackId(String slackId);
 
-	void save(User user);
+	User save(User user);
 
-	void save(User user, UserCompany newUserCompany);
+	User save(User user, UserCompany newUserCompany);
 
-	void save(User user, UserDelivery newUserDelivery);
+	User save(User user, UserDelivery newUserDelivery);
 
 	void saveStatus(User user, String statusEnum);
 
