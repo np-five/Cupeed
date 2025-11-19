@@ -25,6 +25,7 @@ public class JwtGenerator {
 			.withClaim("id", user.getId().toString())
 			.withClaim("role", user.getRole().getAuthority()) // 사용자 권한
 			.withClaim("companyId", String.valueOf(user.getCompanyId()))
+			.withClaim("hubId", String.valueOf(user.getHubId()))
 			.withIssuedAt(now) // 발급일
 			.withExpiresAt(now.plusMillis(jwtProperties.getExpirationTime())) // 만료 시간
 			.sign(Algorithm.HMAC512(jwtProperties.getSecret())); // 암호화 알고리즘
