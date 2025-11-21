@@ -49,6 +49,7 @@ public class AiEntity extends BaseEntity {
 	private String errorMessage;
 
 	public enum Status {
+		PENDING,
 		SUCCESS,
 		FAILED
 	}

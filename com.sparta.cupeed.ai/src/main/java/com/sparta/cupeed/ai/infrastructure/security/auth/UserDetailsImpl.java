@@ -29,6 +29,7 @@ public class UserDetailsImpl implements UserDetails {
 			.userId(decodedJWT.getSubject())
 			.role(decodedJWT.getClaim("role").asString())
 			.slackId(decodedJWT.getClaim("slackId").asString())
+			.token(decodedJWT.getToken())
 			.build();
 	}
 
