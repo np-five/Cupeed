@@ -41,7 +41,7 @@ services:
       - "15431:5432"
     volumes:
       - cupeed_ai_pg_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
+      - ./com.sparta.cupeed.ai/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cupeed"]
       interval: 10s
@@ -137,7 +137,7 @@ services:
       - "15436:5432"
     volumes:
       - cupeed_order_pg_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
+      - ./com.sparta.cupeed.order/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cupeed"]
       interval: 10s
@@ -193,7 +193,7 @@ services:
       - "15439:5432"
     volumes:
       - cupeed_slack_pg_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
+      - ./com.sparta.cupeed.slack/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # 최상단 경로 가정
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cupeed"]
       interval: 10s
