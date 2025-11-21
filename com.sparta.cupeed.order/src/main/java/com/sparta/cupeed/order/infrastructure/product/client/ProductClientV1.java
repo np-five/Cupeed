@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
 
-@FeignClient(name = "product")
+@FeignClient(name = "product", configuration = FeignConfig.class)
 public interface ProductClientV1 {
-	@PostMapping("/v1/products/decrease-stock")
+	@PostMapping("/internal/v1/products/decrease-stock")
 	void decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto);
 
-	@PostMapping("/v1/products/{productId}/restore-stock")
+	@PostMapping("/internal/v1/products/restore-stock")
 	void restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto);
 
-	@GetMapping("/v1/products/{productId}")
+	@GetMapping("/internal/v1/products/{productId}")
 	ProductGetResponseDtoV1 getProduct(@PathVariable("productId") UUID productId);
 }

@@ -71,17 +71,4 @@ public class ProductControllerV1 {
 		return ResponseEntity.ok(ApiResponse.success(ProductSuccessCode.OK, response));
 	}
 
-	// 주문용: 재고 차감
-	@PostMapping("/decrease-stock")
-	public ResponseEntity<ApiResponse<Void>> decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-		productServiceV1.decreaseStock(requestDto, userDetails);
-		return ResponseEntity.ok(ApiResponse.success(ProductSuccessCode.OK));
-	}
-
-	// 주문 취소용: 재고 복원
-	@PostMapping("/restore-stock")
-	public ResponseEntity<ApiResponse<Void>> restoreStock(@RequestBody ProductStockRequestDtoV1 requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-		productServiceV1.increaseStock(requestDto, userDetails);
-		return ResponseEntity.ok(ApiResponse.success(ProductSuccessCode.OK));
-	}
 }
