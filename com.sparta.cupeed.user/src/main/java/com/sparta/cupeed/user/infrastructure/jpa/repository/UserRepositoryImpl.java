@@ -55,30 +55,30 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 
 	@Override
-	public void save(User user) {
+	public User save(User user) {
 		UserEntity userEntity = userMapper.toEntity(user);
 
-		userJpaRepository.save(userEntity);
+		return userMapper.toDomain(userJpaRepository.save(userEntity));
 	}
 
 	@Override
-	public void save(User user, UserCompany newUserCompany) {
+	public User save(User user, UserCompany newUserCompany) {
 		UserEntity userEntity = userMapper.toEntity(user);
 		UserCompanyEntity userCompanyEntity = userMapper.toEntity(newUserCompany);
 
 		userEntity.attachUserCompany(userCompanyEntity);
 
-		userJpaRepository.save(userEntity);
+		return userMapper.toDomain(userJpaRepository.save(userEntity));
 	}
 
 	@Override
-	public void save(User user, UserDelivery newUserDelivery) {
+	public User save(User user, UserDelivery newUserDelivery) {
 		UserEntity userEntity = userMapper.toEntity(user);
 		UserDeliveryEntity userDeliveryEntity = userMapper.toEntity(newUserDelivery);
 
 		userEntity.attachUserDelivery(userDeliveryEntity);
 
-		userJpaRepository.save(userEntity);
+		return userMapper.toDomain(userJpaRepository.save(userEntity));
 	}
 
 	@Override

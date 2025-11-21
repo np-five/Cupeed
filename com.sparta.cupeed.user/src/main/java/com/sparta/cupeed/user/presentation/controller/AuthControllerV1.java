@@ -1,5 +1,7 @@
 package com.sparta.cupeed.user.presentation.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.user.application.service.AuthServiceV1;
 import com.sparta.cupeed.user.presentation.advice.ApiResponse;
+import com.sparta.cupeed.user.presentation.advice.UserError;
+import com.sparta.cupeed.user.presentation.advice.UserException;
 import com.sparta.cupeed.user.presentation.dto.request.AuthLogInRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.request.AuthSignUpRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.response.AuthLogInResponseDtoV1;
@@ -28,9 +32,14 @@ public class AuthControllerV1 {
 
 	@Operation(summary = "회원 가입", description = "회원 가입 api입니다.")
 	@PostMapping("/sign-up")
-	public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody @Valid AuthSignUpRequestDtoV1 authSignUpRequestDtoV1) {
-		authServiceV1.signUp(authSignUpRequestDtoV1);
-		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("회원가입에 성공했습니다."));
+	public ResponseEntity<ApiResponse<UUID>> signUp(@RequestBody @Valid AuthSignUpRequestDtoV1 authSignUpRequestDtoV1) {
+		UUID generatedId = authServiceV1.signUp(authSignUpRequestDtoV1);
+
+		if (generatedId == null) {
+			throw new UserException(UserError.AUTH_SIGN_UP_FAILED);
+		}
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("회원가입에 성공했습니다.", generatedId));
 	}
 
 	@Operation(summary = "로그인", description = "로그인 api입니다.")
