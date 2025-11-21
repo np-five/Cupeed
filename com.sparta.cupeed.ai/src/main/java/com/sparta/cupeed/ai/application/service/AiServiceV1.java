@@ -1,6 +1,5 @@
 package com.sparta.cupeed.ai.application.service;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -73,13 +72,15 @@ public class AiServiceV1 {
 
 			// Cupeed 슬랙 통신
 			try {
-				slackClient.dmToDliveryManager(
-					SlackMessageCreateRequestDtoV1.builder()
-						.recipientSlackId(userDetails.getSlackId()) // TODO : 수령자 슬랙 ID 필요 (인증 토큰에서 가져와야 함)
-						.aiResponseText(aiResponseText)
-						.errorMessage(errorMessage)
-						.build()
-				);
+				SlackMessageCreateRequestDtoV1 slackRequestDto = SlackMessageCreateRequestDtoV1.builder()
+					.recipientSlackId(userDetails.getSlackId())
+					.aiResponseText(aiResponseText)
+					.errorMessage(errorMessage)
+					.build();
+
+				log.info("Slack DM 요청 DTO: {}", slackRequestDto);
+
+				slackClient.dmToDliveryManager(slackRequestDto);
 			} catch (Exception e) {
 				throw new AiException(AiError.AI_SLACK_NOTIFICATION_FAILED);
 			}
