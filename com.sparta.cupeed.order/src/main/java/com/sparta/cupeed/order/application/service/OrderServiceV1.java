@@ -80,7 +80,7 @@ public class OrderServiceV1 {
 
 			supplyCompanyId = productInfo.getCompanyId();
 
-			UUID companyId =  productInfo.getCompanyId();
+			UUID companyId = productInfo.getCompanyId();
 			BigDecimal unitPrice = productInfo.getUnitPrice();
 			String productName = productInfo.getName();
 			BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
@@ -142,7 +142,9 @@ public class OrderServiceV1 {
 
 		DeliveryCreateRequestDtoV1 deliveryRequestDto = DeliveryCreateRequestDtoV1.builder()
 			.orderId(saved.getId())
-			.receiveCompanyId(saved.getRecieveCompanyId()).build();
+			.receiveCompanyId(saved.getRecieveCompanyId())
+			.startHubId(saved.getStartHubId())
+			.build();
 		deliveryClient.createDelivery(deliveryRequestDto, "X-User-Chohee");
 
 		slackClient.dmToReceiveCompany(
@@ -173,7 +175,8 @@ public class OrderServiceV1 {
 
 	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional
-	public OrderPostResponseDtoV1 updateOrder(UserDetailsImpl userDetails, UUID orderId, OrderPostRequestDtoV1 requestDto) {
+	public OrderPostResponseDtoV1 updateOrder(UserDetailsImpl userDetails, UUID orderId,
+		OrderPostRequestDtoV1 requestDto) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new OrderException(OrderError.ORDER_NOT_FOUND));
 

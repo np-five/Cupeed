@@ -10,4 +10,7 @@ import lombok.Getter;
 public class DeliveryCreateRequestDtoV1 {
 	private UUID orderId;
 	private UUID receiveCompanyId;
+	private UUID startHubId;
+	private UUID endHubId;
+	private UUID deliveryManagerId;
 }
