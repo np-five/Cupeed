@@ -32,7 +32,7 @@ public class ApiResponse<T> {
 		return success(message, null);
 	}
 
-	public static ApiResponse<Void> error(AuthError errorCode) {
+	public static ApiResponse<Void> error(UserError errorCode) {
 		return ApiResponse.<Void>builder()
 			.status("FAIL")
 			.code(errorCode.getCode())
@@ -40,7 +40,7 @@ public class ApiResponse<T> {
 			.build();
 	}
 
-	public static ApiResponse<Void> error(AuthError errorCode, BindingResult bindingResult) {
+	public static ApiResponse<Void> error(UserError errorCode, BindingResult bindingResult) {
 		return ApiResponse.<Void>builder()
 			.status("FAIL")
 			.code(errorCode.getCode())
@@ -48,7 +48,7 @@ public class ApiResponse<T> {
 			.build();
 	}
 
-	public static ApiResponse<Void> error(AuthError errorCode, String message) {
+	public static ApiResponse<Void> error(UserError errorCode, String message) {
 		return ApiResponse.<Void>builder()
 			.status("FAIL")
 			.code(errorCode.getCode())

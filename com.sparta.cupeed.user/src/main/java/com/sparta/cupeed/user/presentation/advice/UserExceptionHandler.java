@@ -15,25 +15,25 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
-public class AuthExceptionHandler {
+public class UserExceptionHandler {
 
-	@ExceptionHandler(AuthException.class)
-	public ResponseEntity<ApiResponse<Void>> handleAuthException(AuthException ex) {
-		AuthError authError = ex.getAuthError();
-		log.error("AuthException occurred: code={}, message={}", authError.getCode(), authError.getMessage());
+	@ExceptionHandler(UserException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAuthException(UserException ex) {
+		UserError userError = ex.getUserError();
+		log.error("AuthException occurred: code={}, message={}", userError.getCode(), userError.getMessage());
 
-		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
+		return ResponseEntity.status(userError.getStatus()).body(ApiResponse.error(userError));
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
-		AuthError authError = AuthError.ACCESS_DENIED;
+		UserError userError = UserError.ACCESS_DENIED;
 		log.error(
 			"AuthException occurred: code={}, message={}",
-			authError.getCode(),
-			authError.getMessage() + '\n' + ex.getMessage());
+			userError.getCode(),
+			userError.getMessage() + '\n' + ex.getMessage());
 
-		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
+		return ResponseEntity.status(userError.getStatus()).body(ApiResponse.error(userError));
 	}
 
 	// 입력값 검증
@@ -46,18 +46,18 @@ public class AuthExceptionHandler {
 		BindException.class
 	})
 	public ResponseEntity<ApiResponse<Void>> handleValidation(Exception exception) {
-		AuthError authError = AuthError.INVALID_INPUT;
+		UserError userError = UserError.INVALID_INPUT;
 
-		log.error("[{}] {}", authError.getCode(), authError.getMessage(), exception);
+		log.error("[{}] {}", userError.getCode(), userError.getMessage(), exception);
 
-		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
+		return ResponseEntity.status(userError.getStatus()).body(ApiResponse.error(userError));
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
-		AuthError authError = AuthError.INTERNAL_SERVER_ERROR;
+		UserError userError = UserError.INTERNAL_SERVER_ERROR;
 		log.error("Unexpected exception occurred: {}", ex.getMessage(), ex);
 
-		return ResponseEntity.status(authError.getStatus()).body(ApiResponse.error(authError));
+		return ResponseEntity.status(userError.getStatus()).body(ApiResponse.error(userError));
 	}
 }

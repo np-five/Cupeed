@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AuthException extends RuntimeException {
+public class UserException extends RuntimeException {
 
-	private final AuthError authError;
+	private final UserError userError;
 }

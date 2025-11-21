@@ -39,6 +39,6 @@ public class AuthControllerV1 {
 		@RequestBody @Valid AuthLogInRequestDtoV1 authLogInRequestDtoV1
 	) {
 		AuthLogInResponseDtoV1 authLogInResponseDtoV1 = authServiceV1.signIn(authLogInRequestDtoV1);
-		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("로그인에 성공했습니다.", authLogInResponseDtoV1));
+		return ResponseEntity.ok(ApiResponse.success("로그인에 성공했습니다.", authLogInResponseDtoV1));
 	}
 }
