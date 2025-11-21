@@ -15,7 +15,7 @@ spring:
             - id: company
               uri: lb://company
               predicates:
-                - Path=/v1/companies/**
+                - Path=/v1/companies/**, /internal/v1/companies/**
             # 20030
             - id: delivery
               uri: lb://delivery
@@ -44,7 +44,7 @@ spring:
             - id: product
               uri: lb://product
               predicates:
-                - Path=/v1/products/**
+                - Path=/v1/products/**, /internal/v1/products/**
             # 20080
             - id: user
               uri: lb://user
