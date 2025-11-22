@@ -1,4 +1,4 @@
-package com.sparta.cupeed.ai.infrastructure.config;
+package com.sparta.cupeed.order.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,10 +11,9 @@ import feign.RequestInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
-public class FeignClientConfig {
-
+public class FeignClientAsyncConfig {
 	@Bean
-	public RequestInterceptor requestInterceptor() {
+	public RequestInterceptor asyncRequestInterceptor() {
 		return template -> {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null && auth.getCredentials() instanceof String token) {
@@ -22,22 +21,4 @@ public class FeignClientConfig {
 			}
 		};
 	}
-
-	// 아래 코드는 동기에서만 동작
-	// @Bean
-	// public RequestInterceptor requestInterceptor() {
-	// 	return requestTemplate -> {
-	// 		ServletRequestAttributes attributes =
-	// 			(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-	//
-	// 		if (attributes != null) {
-	// 			HttpServletRequest request = attributes.getRequest();
-	// 			String token = request.getHeader("Authorization");
-	//
-	// 			if (token != null) {
-	// 				requestTemplate.header("Authorization", token);
-	// 			}
-	// 		}
-	// 	};
-	// }
 }

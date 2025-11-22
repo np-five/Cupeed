@@ -1,4 +1,4 @@
-package com.sparta.cupeed.ai.infrastructure.security;
+package com.sparta.cupeed.ai.infrastructure.security.auth;
 
 public enum RoleEnum {
 

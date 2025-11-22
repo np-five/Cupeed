@@ -1,4 +1,4 @@
-package com.sparta.cupeed.ai.infrastructure.security.filter;
+package com.sparta.cupeed.ai.infrastructure.security.jwt;
 
 import java.io.IOException;
 
@@ -13,7 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.sparta.cupeed.ai.infrastructure.security.auth.UserDetailsImpl;
-import com.sparta.cupeed.ai.infrastructure.security.jwt.JwtProperties;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -54,8 +53,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 		Authentication authentication =
 			new UsernamePasswordAuthenticationToken(userDetails, accessJwt, userDetails.getAuthorities());
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		filterChain.doFilter(request, response);
