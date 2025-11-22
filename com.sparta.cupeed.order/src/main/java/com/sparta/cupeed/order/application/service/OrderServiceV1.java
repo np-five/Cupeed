@@ -1,7 +1,8 @@
 package com.sparta.cupeed.order.application.service;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.cupeed.order.application.event.SlackEventProducer;
+import com.sparta.cupeed.order.domain.event.SlackOrderCreatedEvent;
 import com.sparta.cupeed.order.domain.model.Order;
 import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
@@ -21,10 +24,8 @@ import com.sparta.cupeed.order.infrastructure.delivery.dto.request.DeliveryCreat
 import com.sparta.cupeed.order.infrastructure.product.client.ProductClientV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
-import com.sparta.cupeed.order.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.order.infrastructure.security.auth.RoleEnum;
 import com.sparta.cupeed.order.infrastructure.security.auth.UserDetailsImpl;
-import com.sparta.cupeed.order.infrastructure.slack.client.SlackClientV1;
-import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
 import com.sparta.cupeed.order.presentation.advice.OrderException;
 import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
@@ -42,7 +43,7 @@ public class OrderServiceV1 {
 	private final OrderRepository orderRepository;
 	private final ProductClientV1 productClient;
 	private final DeliveryClientV1 deliveryClient;
-	private final SlackClientV1 slackClient;
+	private final SlackEventProducer slackEventProducer;
 
 	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional
@@ -111,7 +112,10 @@ public class OrderServiceV1 {
 			receiveCompanyName = userDetails.getCompanyName();
 		}
 
-		String orderNumber = "ORD-" + Instant.now().toEpochMilli();
+		String orderNumber = "ORD-" +
+			LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) +
+			"-" +
+			UUID.randomUUID().toString().substring(0, 4).toUpperCase();
 
 		Order created = Order.builder()
 			.orderNumber(orderNumber)
@@ -147,8 +151,8 @@ public class OrderServiceV1 {
 			.build();
 		deliveryClient.createDelivery(deliveryRequestDto, "X-User-Chohee");
 
-		slackClient.dmToReceiveCompany(
-			SlackMessageCreateRequestDtoV1.builder()
+		slackEventProducer.publishOrderCreated(
+			SlackOrderCreatedEvent.builder()
 				.orderNumber(saved.getOrderNumber())
 				.recieveCompanyId(saved.getRecieveCompanyId())
 				.recieveCompanyName(saved.getRecieveCompanyName())
