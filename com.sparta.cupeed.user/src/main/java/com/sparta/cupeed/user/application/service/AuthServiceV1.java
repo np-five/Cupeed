@@ -1,6 +1,7 @@
 package com.sparta.cupeed.user.application.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,9 @@ import com.sparta.cupeed.user.presentation.dto.request.AuthSignUpRequestDtoV1;
 import com.sparta.cupeed.user.presentation.dto.response.AuthLogInResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
