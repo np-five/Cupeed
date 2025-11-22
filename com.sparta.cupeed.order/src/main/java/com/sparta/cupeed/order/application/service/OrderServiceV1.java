@@ -161,17 +161,6 @@ public class OrderServiceV1 {
 				.build()
 		);
 
-		// slackClient.dmToReceiveCompany(
-		// 	SlackMessageCreateRequestDtoV1.builder()
-		// 		.orderNumber(saved.getOrderNumber())
-		// 		.recieveCompanyId(saved.getRecieveCompanyId())
-		// 		.recieveCompanyName(saved.getRecieveCompanyName())
-		// 		.totalPrice(saved.getTotalPrice())
-		// 		.recipientSlackId(userDetails.getSlackId())
-		// 		.status("REQUESTED")
-		// 		.build()
-		// );
-
 		return OrderPostResponseDtoV1.of(saved);
 	}
 
