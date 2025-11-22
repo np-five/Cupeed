@@ -1,6 +1,7 @@
 package com.sparta.cupeed.user.infrastructure.security.jwt;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
