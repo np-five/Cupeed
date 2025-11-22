@@ -13,7 +13,7 @@ import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecu
 @EnableAsync
 public class AsyncConfig {
 	@Bean(name = "slackTaskExecutor")
-	public Executor aiTaskExecutor() {
+	public Executor slackTaskExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(5);
 		executor.setMaxPoolSize(10);
