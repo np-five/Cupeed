@@ -5,5 +5,5 @@ import java.util.UUID;
 import com.sparta.cupeed.user.domain.model.UserCompany;
 
 public interface UserCompanyRepository {
-	UserCompany findUserCompanyByUserId(UUID id);
+	UserCompany findUserCompanyByUserId(UUID userId);
 }

@@ -20,9 +20,12 @@ public class UserCompanyRepositoryImpl implements UserCompanyRepository {
 	private final UserMapper userMapper;
 
 	@Override
-	public UserCompany findUserCompanyByUserId(UUID id) {
-		UserCompanyEntity entity = userCompanyJpaRepository.findById(id).orElseThrow(() ->
-			new UserException(UserError.AUTH_USER_NOT_FOUND));
+	public UserCompany findUserCompanyByUserId(UUID userId) {
+		UserCompanyEntity entity = userCompanyJpaRepository.findByUserId(userId);
+		if (entity == null) {
+			throw new UserException(UserError.AUTH_USER_NOT_FOUND);
+		}
 		return userMapper.toDomain(entity);
 	}
+
 }
