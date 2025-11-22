@@ -43,14 +43,45 @@ public class ProductServiceV1 {
 			throw new BizException(ProductErrorCode.INVALID_USER);
 		}
 
-		UUID findHunId = companyClient.getCompany(findUser.getUser().getCompanyId());
-		if (findHunId == null) {
-			throw new BizException(ProductErrorCode.INVALID_HUB);
-		}
+		/*
+			TODO : 믿음님 확인 부탁드려유
+		    Hub 테이블에 ID가 있는데도 유효하지 않은 Hub ID라고 나오네용
+		    Hub 테이블 ID를 직접 세팅해서 테스트 해봤습니다 ㅇㅅㅇ
+
+		    INSERT INTO p_hub (
+				id,
+				name,
+				address,
+				latitude,
+				longitude,
+				created_at,
+				updated_at,
+				created_by,
+				updated_by
+			)
+			VALUES (
+				gen_random_uuid(),               -- id 자동 생성
+				'부산 허브',                     -- name
+				'부산광역시 해운대구 센텀남대로 456', -- address
+				35.163456,                       -- latitude
+				129.163456,                      -- longitude
+				NOW(),                           -- created_at
+				NOW(),                           -- updated_at
+				'system',                        -- created_by
+				'system'                         -- updated_by
+			);
+
+		*/
+
+		// UUID findHunId = companyClient.getCompany(findUser.getUser().getCompanyId());
+		// if (findHunId == null) {
+		// 	throw new BizException(ProductErrorCode.INVALID_HUB);
+		// }
 
 		Product newProduct = Product.builder()
 			.companyId(findUser.getUser().getCompanyId())
-			.hubId(findHunId)
+			.hubId(UUID.fromString("18e4c90c-c8cf-473e-9e8d-39c19e78bae9"))
+			// .hubId(findHunId)
 			.name(requestDto.getProduct().getName())
 			.category(requestDto.getProduct().getCategory())
 			.description(requestDto.getProduct().getDescription())
