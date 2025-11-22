@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.cupeed.user.domain.model.User;
 import com.sparta.cupeed.user.domain.model.UserCompany;
 import com.sparta.cupeed.user.domain.model.UserDelivery;
+import com.sparta.cupeed.user.domain.repository.UserCompanyRepository;
 import com.sparta.cupeed.user.domain.repository.UserDeliveryRepository;
 import com.sparta.cupeed.user.domain.repository.UserRepository;
 import com.sparta.cupeed.user.domain.vo.UserDeliveryTypeEnum;
@@ -37,6 +38,7 @@ public class AuthServiceV1 {
 
 	private final UserRepository userRepository;
 	private final UserDeliveryRepository userDeliveryRepository;
+	private final UserCompanyRepository userCompanyRepository;
 
 	private final HubClientV1 hubClientV1;
 	private final CompanyClientV1 companyClientV1;
@@ -179,6 +181,12 @@ public class AuthServiceV1 {
 			throw new UserException(UserError.AUTH_INVALID_PASSWORD);
 		}
 
-		return AuthLogInResponseDtoV1.of(jwtGenerator.createToken(user));
+		UserCompany userCompany = null;
+		if (user.getCompanyId() != null) {
+			userCompany = userCompanyRepository.findUserCompanyByUserId(user.getId());
+		}
+
+		return AuthLogInResponseDtoV1.of(jwtGenerator.createToken(user, userCompany));
+		// return AuthLogInResponseDtoV1.of(jwtGenerator.createToken(user));
 	}
 }
