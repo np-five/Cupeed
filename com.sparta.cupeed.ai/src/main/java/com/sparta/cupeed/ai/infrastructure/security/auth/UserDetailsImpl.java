@@ -21,13 +21,15 @@ public class UserDetailsImpl implements UserDetails {
 	private String userId;
 	private String role;
 	private String slackId;
+	private String token;
 
-	public static UserDetailsImpl of(DecodedJWT token) {
+	public static UserDetailsImpl of(DecodedJWT decodedJWT) {
 		return UserDetailsImpl.builder()
-			.id(UUID.fromString(token.getClaim("id").asString()))
-			.userId(token.getSubject())
-			.role(token.getClaim("role").asString())
-			.slackId(token.getClaim("slackId").asString())
+			.id(UUID.fromString(decodedJWT.getClaim("id").asString()))
+			.userId(decodedJWT.getSubject())
+			.role(decodedJWT.getClaim("role").asString())
+			.slackId(decodedJWT.getClaim("slackId").asString())
+			.token(decodedJWT.getToken())
 			.build();
 	}
 
@@ -47,4 +49,5 @@ public class UserDetailsImpl implements UserDetails {
 	public String getUsername() {
 		return userId;
 	}
+
 }

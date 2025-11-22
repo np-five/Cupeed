@@ -3,12 +3,14 @@ package com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.client;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -70,6 +72,18 @@ public class GeminiAPIClientV1 {
 			throw new AiException(AiError.GEMINI_AI_JSON_PARSE_FAILED, e);
 		} catch (Exception e) {
 			throw new AiException(AiError.GEMINI_AI_API_CALL_FAILED);
+		}
+	}
+
+	// 비동기 메서드 추가
+	@Async("aiTaskExecutor")
+	public CompletableFuture<String> createAiTextAsync(String prompt) {
+		try {
+			String result = createAiText(prompt);
+			return CompletableFuture.completedFuture(result);
+		} catch (Exception e) {
+			log.error("[GeminiAPIClientV1] 비동기 AI 생성 실패: {}", e.getMessage());
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 }

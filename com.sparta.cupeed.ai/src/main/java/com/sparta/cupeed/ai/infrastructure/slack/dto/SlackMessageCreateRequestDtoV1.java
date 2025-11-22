@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @Builder
+@ToString
 public class SlackMessageCreateRequestDtoV1 {
 	@NotNull(message = "수신자 ID는 필수입니다.")
 	private String recipientSlackId;

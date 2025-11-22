@@ -23,7 +23,32 @@ public class Ai {
 	private final Instant deletedAt;
 	private final String deletedBy;
 
+	public AiBuilder toBuilder() {
+		return Ai.builder()
+			.id(id)
+			.orderId(orderId)
+			.aiResponseText(aiResponseText)
+			.status(status)
+			.errorMessage(errorMessage)
+			.createdAt(createdAt)
+			.createdBy(createdBy)
+			.updatedAt(updatedAt)
+			.updatedBy(updatedBy)
+			.deletedAt(deletedAt)
+			.deletedBy(deletedBy);
+	}
+
+	// PENDING -> SUCESS,FAILED로 업데이트할 때 사용
+	public Ai withUpdated(Status newStatus, String aiResponseText, String errorMessage) {
+		return toBuilder()
+			.status(newStatus)
+			.aiResponseText(aiResponseText)
+			.errorMessage(errorMessage)
+			.build();
+	}
+
 	public enum Status {
+		PENDING,
 		SUCCESS,
 		FAILED
 	}
