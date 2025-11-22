@@ -43,6 +43,64 @@ public class CompanyServiceV1 {
 			throw new BizException(CompanyErrorCode.HUB_NOT_FOUND);
 		}
 
+		/*
+			TODO : 믿음님, 은선님 확인 부탁드려유
+			 Company 쪽에선 userDetails 로 매니저를 검사하고 있는데
+			 User 쪽에서 COMPANY로 가입할 때 이미 업체가 존재한다는 가정 하에 회원가입이 진행되고 있는 것 같습니다.
+			 두 분이서 로직 순서를 결정하셔야할 것 같습니당 !!
+
+			 업체를 강제로 만들어서 테스트 해봤습니다 ㅇㅅㅇ
+
+			 // 주문하는 업체용으로 만듬
+			INSERT INTO p_company (
+				id,
+				name,
+				business_number,
+				address,
+				hub_id,
+				manager_id,
+				created_at,
+				created_by,
+				updated_at,
+				updated_by
+			) VALUES (
+				gen_random_uuid(),   -- UUID 직접 생성
+				'스파르타코딩클',
+				'123-45-67890',
+				'string',
+				NULL,
+				'3fa85f64-5717-4562-b3fc-2c963f66afa6',
+				NOW(),
+				'system',
+				NOW(),
+				'system'
+			);
+
+			// 상품 등록하는 업체용으로 만듬
+			INSERT INTO p_company (
+				id,
+				name,
+				business_number,
+				address,
+				hub_id,
+				manager_id,
+				created_at,
+				created_by,
+				updated_at,
+				updated_by
+			) VALUES (
+				gen_random_uuid(),   -- UUID 직접 생성
+				'애플물류',
+				'111-22-33333',
+				'string',
+				NULL,
+				'3fa85f64-5717-4562-b3fc-2c963f66afa6',
+				NOW(),
+				'system',
+				NOW(),
+				'system'
+			);
+		*/
 		// 3️⃣ 매니저 ID 유효성 확인
 		UUID managerId = dto.getManagerId();
 		if (managerId == null || !managerId.equals(userDetails.getUserId())) {

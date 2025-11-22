@@ -12,7 +12,7 @@ import com.sparta.cupeed.ai.domain.model.Ai;
 import com.sparta.cupeed.ai.domain.repository.AiRepository;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.dto.GeminiSendRequestDtoV1;
 import com.sparta.cupeed.ai.infrastructure.resttemplate.geminiapi.prompt.PromptBuilder;
-import com.sparta.cupeed.ai.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.ai.infrastructure.security.auth.RoleEnum;
 import com.sparta.cupeed.ai.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.ai.presentation.advice.AiError;
 import com.sparta.cupeed.ai.presentation.advice.AiException;
