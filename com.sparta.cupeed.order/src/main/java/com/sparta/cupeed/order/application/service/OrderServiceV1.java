@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.cupeed.order.application.event.SlackEventProducer;
+import com.sparta.cupeed.order.domain.event.SlackOrderCreatedEvent;
 import com.sparta.cupeed.order.domain.model.Order;
 import com.sparta.cupeed.order.domain.model.OrderItem;
 import com.sparta.cupeed.order.domain.repository.OrderRepository;
@@ -24,7 +26,6 @@ import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRe
 import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
 import com.sparta.cupeed.order.infrastructure.security.auth.RoleEnum;
 import com.sparta.cupeed.order.infrastructure.security.auth.UserDetailsImpl;
-import com.sparta.cupeed.order.infrastructure.slack.dto.request.SlackMessageCreateRequestDtoV1;
 import com.sparta.cupeed.order.presentation.advice.OrderError;
 import com.sparta.cupeed.order.presentation.advice.OrderException;
 import com.sparta.cupeed.order.presentation.dto.request.OrderPostRequestDtoV1;
@@ -42,7 +43,7 @@ public class OrderServiceV1 {
 	private final OrderRepository orderRepository;
 	private final ProductClientV1 productClient;
 	private final DeliveryClientV1 deliveryClient;
-	private final OrderAsyncServiceV1 orderAsyncService;
+	private final SlackEventProducer slackEventProducer;
 
 	@PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_COMPANY')")
 	@Transactional
@@ -150,8 +151,8 @@ public class OrderServiceV1 {
 			.build();
 		deliveryClient.createDelivery(deliveryRequestDto, "X-User-Chohee");
 
-		orderAsyncService.sendSlackMessageAsync(
-			SlackMessageCreateRequestDtoV1.builder()
+		slackEventProducer.publishOrderCreated(
+			SlackOrderCreatedEvent.builder()
 				.orderNumber(saved.getOrderNumber())
 				.recieveCompanyId(saved.getRecieveCompanyId())
 				.recieveCompanyName(saved.getRecieveCompanyName())
