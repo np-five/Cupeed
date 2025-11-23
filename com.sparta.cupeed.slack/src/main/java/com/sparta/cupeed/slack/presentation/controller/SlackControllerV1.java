@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.cupeed.slack.application.service.SlackServiceV1;
-import com.sparta.cupeed.slack.infrastructure.security.RoleEnum;
 import com.sparta.cupeed.slack.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.slack.presentation.dto.request.SlackDeliveryManagerDMCreateRequestDtoV1;
 import com.sparta.cupeed.slack.presentation.dto.request.SlackReceiveCompanyDMCreateRequestDtoV1;

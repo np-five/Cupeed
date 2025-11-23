@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.cupeed.slack.domain.model.Slack;
 import com.sparta.cupeed.slack.domain.repository.SlackRepository;
 import com.sparta.cupeed.slack.infrastructure.resttemplate.slackapi.client.SlackAPIClientV1;
-import com.sparta.cupeed.slack.infrastructure.security.RoleEnum;
+import com.sparta.cupeed.slack.infrastructure.security.auth.RoleEnum;
 import com.sparta.cupeed.slack.infrastructure.security.auth.UserDetailsImpl;
 import com.sparta.cupeed.slack.presentation.advice.SlackError;
 import com.sparta.cupeed.slack.presentation.advice.SlackException;
