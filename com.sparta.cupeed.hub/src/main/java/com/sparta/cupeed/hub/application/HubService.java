@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +21,11 @@ import com.sparta.cupeed.hub.infrastructure.client.NaverGeocodingService;
 import com.sparta.cupeed.hub.presentation.HubInternalResponseDtoV1;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 // @Transactional: 애플리케이션 서비스에서 트랜잭션을 관리합니다.
 // 이 서비스는 도메인 객체(Hub)를 로드하고, 도메인의 비즈니스 메서드를 호출하며, 결과를 저장소에 저장하는 '조율자' 역할을 합니다.
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HubService {
@@ -29,6 +35,7 @@ public class HubService {
 
 	// 1. 허브 생성 (POST /v1/hubs)
 	@Transactional
+	@CacheEvict(value = "CacheHubs", allEntries = true)
 	public HubResponseDto createHub(CreateHubCommand command) {
 		// ⭐ 주소를 이용해 위도/경도 조회 ⭐
 		Coordinates coordinates = geocodingService.getCoordinatesFromAddress(command.getAddress());
@@ -50,6 +57,7 @@ public class HubService {
 
 	// 2. 허브 단건 조회 (GET /v1/hubs/{hubId})
 	@Transactional(readOnly = true)
+	@Cacheable(value = "CacheHub", key = "#hubId")
 	public HubResponseDto getHubById(UUID hubId) {
 		Hub hub = hubRepository.findById(hubId)
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 ID입니다." + hubId));
@@ -58,7 +66,9 @@ public class HubService {
 
 	// 3. 허브 목록 조회 (GET /v1/hubs)
 	@Transactional(readOnly = true)
+	@Cacheable("CacheHubs")
 	public List<HubResponseDto> getAllHubs() {
+		log.info("허브 목록 조회");
 		return hubRepository.findAll().stream()
 			.map(HubResponseDto::mapToResponse)
 			.collect(Collectors.toList());
@@ -66,6 +76,11 @@ public class HubService {
 
 	// 4. 허브 수정 (PUT /v1/hubs/{hubId})
 	@Transactional
+	@CachePut(value = "CacheHub", key = "#hubId")
+	@Caching(evict = {
+		@CacheEvict(value = "CacheHub", key = "#hubId"),    // 단건 캐쉬 삭제
+		@CacheEvict(value = "CacheHubs", allEntries = true)    // 목록 캐쉬 삭제
+	})
 	public HubResponseDto updateHub(UUID hubId, UpdateHubCommand command) {
 		// 1. Repository를 통해 Hub 애그리거트 루트를 로드
 		Hub hub = hubRepository.findById(hubId)
@@ -85,6 +100,10 @@ public class HubService {
 
 	// 5. 허브 삭제 (DELETE /v1/hubs/{hubId})
 	@Transactional
+	@Caching(evict = {
+		@CacheEvict(value = "CacheHub", key = "#hubId"),
+		@CacheEvict(value = "CacheHubs", allEntries = true)
+	})
 	public void deleteHub(UUID hubId) {
 		Hub hub = hubRepository.findById(hubId)
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 ID입니다." + hubId));
@@ -99,6 +118,7 @@ public class HubService {
 		return HubInternalResponseDtoV1.of(hub);
 	}
 
+	@Cacheable(value = "CacheHub", key = "#name")
 	public HubResponseDto getHubByName(String name) {
 		Hub hub = hubRepository.findByName(name)
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않은 허브 이름입니다."));
