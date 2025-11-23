@@ -1,4 +1,4 @@
-package com.sparta.cupeed.slack.infrastructure.security.filter;
+package com.sparta.cupeed.slack.infrastructure.security.jwt;
 
 import java.io.IOException;
 
@@ -13,7 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.sparta.cupeed.slack.infrastructure.security.auth.UserDetailsImpl;
-import com.sparta.cupeed.slack.infrastructure.security.jwt.JwtProperties;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
