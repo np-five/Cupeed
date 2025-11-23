@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import com.sparta.cupeed.order.infrastructure.security.filter.JwtAuthorizationFilter;
+import com.sparta.cupeed.order.infrastructure.security.jwt.JwtAuthorizationFilter;
 
 import lombok.RequiredArgsConstructor;
 

@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.sparta.cupeed.order.infrastructure.config.FeignClientConfig;
 import com.sparta.cupeed.order.infrastructure.product.dto.request.ProductStockRequestDtoV1;
 import com.sparta.cupeed.order.infrastructure.product.dto.response.ProductGetResponseDtoV1;
 
-@FeignClient(name = "product", configuration = FeignConfig.class)
+@FeignClient(name = "product", configuration = FeignClientConfig.class)
 public interface ProductClientV1 {
 	@PostMapping("/internal/v1/products/decrease-stock")
 	void decreaseStock(@RequestBody ProductStockRequestDtoV1 requestDto);
